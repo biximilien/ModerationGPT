@@ -4,6 +4,7 @@ require "logger"
 require "./lib/open_ai"
 require "./lib/discord"
 require "./lib/discord/watchlist_command"
+require "./lib/discord/ready_handler"
 require "./lib/discord/permission"
 require "./lib/backend"
 require "./lib/moderation_strategy"
@@ -36,6 +37,7 @@ strategies << RemoveMessageStrategy.new(self)
 
 watchlist_command = Discord::WatchlistCommand.new(self)
 message_router = Moderation::MessageRouter.new(strategies)
+ready_handler = Discord::ReadyHandler.new(bot, self)
 
 # bot commands
 bot.message do |event|
@@ -53,24 +55,7 @@ end
 
 # main loop
 bot.ready do |event|
-  $logger.info("Ready!")
-  bot.online
-
-  $logger.info("Servers: #{bot.servers.size}")
-
-  bot.servers.each do |server_id, server|
-    $logger.info("#{server.name} #{server.channels.size} #{server_id}}")
-
-    # ensure server is in memory cache
-    add_server(server_id)
-
-    # debug
-    server.channels.each do |channel|
-      if channel.type == 0
-        $logger.info("#{channel.name} #{channel.type} #{channel.id}")
-      end
-    end
-  end
+  ready_handler.handle(event)
 end
 
 begin
