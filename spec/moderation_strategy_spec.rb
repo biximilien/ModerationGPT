@@ -48,6 +48,15 @@ describe WatchListStrategy do
     described_class.new(bot).execute(event)
 
     expect(message).to have_received(:delete).with("Moderation (rewriting due to negative sentiment)")
-    expect(event).to have_received(:respond).with("~~<@456>: bad message~~\nPlease be kinder.")
+    expect(event).to have_received(:respond).with("A message from <@456> was rewritten:\nPlease be kinder.")
+  end
+
+  it "does not repost original content when the rewrite is empty" do
+    allow(bot).to receive(:moderation_rewrite).with("bad message", user).and_return(" ")
+
+    described_class.new(bot).execute(event)
+
+    expect(message).to have_received(:delete).with("Moderation (rewriting due to negative sentiment)")
+    expect(event).to have_received(:respond).with("A message from <@456> was removed.")
   end
 end

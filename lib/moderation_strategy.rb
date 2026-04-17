@@ -39,6 +39,15 @@ class WatchListStrategy < ModerationStrategy
     $logger.info(edited)
     reason = "Moderation (rewriting due to negative sentiment)"
     event.message.delete(reason)
-    event.respond("~~<@#{event.user.id}>: #{event.message.content}~~" + "\n" + edited)
+    event.respond(response_message(event.user.id, edited))
+  end
+
+  private
+
+  def response_message(user_id, edited)
+    rewritten = edited.to_s.strip
+    return "A message from <@#{user_id}> was removed." if rewritten.empty?
+
+    "A message from <@#{user_id}> was rewritten:\n#{rewritten}"
   end
 end
