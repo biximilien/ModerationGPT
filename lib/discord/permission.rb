@@ -1,5 +1,8 @@
-# TODO: request only required permissions to delete and send messages
-# NOTE: we probably only need send_messages and manage_messages
 module Discord::Permission
-  ADMINISTRATOR = 8
+  VIEW_CHANNEL = 1 << 10
+  SEND_MESSAGES = 1 << 11
+  MANAGE_MESSAGES = 1 << 13
+  READ_MESSAGE_HISTORY = 1 << 16
+
+  MODERATION_BOT = VIEW_CHANNEL | SEND_MESSAGES | MANAGE_MESSAGES | READ_MESSAGE_HISTORY
 end

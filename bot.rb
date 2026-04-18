@@ -21,7 +21,7 @@ bot = Discordrb::Bot.new token: DISCORD_BOT_TOKEN, intents: :all
 
 # Here we output the invite URL to the console so the bot account can be invited to the channel. This only has to be
 # done once, afterwards, you can remove this part if you want
-$logger.info("This bot's invite URL is #{bot.invite_url(permission_bits: Discord::Permission::ADMINISTRATOR)}.")
+$logger.info("This bot's invite URL is #{bot.invite_url(permission_bits: Discord::Permission::MODERATION_BOT)}.")
 $logger.info("Click on it to invite it to your server.")
 
 app = ModerationGPT::Application.new
