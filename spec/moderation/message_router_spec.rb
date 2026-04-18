@@ -36,6 +36,7 @@ describe Moderation::MessageRouter do
     broken = instance_double("Strategy", condition: true)
     fallback = instance_double("Strategy", condition: true, execute: true)
     allow(broken).to receive(:execute).and_raise(StandardError, "boom")
+    allow($logger).to receive(:error)
 
     result = described_class.new([broken, fallback]).handle(event)
 

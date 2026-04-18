@@ -2,7 +2,7 @@
 
 source "https://rubygems.org"
 
-ruby "2.7.7"
+ruby "3.3.11"
 
 # discord api for ruby
 gem "discordrb"
@@ -19,4 +19,5 @@ gem "rspec", group: :test
 # opentelemetry
 gem 'opentelemetry-sdk'
 gem 'opentelemetry-exporter-otlp'
-gem 'opentelemetry-instrumentation-all'
+gem 'opentelemetry-instrumentation-net_http'
+gem 'opentelemetry-instrumentation-redis'

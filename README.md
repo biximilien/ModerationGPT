@@ -19,8 +19,8 @@ Administrators can manage the watch list with:
 
 ## Requirements
 
-- Ruby 2.7.7, matching `.tool-versions` and `Gemfile`
-- Bundler
+- Ruby 3.3.11, matching `.tool-versions` and `Gemfile`
+- Bundler 2.4.5 or newer
 - Redis
 - Discord bot token
 - OpenAI API key
@@ -44,7 +44,8 @@ OPENAI_REWRITE_MODEL=gpt-4.1-mini
 Install dependencies:
 
 ```bash
-bundle install
+gem install bundler -v 2.4.5
+bundle _2.4.5_ install
 ```
 
 Start Redis:

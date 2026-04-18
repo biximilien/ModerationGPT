@@ -8,7 +8,7 @@ require "./lib/discord/ready_handler"
 require "./lib/discord/permission"
 require "./lib/moderation_strategy"
 require "./lib/moderation/message_router"
-require "./lib/opentelemetry"
+require "./lib/telemetry"
 
 # setup logging
 $logger = Logger.new(STDOUT)
