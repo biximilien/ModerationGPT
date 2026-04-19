@@ -1,8 +1,9 @@
 require "redis"
+require_relative "../environment"
 
 module Backend
-  def initialize_backend()
-    @redis ||= Redis.new(url: REDIS_URL)
+  def initialize_backend
+    @redis ||= Redis.new(url: Environment.redis_url)
     raise "Redis connection failed" unless @redis.ping == "PONG"
   end
 
@@ -26,7 +27,7 @@ module Backend
     @redis.srem("servers", server_id)
   end
 
-  def get_servers()
+  def get_servers
     @redis.smembers("servers").map(&:to_i)
   end
 end

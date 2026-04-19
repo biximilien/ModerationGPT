@@ -14,7 +14,7 @@ describe ModerationGPT::Application do
   it "initializes the backend" do
     described_class.new
 
-    expect(Redis).to have_received(:new).with(url: REDIS_URL)
+    expect(Redis).to have_received(:new).with(url: Environment.redis_url)
   end
 
   it "exposes backend methods" do

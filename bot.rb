@@ -1,41 +1,36 @@
 require "discordrb"
 require "logger"
 
-require "./lib/application"
-require "./lib/discord"
-require "./lib/discord/watchlist_command"
-require "./lib/discord/ready_handler"
-require "./lib/discord/permission"
-require "./lib/moderation_strategy"
-require "./lib/moderation/message_router"
-require "./lib/telemetry"
+require_relative "environment"
+require_relative "lib/application"
+require_relative "lib/discord"
+require_relative "lib/discord/watchlist_command"
+require_relative "lib/discord/ready_handler"
+require_relative "lib/discord/permission"
+require_relative "lib/moderation_strategy"
+require_relative "lib/moderation/message_router"
+require_relative "lib/telemetry"
 
-# setup logging
 $logger = Logger.new(STDOUT)
 
-require "./environment"
 Environment.validate!
 
-# create bot
-bot = Discordrb::Bot.new token: DISCORD_BOT_TOKEN, intents: :all
+bot = Discordrb::Bot.new token: Environment.discord_bot_token, intents: :all
 
-# Here we output the invite URL to the console so the bot account can be invited to the channel. This only has to be
-# done once, afterwards, you can remove this part if you want
 $logger.info("This bot's invite URL is #{bot.invite_url(permission_bits: Discord::Permission::MODERATION_BOT)}.")
 $logger.info("Click on it to invite it to your server.")
 
 app = ModerationGPT::Application.new
 
-strategies = []
-strategies << WatchListStrategy.new(app)
-strategies << RemoveMessageStrategy.new(app)
-# strategies << RewriteMessageStrategy.new
+strategies = [
+  WatchListStrategy.new(app),
+  RemoveMessageStrategy.new(app),
+]
 
 watchlist_command = Discord::WatchlistCommand.new(app)
 message_router = Moderation::MessageRouter.new(strategies)
 ready_handler = Discord::ReadyHandler.new(bot, app)
 
-# bot commands
 bot.message do |event|
   next if event.user.current_bot?
 
@@ -49,7 +44,6 @@ bot.message do |event|
   end
 end
 
-# main loop
 bot.ready do |event|
   ready_handler.handle(event)
 end

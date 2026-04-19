@@ -1,25 +1,46 @@
 require "dotenv"
 Dotenv.load
 
-# Environment variables. Keep constants for the current app structure, while
-# centralizing validation so startup errors are clear.
-OPENAI_API_KEY = ENV["OPENAI_API_KEY"]
-DISCORD_BOT_TOKEN = ENV["DISCORD_BOT_TOKEN"]
-REDIS_URL = ENV["REDIS_URL"]
-OPENAI_MODERATION_MODEL = ENV.fetch("OPENAI_MODERATION_MODEL", "omni-moderation-latest")
-OPENAI_REWRITE_MODEL = ENV.fetch("OPENAI_REWRITE_MODEL", "gpt-4.1-mini")
-
 module Environment
-  REQUIRED_VARIABLES = {
-    "OPENAI_API_KEY" => OPENAI_API_KEY,
-    "DISCORD_BOT_TOKEN" => DISCORD_BOT_TOKEN,
-    "REDIS_URL" => REDIS_URL,
-  }.freeze
+  REQUIRED_VARIABLES = %w[
+    OPENAI_API_KEY
+    DISCORD_BOT_TOKEN
+    REDIS_URL
+  ].freeze
+
+  DEFAULT_OPENAI_MODERATION_MODEL = "omni-moderation-latest"
+  DEFAULT_OPENAI_REWRITE_MODEL = "gpt-4.1-mini"
 
   def self.validate!
-    missing = REQUIRED_VARIABLES.select { |_name, value| value.nil? || value.strip.empty? }.keys
+    missing = REQUIRED_VARIABLES.select { |name| missing?(ENV[name]) }
     return if missing.empty?
 
     raise "Missing required environment variables: #{missing.join(', ')}"
   end
+
+  def self.openai_api_key
+    ENV["OPENAI_API_KEY"]
+  end
+
+  def self.discord_bot_token
+    ENV["DISCORD_BOT_TOKEN"]
+  end
+
+  def self.redis_url
+    ENV["REDIS_URL"]
+  end
+
+  def self.openai_moderation_model
+    ENV.fetch("OPENAI_MODERATION_MODEL", DEFAULT_OPENAI_MODERATION_MODEL)
+  end
+
+  def self.openai_rewrite_model
+    ENV.fetch("OPENAI_REWRITE_MODEL", DEFAULT_OPENAI_REWRITE_MODEL)
+  end
+
+  def self.missing?(value)
+    value.nil? || value.strip.empty?
+  end
+
+  private_class_method :missing?
 end

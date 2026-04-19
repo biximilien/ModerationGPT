@@ -2,6 +2,7 @@ require "json"
 require "net/http"
 require "uri"
 require "opentelemetry/sdk"
+require_relative "../environment"
 OpenAITracer = OpenTelemetry.tracer_provider.tracer("openai", "1.0")
 
 module OpenAI
@@ -34,7 +35,7 @@ module OpenAI
         http.use_ssl = true
         request = Net::HTTP::Post.new(uri.request_uri)
         request["Content-Type"] = "application/json"
-        request["Authorization"] = "Bearer #{OPENAI_API_KEY}"
+        request["Authorization"] = "Bearer #{Environment.openai_api_key}"
         request.body = params.to_json
         span.add_event("OpenAI API call")
 
@@ -59,7 +60,7 @@ module OpenAI
 
   def moderate_text(text, user = nil)
     response = query("https://api.openai.com/v1/moderations", {
-      model: OPENAI_MODERATION_MODEL,
+      model: Environment.openai_moderation_model,
       input: text,
     }, user)
 
@@ -73,7 +74,7 @@ module OpenAI
 
   def moderation_rewrite(text, user = nil)
     response = query("https://api.openai.com/v1/responses", {
-      model: OPENAI_REWRITE_MODEL,
+      model: Environment.openai_rewrite_model,
       instructions: "Rewrite the user's message in a respectful, constructive tone. Preserve the user's apparent intent, do not add new claims, and return only the rewritten message.",
       input: text,
     }, user)
