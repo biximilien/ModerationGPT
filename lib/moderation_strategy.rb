@@ -1,3 +1,5 @@
+require_relative "../environment"
+
 class ModerationStrategy
   def initialize(bot)
     @bot = bot
@@ -9,6 +11,19 @@ class ModerationStrategy
 
   def execute(event)
     nil
+  end
+
+  private
+
+  def record_infraction(event)
+    score = @bot.decrement_user_karma(event.server.id, event.user.id)
+    $logger.info("Karma score for #{event.user.id}: #{score}")
+
+    if score <= Environment.karma_automod_threshold
+      $logger.warn("User #{event.user.id} reached automated moderation threshold with karma #{score}")
+    end
+
+    score
   end
 end
 
@@ -22,6 +37,7 @@ class RemoveMessageStrategy < ModerationStrategy
   def execute(event)
     reason = "Moderation (removing message)"
     event.message.delete(reason)
+    record_infraction(event)
   end
 end
 
@@ -39,6 +55,7 @@ class WatchListStrategy < ModerationStrategy
     $logger.info(edited)
     reason = "Moderation (rewriting due to negative sentiment)"
     event.message.delete(reason)
+    record_infraction(event)
     event.respond(response_message(event.user.id, edited))
   end
 

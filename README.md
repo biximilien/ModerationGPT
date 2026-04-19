@@ -15,7 +15,10 @@ Administrators can manage the watch list with:
 !moderation watchlist
 !moderation watchlist add @user
 !moderation watchlist remove @user
+!moderation karma @user
 ```
+
+Each moderated infraction decreases the user's per-server karma score. When a score reaches `KARMA_AUTOMOD_THRESHOLD`, the bot logs that the user is eligible for automated moderation action. It does not ban users automatically yet.
 
 ## Requirements
 
@@ -35,9 +38,10 @@ DISCORD_BOT_TOKEN=my_discord_secret
 REDIS_URL=redis://localhost:6379/0
 OPENAI_MODERATION_MODEL=omni-moderation-latest
 OPENAI_REWRITE_MODEL=gpt-4.1-mini
+KARMA_AUTOMOD_THRESHOLD=-5
 ```
 
-`OPENAI_MODERATION_MODEL` and `OPENAI_REWRITE_MODEL` are optional. The defaults are shown above.
+`OPENAI_MODERATION_MODEL`, `OPENAI_REWRITE_MODEL`, and `KARMA_AUTOMOD_THRESHOLD` are optional. The defaults are shown above.
 
 ## Local Development
 

@@ -10,6 +10,7 @@ module Environment
 
   DEFAULT_OPENAI_MODERATION_MODEL = "omni-moderation-latest"
   DEFAULT_OPENAI_REWRITE_MODEL = "gpt-4.1-mini"
+  DEFAULT_KARMA_AUTOMOD_THRESHOLD = -5
 
   def self.validate!
     missing = REQUIRED_VARIABLES.select { |name| missing?(ENV[name]) }
@@ -36,6 +37,10 @@ module Environment
 
   def self.openai_rewrite_model
     ENV.fetch("OPENAI_REWRITE_MODEL", DEFAULT_OPENAI_REWRITE_MODEL)
+  end
+
+  def self.karma_automod_threshold
+    ENV.fetch("KARMA_AUTOMOD_THRESHOLD", DEFAULT_KARMA_AUTOMOD_THRESHOLD).to_i
   end
 
   def self.missing?(value)

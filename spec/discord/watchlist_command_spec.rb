@@ -8,6 +8,7 @@ describe Discord::WatchlistCommand do
       add_user_to_watch_list: true,
       remove_user_from_watch_list: true,
       get_watch_list_users: [456, 789],
+      get_user_karma: -3,
     )
   end
   let(:server) { instance_double("Server", id: 123, members: members) }
@@ -80,6 +81,27 @@ describe Discord::WatchlistCommand do
 
     context "when the watchlist command is malformed" do
       let(:content) { "!moderation watchlist add" }
+
+      it "responds with usage" do
+        command.handle(event)
+
+        expect(event).to have_received(:respond).with(described_class::USAGE)
+      end
+    end
+
+    context "when checking user karma" do
+      let(:content) { "!moderation karma <@456>" }
+
+      it "responds with the user's karma score" do
+        command.handle(event)
+
+        expect(store).to have_received(:get_user_karma).with(123, 456)
+        expect(event).to have_received(:respond).with("Karma for <@456>: -3")
+      end
+    end
+
+    context "when checking karma without a user" do
+      let(:content) { "!moderation karma" }
 
       it "responds with usage" do
         command.handle(event)

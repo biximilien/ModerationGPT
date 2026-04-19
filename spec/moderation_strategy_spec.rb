@@ -2,9 +2,10 @@ require "moderation_strategy"
 require "open_ai"
 
 describe RemoveMessageStrategy do
+  let(:server) { instance_double("Server", id: 123) }
   let(:message) { instance_double("Message", content: "bad message", delete: true) }
-  let(:user) { instance_double("User") }
-  let(:event) { instance_double("Event", message: message, user: user) }
+  let(:user) { instance_double("User", id: 456) }
+  let(:event) { instance_double("Event", server: server, message: message, user: user) }
   let(:bot) { instance_double("Bot") }
 
   it "matches flagged messages" do
@@ -15,9 +16,23 @@ describe RemoveMessageStrategy do
   end
 
   it "deletes matched messages" do
+    allow(bot).to receive(:decrement_user_karma).with(123, 456).and_return(-1)
+
     described_class.new(bot).execute(event)
 
     expect(message).to have_received(:delete).with("Moderation (removing message)")
+    expect(bot).to have_received(:decrement_user_karma).with(123, 456)
+  end
+
+  it "logs when the user reaches the automated moderation threshold" do
+    allow(bot).to receive(:decrement_user_karma).with(123, 456).and_return(-5)
+    allow($logger).to receive(:warn)
+
+    described_class.new(bot).execute(event)
+
+    expect($logger).to have_received(:warn).with(
+      "User 456 reached automated moderation threshold with karma -5",
+    )
   end
 end
 
@@ -44,15 +59,18 @@ describe WatchListStrategy do
 
   it "rewrites and replaces matched messages" do
     allow(bot).to receive(:moderation_rewrite).with("bad message", user).and_return("Please be kinder.")
+    allow(bot).to receive(:decrement_user_karma).with(123, 456).and_return(-1)
 
     described_class.new(bot).execute(event)
 
     expect(message).to have_received(:delete).with("Moderation (rewriting due to negative sentiment)")
+    expect(bot).to have_received(:decrement_user_karma).with(123, 456)
     expect(event).to have_received(:respond).with("A message from <@456> was rewritten:\nPlease be kinder.")
   end
 
   it "does not repost original content when the rewrite is empty" do
     allow(bot).to receive(:moderation_rewrite).with("bad message", user).and_return(" ")
+    allow(bot).to receive(:decrement_user_karma).with(123, 456).and_return(-1)
 
     described_class.new(bot).execute(event)
 

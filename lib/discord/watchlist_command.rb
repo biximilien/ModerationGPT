@@ -1,8 +1,8 @@
 module Discord
   class WatchlistCommand
-    USAGE = "Usage: !moderation watchlist [add|remove @user]".freeze
+    USAGE = "Usage: !moderation watchlist [add|remove @user] OR !moderation karma @user".freeze
     TRIGGER_PATTERN = /\A!moderation\b/i.freeze
-    COMMAND_PATTERN = /\A!moderation(?:\s+(?<command>watchlist))?(?:\s+(?<subcommand>add|remove)\s+<@!?(?<user_id>\d+)>)?\s*\z/i.freeze
+    COMMAND_PATTERN = /\A!moderation(?:\s+(?<command>watchlist|karma))?(?:\s+(?<subcommand>add|remove))?(?:\s+<@!?(?<user_id>\d+)>)?\s*\z/i.freeze
 
     def initialize(store)
       @store = store
@@ -32,23 +32,58 @@ module Discord
     end
 
     def respond_to_command(event, match)
-      unless match && match[:command] == "watchlist"
+      unless match
         event.respond(USAGE)
         return
       end
 
       case match[:subcommand]
-      when nil
+      when nil then respond_to_top_level_command(event, match)
+      when "add" then add_watchlist_user(event, match)
+      when "remove" then remove_watchlist_user(event, match)
+      else event.respond(USAGE)
+      end
+    end
+
+    def respond_to_top_level_command(event, match)
+      case match[:command]
+      when "watchlist"
         event.respond("Watch list: #{watch_list_mentions(event.server.id)}")
-      when "add"
-        @store.add_user_to_watch_list(event.server.id, match[:user_id].to_i)
-        event.respond("Added <@#{match[:user_id]}> to watch list")
-      when "remove"
-        @store.remove_user_from_watch_list(event.server.id, match[:user_id].to_i)
-        event.respond("Removed <@#{match[:user_id]}> from watch list")
+      when "karma"
+        respond_with_karma(event, match)
       else
         event.respond(USAGE)
       end
+    end
+
+    def add_watchlist_user(event, match)
+      unless match[:command] == "watchlist" && match[:user_id]
+        event.respond(USAGE)
+        return
+      end
+
+      @store.add_user_to_watch_list(event.server.id, match[:user_id].to_i)
+      event.respond("Added <@#{match[:user_id]}> to watch list")
+    end
+
+    def remove_watchlist_user(event, match)
+      unless match[:command] == "watchlist" && match[:user_id]
+        event.respond(USAGE)
+        return
+      end
+
+      @store.remove_user_from_watch_list(event.server.id, match[:user_id].to_i)
+      event.respond("Removed <@#{match[:user_id]}> from watch list")
+    end
+
+    def respond_with_karma(event, match)
+      unless match[:user_id]
+        event.respond(USAGE)
+        return
+      end
+
+      karma = @store.get_user_karma(event.server.id, match[:user_id].to_i)
+      event.respond("Karma for <@#{match[:user_id]}>: #{karma}")
     end
 
     def watch_list_mentions(server_id)

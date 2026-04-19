@@ -3,6 +3,7 @@ require "backend"
 class FakeRedis
   def initialize
     @sets = Hash.new { |hash, key| hash[key] = [] }
+    @hashes = Hash.new { |hash, key| hash[key] = Hash.new(0) }
   end
 
   def ping
@@ -19,6 +20,14 @@ class FakeRedis
 
   def smembers(key)
     @sets[key]
+  end
+
+  def hget(key, field)
+    @hashes[key][field.to_s]
+  end
+
+  def hincrby(key, field, increment)
+    @hashes[key][field.to_s] += increment
   end
 end
 
@@ -52,6 +61,24 @@ describe Backend do
     it "returns the watch list users" do
       add_user_to_watch_list(server_id, user_id)
       expect(get_watch_list_users(server_id)).to eq([user_id])
+    end
+  end
+
+  describe "#get_user_karma" do
+    it "returns zero for users without karma events" do
+      expect(get_user_karma(server_id, user_id)).to eq(0)
+    end
+  end
+
+  describe "#decrement_user_karma" do
+    it "decrements a user's karma score" do
+      expect(decrement_user_karma(server_id, user_id)).to eq(-1)
+      expect(get_user_karma(server_id, user_id)).to eq(-1)
+    end
+
+    it "supports custom decrement amounts" do
+      expect(decrement_user_karma(server_id, user_id, 3)).to eq(-3)
+      expect(get_user_karma(server_id, user_id)).to eq(-3)
     end
   end
 

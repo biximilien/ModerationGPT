@@ -42,4 +42,18 @@ describe Environment do
       expect(described_class.openai_rewrite_model).to eq("gpt-4.1-mini")
     end
   end
+
+  describe ".karma_automod_threshold" do
+    it "returns the default threshold" do
+      ENV.delete("KARMA_AUTOMOD_THRESHOLD")
+
+      expect(described_class.karma_automod_threshold).to eq(-5)
+    end
+
+    it "returns a configured threshold" do
+      ENV["KARMA_AUTOMOD_THRESHOLD"] = "-10"
+
+      expect(described_class.karma_automod_threshold).to eq(-10)
+    end
+  end
 end
