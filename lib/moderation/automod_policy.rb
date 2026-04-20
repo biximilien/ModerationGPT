@@ -17,6 +17,10 @@ module Moderation
 
     def apply(event, score)
       user_hash = Telemetry::Anonymizer.hash(event.user.id)
+      if @action != "log_only" && protected_member?(event)
+        $logger.warn("User #{user_hash} reached automated moderation threshold with karma #{score}, but has elevated permissions")
+        return false
+      end
 
       case @action
       when "log_only" then log_only(user_hash, score)
@@ -76,6 +80,15 @@ module Moderation
       return event.server.member(event.user.id) if event.server.respond_to?(:member)
 
       event.user
+    end
+
+    def protected_member?(event)
+      target = moderation_target(event)
+      return false unless target.respond_to?(:permission?)
+
+      %i[administrator manage_messages moderate_members kick_members ban_members].any? do |permission|
+        target.permission?(permission)
+      end
     end
 
     def moderation_reason(score)

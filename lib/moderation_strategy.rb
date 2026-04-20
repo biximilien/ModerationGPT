@@ -19,15 +19,21 @@ class ModerationStrategy
   private
 
   def record_infraction(event)
+    previous_score = @bot.get_user_karma(event.server.id, event.user.id)
     score = @bot.decrement_user_karma(event.server.id, event.user.id)
     user_hash = Telemetry::Anonymizer.hash(event.user.id)
     $logger.info("Karma score for user=#{user_hash}: #{score}")
 
-    if score <= Environment.karma_automod_threshold
+    if crossed_automod_threshold?(previous_score, score)
       @automod_policy.apply(event, score)
     end
 
     score
+  end
+
+  def crossed_automod_threshold?(previous_score, score)
+    threshold = Environment.karma_automod_threshold
+    previous_score > threshold && score <= threshold
   end
 end
 

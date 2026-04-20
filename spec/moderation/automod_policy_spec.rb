@@ -25,6 +25,21 @@ describe Moderation::AutomodPolicy do
     expect(member).to have_received(:timeout_for).with(120, "Automated moderation: karma -5")
   end
 
+  it "does not time out members with elevated permissions" do
+    member = instance_double("Member", timeout_for: true)
+    allow(member).to receive(:permission?) { |permission| permission == :moderate_members }
+    allow(event).to receive(:member).and_return(member)
+    allow($logger).to receive(:warn)
+
+    result = described_class.new(action: "timeout", timeout_seconds: 120).apply(event, -5)
+
+    expect(result).to eq(false)
+    expect(member).not_to have_received(:timeout_for)
+    expect($logger).to have_received(:warn).with(
+      "User #{Telemetry::Anonymizer.hash(456)} reached automated moderation threshold with karma -5, but has elevated permissions",
+    )
+  end
+
   it "uses Discord API fallback for timeout when no member timeout helper exists" do
     bot = instance_double("Bot", token: "discord-token")
     server = instance_double("Server", id: 123)

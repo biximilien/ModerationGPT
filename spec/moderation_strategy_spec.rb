@@ -9,6 +9,10 @@ describe RemoveMessageStrategy do
   let(:bot) { instance_double("Bot") }
   let(:automod_policy) { instance_double("AutomodPolicy", apply: true) }
 
+  before do
+    allow(bot).to receive(:get_user_karma).with(123, 456).and_return(0)
+  end
+
   it "matches flagged messages" do
     result = OpenAI::ModerationResult.new(flagged: true, categories: {}, category_scores: {})
     allow(bot).to receive(:moderate_text).with("bad message", user).and_return(result)
@@ -26,11 +30,21 @@ describe RemoveMessageStrategy do
   end
 
   it "applies automated moderation policy when the user reaches the threshold" do
+    allow(bot).to receive(:get_user_karma).with(123, 456).and_return(-4)
     allow(bot).to receive(:decrement_user_karma).with(123, 456).and_return(-5)
 
     described_class.new(bot, automod_policy: automod_policy).execute(event)
 
     expect(automod_policy).to have_received(:apply).with(event, -5)
+  end
+
+  it "does not reapply automated moderation while the user is already below the threshold" do
+    allow(bot).to receive(:get_user_karma).with(123, 456).and_return(-5)
+    allow(bot).to receive(:decrement_user_karma).with(123, 456).and_return(-6)
+
+    described_class.new(bot, automod_policy: automod_policy).execute(event)
+
+    expect(automod_policy).not_to have_received(:apply)
   end
 end
 
@@ -41,6 +55,10 @@ describe WatchListStrategy do
   let(:event) { instance_double("Event", server: server, message: message, user: user, respond: true) }
   let(:bot) { instance_double("Bot") }
   let(:automod_policy) { instance_double("AutomodPolicy", apply: true) }
+
+  before do
+    allow(bot).to receive(:get_user_karma).with(123, 456).and_return(0)
+  end
 
   it "ignores users outside the watch list" do
     allow(bot).to receive(:get_watch_list_users).with(123).and_return([])
