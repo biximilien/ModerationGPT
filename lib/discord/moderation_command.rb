@@ -4,9 +4,20 @@ module Discord
   class ModerationCommand
     DEFAULT_HISTORY_LIMIT = 5
     MAX_HISTORY_LIMIT = 10
-    USAGE = "Usage: !moderation watchlist [add|remove @user] OR !moderation karma @user OR !moderation karma history @user [limit] OR !moderation karma reset @user OR !moderation karma [add|remove] @user amount".freeze
+    USAGE = "Usage: !moderation help".freeze
+    HELP_TEXT = [
+      "Moderation commands:",
+      "!moderation watchlist",
+      "!moderation watchlist add @user",
+      "!moderation watchlist remove @user",
+      "!moderation karma @user",
+      "!moderation karma history @user [limit]",
+      "!moderation karma reset @user",
+      "!moderation karma add @user amount",
+      "!moderation karma remove @user amount",
+    ].join("\n").freeze
     TRIGGER_PATTERN = /\A!moderation\b/i.freeze
-    COMMAND_PATTERN = /\A!moderation(?:\s+(?<command>watchlist|karma))?(?:\s+(?<subcommand>add|remove|reset|history))?(?:\s+<@!?(?<user_id>\d+)>)?(?:\s+(?<amount>\d+))?\s*\z/i.freeze
+    COMMAND_PATTERN = /\A!moderation(?:\s+(?<command>help|watchlist|karma))?(?:\s+(?<subcommand>add|remove|reset|history))?(?:\s+<@!?(?<user_id>\d+)>)?(?:\s+(?<amount>\d+))?\s*\z/i.freeze
 
     def initialize(store)
       @store = store
@@ -42,9 +53,18 @@ module Discord
       end
 
       case match[:command]
+      when "help", nil then respond_to_help_command(event, match)
       when "watchlist" then respond_to_watchlist_command(event, match)
       when "karma" then respond_to_karma_command(event, match)
       else event.respond(USAGE)
+      end
+    end
+
+    def respond_to_help_command(event, match)
+      if match[:subcommand] || match[:user_id] || match[:amount]
+        event.respond(USAGE)
+      else
+        event.respond(HELP_TEXT)
       end
     end
 

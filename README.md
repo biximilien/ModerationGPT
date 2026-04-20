@@ -12,6 +12,7 @@ The bot listens for Discord messages and applies two moderation paths:
 Administrators can manage moderation state with:
 
 ```bash
+!moderation help
 !moderation watchlist
 !moderation watchlist add @user
 !moderation watchlist remove @user

@@ -53,6 +53,36 @@ describe Discord::ModerationCommand do
   end
 
   describe "#handle" do
+    context "when requesting help" do
+      let(:content) { "!moderation help" }
+
+      it "responds with available commands" do
+        command.handle(event)
+
+        expect(event).to have_received(:respond).with(described_class::HELP_TEXT)
+      end
+    end
+
+    context "when requesting moderation without a subcommand" do
+      let(:content) { "!moderation" }
+
+      it "responds with available commands" do
+        command.handle(event)
+
+        expect(event).to have_received(:respond).with(described_class::HELP_TEXT)
+      end
+    end
+
+    context "when the help command has extra arguments" do
+      let(:content) { "!moderation help add" }
+
+      it "responds with usage" do
+        command.handle(event)
+
+        expect(event).to have_received(:respond).with(described_class::USAGE)
+      end
+    end
+
     context "when listing watched users" do
       let(:content) { "!moderation watchlist" }
 
