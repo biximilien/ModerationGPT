@@ -93,7 +93,7 @@ Run the bot and Redis together:
 docker compose up --build
 ```
 
-The bot service reads secrets from `.env`. Inside Compose, `REDIS_URL` is set to `redis://redis:6379/0`.
+The bot service reads secrets from `.env`. Inside Compose, `REDIS_URL` is set to `redis://redis:6379/0`. Redis uses append-only persistence with `appendfsync everysec`, and stores local state in `./redis-data`.
 
 ## OpenTelemetry
 
