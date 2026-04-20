@@ -25,7 +25,8 @@ class ModerationStrategy
     $logger.info("Karma score for user=#{user_hash}: #{score}")
 
     if crossed_automod_threshold?(previous_score, score)
-      @automod_policy.apply(event, score)
+      automod_outcome = @automod_policy.apply(event, score)
+      record_automod_outcome(event, score, automod_outcome)
     end
 
     score
@@ -34,6 +35,12 @@ class ModerationStrategy
   def crossed_automod_threshold?(previous_score, score)
     threshold = Environment.karma_automod_threshold
     previous_score > threshold && score <= threshold
+  end
+
+  def record_automod_outcome(event, score, outcome)
+    return unless outcome
+
+    @bot.record_user_karma_event(event.server.id, event.user.id, score:, source: outcome)
   end
 end
 

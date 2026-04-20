@@ -9,20 +9,22 @@ describe Moderation::AutomodPolicy do
     policy = described_class.new(action: "log_only")
     allow($logger).to receive(:warn)
 
-    policy.apply(event, -5)
+    result = policy.apply(event, -5)
 
     expect($logger).to have_received(:warn).with(
       "User #{Telemetry::Anonymizer.hash(456)} reached automated moderation threshold with karma -5",
     )
+    expect(result).to eq("automod_log_only")
   end
 
   it "times out users for timeout policy" do
     member = instance_double("Member", timeout_for: true)
     allow(event).to receive(:member).and_return(member)
 
-    described_class.new(action: "timeout", timeout_seconds: 120).apply(event, -5)
+    result = described_class.new(action: "timeout", timeout_seconds: 120).apply(event, -5)
 
     expect(member).to have_received(:timeout_for).with(120, "Automated moderation: karma -5")
+    expect(result).to eq("automod_timeout_applied")
   end
 
   it "does not time out members with elevated permissions" do
@@ -33,7 +35,7 @@ describe Moderation::AutomodPolicy do
 
     result = described_class.new(action: "timeout", timeout_seconds: 120).apply(event, -5)
 
-    expect(result).to eq(false)
+    expect(result).to eq("automod_skipped_elevated_member")
     expect(member).not_to have_received(:timeout_for)
     expect($logger).to have_received(:warn).with(
       "User #{Telemetry::Anonymizer.hash(456)} reached automated moderation threshold with karma -5, but has elevated permissions",
@@ -47,7 +49,7 @@ describe Moderation::AutomodPolicy do
     event = instance_double("Event", user: user, server: server)
     allow(Discordrb::API).to receive(:request)
 
-    described_class.new(action: "timeout", timeout_seconds: 120).apply(event, -5)
+    result = described_class.new(action: "timeout", timeout_seconds: 120).apply(event, -5)
 
     expect(Discordrb::API).to have_received(:request).with(
       :guilds_sid_members_uid,
@@ -59,30 +61,67 @@ describe Moderation::AutomodPolicy do
       content_type: :json,
       "X-Audit-Log-Reason": "Automated moderation: karma -5",
     )
+    expect(result).to eq("automod_timeout_applied")
+  end
+
+  it "reports timeout unavailable when no timeout path exists" do
+    allow($logger).to receive(:warn)
+
+    result = described_class.new(action: "timeout", timeout_seconds: 120).apply(event, -5)
+
+    expect(result).to eq("automod_timeout_unavailable")
+    expect($logger).to have_received(:warn).with(
+      "User #{Telemetry::Anonymizer.hash(456)} reached timeout threshold with karma -5, but timeout is unavailable",
+    )
   end
 
   it "falls back to timeout when an invalid policy is configured" do
     member = instance_double("Member", timeout_for: true)
     allow(event).to receive(:member).and_return(member)
 
-    described_class.new(action: "nonsense", timeout_seconds: 120).apply(event, -5)
+    result = described_class.new(action: "nonsense", timeout_seconds: 120).apply(event, -5)
 
     expect(member).to have_received(:timeout_for).with(120, "Automated moderation: karma -5")
+    expect(result).to eq("automod_timeout_applied")
   end
 
   it "kicks users for kick policy" do
     allow(server).to receive(:kick)
 
-    described_class.new(action: "kick").apply(event, -5)
+    result = described_class.new(action: "kick").apply(event, -5)
 
     expect(server).to have_received(:kick).with(user, "Automated moderation: karma -5")
+    expect(result).to eq("automod_kick_applied")
+  end
+
+  it "reports kick unavailable when no kick path exists" do
+    allow($logger).to receive(:warn)
+
+    result = described_class.new(action: "kick").apply(event, -5)
+
+    expect(result).to eq("automod_kick_unavailable")
+    expect($logger).to have_received(:warn).with(
+      "User #{Telemetry::Anonymizer.hash(456)} reached kick threshold with karma -5, but kick is unavailable",
+    )
   end
 
   it "bans users for ban policy" do
     allow(server).to receive(:ban)
 
-    described_class.new(action: "ban").apply(event, -5)
+    result = described_class.new(action: "ban").apply(event, -5)
 
     expect(server).to have_received(:ban).with(user, 0, reason: "Automated moderation: karma -5")
+    expect(result).to eq("automod_ban_applied")
+  end
+
+  it "reports ban unavailable when no ban path exists" do
+    allow($logger).to receive(:warn)
+
+    result = described_class.new(action: "ban").apply(event, -5)
+
+    expect(result).to eq("automod_ban_unavailable")
+    expect($logger).to have_received(:warn).with(
+      "User #{Telemetry::Anonymizer.hash(456)} reached ban threshold with karma -5, but ban is unavailable",
+    )
   end
 end

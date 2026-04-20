@@ -19,7 +19,7 @@ module Moderation
       user_hash = Telemetry::Anonymizer.hash(event.user.id)
       if @action != "log_only" && protected_member?(event)
         $logger.warn("User #{user_hash} reached automated moderation threshold with karma #{score}, but has elevated permissions")
-        return false
+        return "automod_skipped_elevated_member"
       end
 
       case @action
@@ -34,6 +34,7 @@ module Moderation
 
     def log_only(user_hash, score)
       $logger.warn("User #{user_hash} reached automated moderation threshold with karma #{score}")
+      "automod_log_only"
     end
 
     def timeout(event, user_hash, score)
@@ -42,12 +43,15 @@ module Moderation
 
       if target.respond_to?(:timeout_for)
         target.timeout_for(@timeout_seconds, reason)
+        "automod_timeout_applied"
       elsif target.respond_to?(:timeout)
         target.timeout(@timeout_seconds, reason)
+        "automod_timeout_applied"
       elsif timeout_via_api(event, reason)
-        true
+        "automod_timeout_applied"
       else
         $logger.warn("User #{user_hash} reached timeout threshold with karma #{score}, but timeout is unavailable")
+        "automod_timeout_unavailable"
       end
     end
 
@@ -56,10 +60,13 @@ module Moderation
 
       if target.respond_to?(:kick)
         target.kick(moderation_reason(score))
+        "automod_kick_applied"
       elsif event.server.respond_to?(:kick)
         event.server.kick(event.user, moderation_reason(score))
+        "automod_kick_applied"
       else
         $logger.warn("User #{user_hash} reached kick threshold with karma #{score}, but kick is unavailable")
+        "automod_kick_unavailable"
       end
     end
 
@@ -68,10 +75,13 @@ module Moderation
 
       if target.respond_to?(:ban)
         target.ban(moderation_reason(score))
+        "automod_ban_applied"
       elsif event.server.respond_to?(:ban)
         event.server.ban(event.user, 0, reason: moderation_reason(score))
+        "automod_ban_applied"
       else
         $logger.warn("User #{user_hash} reached ban threshold with karma #{score}, but ban is unavailable")
+        "automod_ban_unavailable"
       end
     end
 

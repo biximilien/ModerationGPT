@@ -7,10 +7,11 @@ describe RemoveMessageStrategy do
   let(:user) { instance_double("User", id: 456) }
   let(:event) { instance_double("Event", server: server, message: message, user: user) }
   let(:bot) { instance_double("Bot") }
-  let(:automod_policy) { instance_double("AutomodPolicy", apply: true) }
+  let(:automod_policy) { instance_double("AutomodPolicy", apply: "automod_timeout_applied") }
 
   before do
     allow(bot).to receive(:get_user_karma).with(123, 456).and_return(0)
+    allow(bot).to receive(:record_user_karma_event)
   end
 
   it "matches flagged messages" do
@@ -38,6 +39,20 @@ describe RemoveMessageStrategy do
     expect(automod_policy).to have_received(:apply).with(event, -5)
   end
 
+  it "records automated moderation outcomes in karma history" do
+    allow(bot).to receive(:get_user_karma).with(123, 456).and_return(-4)
+    allow(bot).to receive(:decrement_user_karma).with(123, 456).and_return(-5)
+
+    described_class.new(bot, automod_policy: automod_policy).execute(event)
+
+    expect(bot).to have_received(:record_user_karma_event).with(
+      123,
+      456,
+      score: -5,
+      source: "automod_timeout_applied",
+    )
+  end
+
   it "does not reapply automated moderation while the user is already below the threshold" do
     allow(bot).to receive(:get_user_karma).with(123, 456).and_return(-5)
     allow(bot).to receive(:decrement_user_karma).with(123, 456).and_return(-6)
@@ -45,6 +60,7 @@ describe RemoveMessageStrategy do
     described_class.new(bot, automod_policy: automod_policy).execute(event)
 
     expect(automod_policy).not_to have_received(:apply)
+    expect(bot).not_to have_received(:record_user_karma_event)
   end
 end
 
@@ -54,10 +70,11 @@ describe WatchListStrategy do
   let(:user) { instance_double("User", id: 456) }
   let(:event) { instance_double("Event", server: server, message: message, user: user, respond: true) }
   let(:bot) { instance_double("Bot") }
-  let(:automod_policy) { instance_double("AutomodPolicy", apply: true) }
+  let(:automod_policy) { instance_double("AutomodPolicy", apply: "automod_timeout_applied") }
 
   before do
     allow(bot).to receive(:get_user_karma).with(123, 456).and_return(0)
+    allow(bot).to receive(:record_user_karma_event)
   end
 
   it "ignores users outside the watch list" do

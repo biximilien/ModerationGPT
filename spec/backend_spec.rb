@@ -141,6 +141,20 @@ describe Backend do
     end
   end
 
+  describe "#record_user_karma_event" do
+    it "records a zero-delta audit event without changing the score" do
+      set_user_karma(server_id, user_id, -5)
+      record_user_karma_event(server_id, user_id, score: -5, source: "automod_timeout_applied")
+
+      expect(get_user_karma(server_id, user_id)).to eq(-5)
+      expect(get_user_karma_history(server_id, user_id).first).to include(
+        delta: 0,
+        score: -5,
+        source: "automod_timeout_applied",
+      )
+    end
+  end
+
   describe "#get_user_karma_history" do
     it "returns the most recent events first" do
       increment_user_karma(server_id, user_id, 1)

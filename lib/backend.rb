@@ -47,6 +47,10 @@ module Backend
     score
   end
 
+  def record_user_karma_event(server_id, user_id, score:, source:, delta: 0, actor_id: nil, reason: nil)
+    record_karma_audit_event(server_id, user_id, delta:, score:, source:, actor_id:, reason:)
+  end
+
   def get_user_karma_history(server_id, user_id, limit = 5)
     history_limit = [[limit.to_i, 1].max, KARMA_AUDIT_LIMIT].min
     @redis.lrange(karma_history_key(server_id, user_id), 0, history_limit - 1).map do |entry|
