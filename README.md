@@ -21,7 +21,7 @@ Administrators can manage moderation state with:
 !moderation karma remove @user 1
 ```
 
-Each moderated infraction decreases the user's per-server karma score. When a score reaches `KARMA_AUTOMOD_THRESHOLD`, the bot applies `KARMA_AUTOMOD_ACTION`. Supported actions are `log_only`, `timeout`, `kick`, and `ban`; the default is `timeout`. Timeout requires the Discord moderate-members permission, which is included in the generated invite URL.
+Each moderated infraction decreases the user's per-server karma score. When a score reaches `KARMA_AUTOMOD_THRESHOLD`, the bot applies `KARMA_AUTOMOD_ACTION`. Supported actions are `log_only`, `timeout`, `kick`, and `ban`; the default is `timeout`. Timeout requires the Discord moderate-members permission, which is included in the generated invite URL. If you configure `kick` or `ban`, grant the bot the matching Discord permission in that server.
 
 ## Requirements
 
