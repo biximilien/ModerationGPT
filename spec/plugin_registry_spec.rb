@@ -67,6 +67,7 @@ describe ModerationGPT::PluginRegistry do
         infraction: true,
         automod_outcome: true,
         rewrite_instructions: nil,
+        moderation_strategies: [],
         commands: [:command],
       )
       registry = described_class.new([plugin])
@@ -114,6 +115,29 @@ describe ModerationGPT::PluginRegistry do
 
       expect(result).to eq("Fallback instructions.")
       expect($logger).to have_received(:error).with("Plugin hook rewrite_instructions failed: StandardError: boom")
+    end
+
+    it "aggregates plugin-provided moderation strategies" do
+      first = instance_double("Plugin", moderation_strategies: [:first])
+      second = instance_double("Plugin", moderation_strategies: [:second, :third])
+
+      result = described_class.new([first, second]).moderation_strategies(app: :app, plugin_registry: :plugins)
+
+      expect(result).to eq(%i[first second third])
+      expect(first).to have_received(:moderation_strategies).with(app: :app, plugin_registry: :plugins)
+      expect(second).to have_received(:moderation_strategies).with(app: :app, plugin_registry: :plugins)
+    end
+
+    it "logs and continues when a moderation strategy hook fails" do
+      broken = instance_double("Plugin")
+      healthy = instance_double("Plugin", moderation_strategies: [:healthy])
+      allow(broken).to receive(:moderation_strategies).and_raise(StandardError, "boom")
+      allow($logger).to receive(:error)
+
+      result = described_class.new([broken, healthy]).moderation_strategies(app: :app)
+
+      expect(result).to eq([:healthy])
+      expect($logger).to have_received(:error).with("Plugin hook moderation_strategies failed: StandardError: boom")
     end
 
     it "logs and continues when a plugin hook fails" do

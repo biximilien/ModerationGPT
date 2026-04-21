@@ -16,6 +16,10 @@ module ModerationGPT
       nil
     end
 
+    def moderation_strategies(**)
+      []
+    end
+
     def commands
       []
     end

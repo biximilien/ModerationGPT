@@ -117,6 +117,7 @@ Plugin hooks:
 - `infraction`
 - `automod_outcome`
 - `rewrite_instructions`
+- `moderation_strategies`
 - `commands`
 
 ## Personalities

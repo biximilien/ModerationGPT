@@ -71,6 +71,15 @@ module ModerationGPT
       nil
     end
 
+    def moderation_strategies(**context)
+      @plugins.flat_map do |plugin|
+        plugin.moderation_strategies(**context)
+      rescue StandardError => e
+        $logger&.error("Plugin hook moderation_strategies failed: #{e.class}: #{e.message}")
+        []
+      end
+    end
+
     def commands
       @plugins.flat_map(&:commands)
     end
