@@ -55,9 +55,7 @@ module Environment
   end
 
   def self.enabled_plugins
-    plugins = ENV.fetch("PLUGINS", "").split(",").map(&:strip).reject(&:empty?)
-    plugins << "telemetry" if telemetry_enabled?
-    plugins.uniq
+    ENV.fetch("PLUGINS", "").split(",").map(&:strip).reject(&:empty?).uniq
   end
 
   def self.plugin_requires

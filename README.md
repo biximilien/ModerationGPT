@@ -127,10 +127,11 @@ The bot service reads secrets from `.env`. Inside Compose, `REDIS_URL` is set to
 Optional OpenTelemetry settings can be added to `.env`:
 
 ```bash
+PLUGINS=telemetry
 TELEMETRY_ENABLED=true
 OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io
 OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=secretkey
 OTEL_SERVICE_NAME=ModerationGPT
 ```
 
-OpenTelemetry is disabled by default. Identifier anonymization still runs when telemetry is disabled. Install optional telemetry dependencies with `bundle config set --local with telemetry` before `bundle install` when enabling OpenTelemetry locally. For Docker, build with `BUNDLE_WITH=telemetry docker compose build`. Setting `TELEMETRY_ENABLED=true` enables the telemetry plugin automatically.
+OpenTelemetry is disabled by default. Identifier anonymization still runs when telemetry is disabled. Enable the telemetry plugin explicitly with `PLUGINS=telemetry`, then set `TELEMETRY_ENABLED=true` to turn on OpenTelemetry inside that plugin. Install optional telemetry dependencies with `bundle config set --local with telemetry` before `bundle install` when enabling OpenTelemetry locally. For Docker, build with `BUNDLE_WITH=telemetry docker compose build`.

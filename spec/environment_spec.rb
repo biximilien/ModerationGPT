@@ -99,16 +99,15 @@ describe Environment do
       expect(described_class.enabled_plugins).to eq(%w[telemetry audit_webhook])
     end
 
-    it "adds telemetry when telemetry is enabled" do
+    it "does not implicitly add telemetry when telemetry is enabled" do
       ENV.delete("PLUGINS")
       ENV["TELEMETRY_ENABLED"] = "true"
 
-      expect(described_class.enabled_plugins).to eq(["telemetry"])
+      expect(described_class.enabled_plugins).to eq([])
     end
 
-    it "deduplicates telemetry when configured twice" do
-      ENV["PLUGINS"] = "telemetry"
-      ENV["TELEMETRY_ENABLED"] = "true"
+    it "deduplicates configured plugins" do
+      ENV["PLUGINS"] = "telemetry, telemetry"
 
       expect(described_class.enabled_plugins).to eq(["telemetry"])
     end
