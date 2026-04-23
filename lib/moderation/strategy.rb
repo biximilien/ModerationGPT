@@ -1,6 +1,6 @@
-require_relative "../environment"
-require_relative "moderation/automod_policy"
-require_relative "telemetry/anonymizer"
+require_relative "../../environment"
+require_relative "automod_policy"
+require_relative "../telemetry/anonymizer"
 
 class ModerationStrategy
   MODERATION_RESULT_CACHE_KEY = :@moderation_gpt_moderation_result
@@ -65,53 +65,5 @@ class ModerationStrategy
 
   def record_moderation_result(event, result)
     @plugin_registry&.moderation_result(event: event, result: result, app: @bot, strategy: self.class.name)
-  end
-end
-
-class RemoveMessageStrategy < ModerationStrategy
-  def condition(event)
-    flagged?(event, log_label: "Moderation")
-  end
-
-  def execute(event)
-    reason = "Moderation (removing message)"
-    event.message.delete(reason)
-    record_infraction(event)
-  end
-end
-
-class WatchListStrategy < ModerationStrategy
-  def condition(event)
-    return false unless watched_user?(event)
-
-    flagged?(event, log_label: "Watch list moderation")
-  end
-
-  def execute(event)
-    edited = moderation_rewrite(event)
-    reason = "Moderation (rewriting due to negative sentiment)"
-    event.message.delete(reason)
-    record_infraction(event)
-    event.respond(response_message(event.user.id, edited))
-  end
-
-  private
-
-  def watched_user?(event)
-    @bot.get_watch_list_users(event.server.id.to_i).include?(event.user.id.to_i)
-  end
-
-  def moderation_rewrite(event)
-    instructions = @plugin_registry&.rewrite_instructions(event: event, app: @bot, strategy: self.class.name)
-    return @bot.moderation_rewrite(event.message.content, event.user, instructions:) if instructions
-
-    @bot.moderation_rewrite(event.message.content, event.user)
-  end
-
-  def response_message(user_id, edited)
-    rewritten = edited.to_s.strip
-    return "A message from <@#{user_id}> was removed." if rewritten.empty?
-
-    "A message from <@#{user_id}> was rewritten:\n#{rewritten}"
   end
 end

@@ -1,4 +1,6 @@
-require "moderation_strategy"
+require "moderation/strategy"
+require "moderation/strategies/remove_message_strategy"
+require "moderation/strategies/watch_list_strategy"
 require "moderation/automod_outcome"
 require "open_ai"
 
