@@ -5,6 +5,74 @@ require_relative "data_model/karma_event"
 
 module Backend
   KARMA_AUDIT_LIMIT = 50
+  INCREMENT_KARMA_WITH_AUDIT_SCRIPT = <<~LUA
+    local event = {
+      created_at = ARGV[6],
+      delta = tonumber(ARGV[2]),
+      source = ARGV[3],
+      score = redis.call("HINCRBY", KEYS[1], ARGV[1], ARGV[2]),
+    }
+
+    if ARGV[4] ~= "" then
+      event.actor_id = tonumber(ARGV[4])
+    end
+
+    if ARGV[5] ~= "" then
+      event.reason = ARGV[5]
+    end
+
+    redis.call("LPUSH", KEYS[2], cjson.encode(event))
+    redis.call("LTRIM", KEYS[2], 0, tonumber(ARGV[7]) - 1)
+
+    return event.score
+  LUA
+
+  SET_KARMA_WITH_AUDIT_SCRIPT = <<~LUA
+    local previous = tonumber(redis.call("HGET", KEYS[1], ARGV[1]) or "0")
+    local score = tonumber(ARGV[2])
+    local event = {
+      created_at = ARGV[6],
+      delta = score - previous,
+      score = score,
+      source = ARGV[3],
+    }
+
+    if ARGV[4] ~= "" then
+      event.actor_id = tonumber(ARGV[4])
+    end
+
+    if ARGV[5] ~= "" then
+      event.reason = ARGV[5]
+    end
+
+    redis.call("HSET", KEYS[1], ARGV[1], score)
+    redis.call("LPUSH", KEYS[2], cjson.encode(event))
+    redis.call("LTRIM", KEYS[2], 0, tonumber(ARGV[7]) - 1)
+
+    return score
+  LUA
+
+  RECORD_KARMA_EVENT_SCRIPT = <<~LUA
+    local event = {
+      created_at = ARGV[4],
+      delta = tonumber(ARGV[2]),
+      score = tonumber(ARGV[1]),
+      source = ARGV[3],
+    }
+
+    if ARGV[5] ~= "" then
+      event.actor_id = tonumber(ARGV[5])
+    end
+
+    if ARGV[6] ~= "" then
+      event.reason = ARGV[6]
+    end
+
+    redis.call("LPUSH", KEYS[1], cjson.encode(event))
+    redis.call("LTRIM", KEYS[1], 0, tonumber(ARGV[7]) - 1)
+
+    return event.score
+  LUA
 
   def initialize_backend
     @redis ||= Redis.new(url: Environment.redis_url)
@@ -28,27 +96,29 @@ module Backend
   end
 
   def decrement_user_karma(server_id, user_id, amount = 1, source: "automated_infraction", actor_id: nil, reason: nil)
-    delta = -amount
-    score = @redis.hincrby(DataModel::Keys.karma(server_id), user_id, delta)
-    record_karma_audit_event(server_id, user_id, delta:, score:, source:, actor_id:, reason:)
-    score
+    change_user_karma(server_id, user_id, -amount, source:, actor_id:, reason:)
   end
 
   def increment_user_karma(server_id, user_id, amount = 1, source: "manual_adjustment", actor_id: nil, reason: nil)
-    score = @redis.hincrby(DataModel::Keys.karma(server_id), user_id, amount)
-    record_karma_audit_event(server_id, user_id, delta: amount, score:, source:, actor_id:, reason:)
-    score
+    change_user_karma(server_id, user_id, amount, source:, actor_id:, reason:)
   end
 
   def set_user_karma(server_id, user_id, score, source: "manual_reset", actor_id: nil, reason: nil)
-    previous_score = get_user_karma(server_id, user_id)
-    @redis.hset(DataModel::Keys.karma(server_id), user_id, score)
-    record_karma_audit_event(server_id, user_id, delta: score - previous_score, score:, source:, actor_id:, reason:)
-    score
+    created_at = Time.now.utc.iso8601
+    @redis.eval(
+      SET_KARMA_WITH_AUDIT_SCRIPT,
+      keys: [DataModel::Keys.karma(server_id), DataModel::Keys.karma_history(server_id, user_id)],
+      argv: [user_id.to_s, score.to_i, source, optional_redis_arg(actor_id), optional_redis_arg(reason), created_at, KARMA_AUDIT_LIMIT],
+    )
   end
 
   def record_user_karma_event(server_id, user_id, score:, source:, delta: 0, actor_id: nil, reason: nil)
-    record_karma_audit_event(server_id, user_id, delta:, score:, source:, actor_id:, reason:)
+    created_at = Time.now.utc.iso8601
+    @redis.eval(
+      RECORD_KARMA_EVENT_SCRIPT,
+      keys: [DataModel::Keys.karma_history(server_id, user_id)],
+      argv: [score.to_i, delta.to_i, source, created_at, optional_redis_arg(actor_id), optional_redis_arg(reason), KARMA_AUDIT_LIMIT],
+    )
   end
 
   def get_user_karma_history(server_id, user_id, limit = 5)
@@ -72,11 +142,16 @@ module Backend
 
   private
 
-  def record_karma_audit_event(server_id, user_id, delta:, score:, source:, actor_id:, reason:)
-    event = DataModel::KarmaEvent.build(delta:, score:, source:, actor_id:, reason:)
+  def change_user_karma(server_id, user_id, delta, source:, actor_id:, reason:)
+    created_at = Time.now.utc.iso8601
+    @redis.eval(
+      INCREMENT_KARMA_WITH_AUDIT_SCRIPT,
+      keys: [DataModel::Keys.karma(server_id), DataModel::Keys.karma_history(server_id, user_id)],
+      argv: [user_id.to_s, delta.to_i, source, optional_redis_arg(actor_id), optional_redis_arg(reason), created_at, KARMA_AUDIT_LIMIT],
+    )
+  end
 
-    key = DataModel::Keys.karma_history(server_id, user_id)
-    @redis.lpush(key, event.to_json)
-    @redis.ltrim(key, 0, KARMA_AUDIT_LIMIT - 1)
+  def optional_redis_arg(value)
+    value.nil? ? "" : value.to_s
   end
 end

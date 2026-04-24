@@ -1,4 +1,5 @@
 require "backend"
+require "json"
 
 class FakeRedis
   def initialize
@@ -45,6 +46,69 @@ class FakeRedis
 
   def lrange(key, start, stop)
     @lists[key][start..stop] || []
+  end
+
+  def eval(script, keys:, argv:)
+    case script
+    when Backend::INCREMENT_KARMA_WITH_AUDIT_SCRIPT
+      eval_increment_karma_with_audit(keys, argv)
+    when Backend::SET_KARMA_WITH_AUDIT_SCRIPT
+      eval_set_karma_with_audit(keys, argv)
+    when Backend::RECORD_KARMA_EVENT_SCRIPT
+      eval_record_karma_event(keys, argv)
+    else
+      raise "Unsupported script"
+    end
+  end
+
+  private
+
+  def eval_increment_karma_with_audit(keys, argv)
+    karma_key, history_key = keys
+    user_id, delta, source, actor_id, reason, created_at, limit = argv
+    score = hincrby(karma_key, user_id, delta.to_i)
+
+    lpush(history_key, build_event_json(created_at:, delta: delta.to_i, score:, source:, actor_id:, reason:))
+    ltrim(history_key, 0, limit.to_i - 1)
+    score
+  end
+
+  def eval_set_karma_with_audit(keys, argv)
+    karma_key, history_key = keys
+    user_id, score, source, actor_id, reason, created_at, limit = argv
+    previous = hget(karma_key, user_id).to_i
+    hset(karma_key, user_id, score.to_i)
+
+    lpush(
+      history_key,
+      build_event_json(created_at:, delta: score.to_i - previous, score: score.to_i, source:, actor_id:, reason:),
+    )
+    ltrim(history_key, 0, limit.to_i - 1)
+    score.to_i
+  end
+
+  def eval_record_karma_event(keys, argv)
+    history_key = keys.first
+    score, delta, source, created_at, actor_id, reason, limit = argv
+
+    lpush(
+      history_key,
+      build_event_json(created_at:, delta: delta.to_i, score: score.to_i, source:, actor_id:, reason:),
+    )
+    ltrim(history_key, 0, limit.to_i - 1)
+    score.to_i
+  end
+
+  def build_event_json(created_at:, delta:, score:, source:, actor_id:, reason:)
+    event = {
+      created_at: created_at,
+      delta: delta,
+      score: score,
+      source: source,
+    }
+    event[:actor_id] = actor_id.to_i unless actor_id.nil? || actor_id.empty?
+    event[:reason] = reason unless reason.nil? || reason.empty?
+    JSON.generate(event)
   end
 end
 
