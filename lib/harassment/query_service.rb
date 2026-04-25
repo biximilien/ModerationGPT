@@ -1,21 +1,24 @@
+require_relative "composite_signal_analyzer"
 require_relative "pair_relationship_report"
 require_relative "recent_incidents_report"
 require_relative "user_risk_report"
 
 module Harassment
   class QueryService
-    def initialize(read_model:)
+    def initialize(read_model:, signal_analyzer: CompositeSignalAnalyzer.new(read_model:))
       @read_model = read_model
+      @signal_analyzer = signal_analyzer
     end
 
     def get_user_risk(user_id, as_of: Time.now.utc)
       normalized_user_id = user_id.to_s
-      edges = @read_model.outgoing_relationships(normalized_user_id, as_of:)
+      analysis = @signal_analyzer.analyze_user(normalized_user_id, as_of:)
 
       UserRiskReport.build(
         user_id: normalized_user_id,
-        risk_score: edges.sum(&:hostility_score),
-        relationship_count: edges.length,
+        risk_score: analysis.fetch(:harassment_score),
+        relationship_count: analysis.fetch(:relationship_count),
+        signals: analysis.fetch(:signals),
       )
     end
 

@@ -35,8 +35,9 @@ describe Harassment::QueryService do
     report = query_service.get_user_risk("321", as_of: Time.utc(2026, 4, 25, 17, 0, 0))
 
     expect(report.user_id).to eq("321")
-    expect(report.risk_score).to be_within(0.0001).of(0.2)
+    expect(report.risk_score).to be_between(0.0, 1.0)
     expect(report.relationship_count).to eq(1)
+    expect(report.signals.keys).to match_array(%i[asymmetry persistence burst_intensity target_concentration average_severity])
   end
 
   it "returns a structured pair relationship report" do

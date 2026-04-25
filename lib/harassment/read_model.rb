@@ -55,6 +55,18 @@ module Harassment
             .map { |edge| edge.decay_to(as_of:, decay_policy: @decay_policy) }
     end
 
+    def incoming_relationships(user_id, as_of: Time.now.utc)
+      target_user_id = user_id.to_s
+      @edges.values
+            .select { |edge| edge.target_user_id == target_user_id }
+            .map { |edge| edge.decay_to(as_of:, decay_policy: @decay_policy) }
+    end
+
+    def incidents_for_author(user_id)
+      author_id = user_id.to_s
+      @incidents_by_channel.values.flatten.select { |incident| incident.author_id == author_id }
+    end
+
     private
 
     def edge_key(source_user_id, target_user_id)

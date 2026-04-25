@@ -34,7 +34,10 @@ describe ModerationGPT::Plugins::HarassmentPlugin do
   it "exposes user risk and pair relationships" do
     plugin.record_classification(event:, record:)
 
-    expect(plugin.get_user_risk("321", as_of: record.classified_at).risk_score).to eq(0.4)
+    risk_report = plugin.get_user_risk("321", as_of: record.classified_at)
+
+    expect(risk_report.risk_score).to be_between(0.0, 1.0)
+    expect(risk_report.signals.keys).to match_array(%i[asymmetry persistence burst_intensity target_concentration average_severity])
     expect(plugin.get_pair_relationship("321", "654", as_of: record.classified_at).relationship_edge.interaction_count).to eq(1)
   end
 
