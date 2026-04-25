@@ -4,13 +4,14 @@ This document gives a quick map of the main runtime pieces in ModerationGPT and 
 
 ## Runtime Flow
 
-At startup, [bot.rb](../bot.rb) does five main things:
+At startup, [bot.rb](../bot.rb) does six main things:
 
 1. Validates environment configuration.
 2. Builds the plugin registry from `PLUGIN_REQUIRES` and `PLUGINS`.
 3. Boots enabled plugins.
 4. Creates the Discord bot and shared application object.
-5. Wires moderation strategies, admin commands, and ready handlers.
+5. Creates the harassment runtime when the harassment plugin is enabled.
+6. Wires moderation strategies, admin commands, and ready handlers.
 
 The shared application object lives in [lib/application.rb](../lib/application.rb). It mixes together:
 
@@ -24,10 +25,11 @@ This keeps the rest of the bot working with a single `app` dependency.
 Incoming Discord messages flow through [bot.rb](../bot.rb) like this:
 
 1. Ignore bot-authored messages.
-2. Notify enabled plugins through the `message` hook.
-3. Log a privacy-safe message receipt entry using anonymized user IDs.
-4. If the message matches the admin command surface, dispatch to [lib/discord/moderation_command.rb](../lib/discord/moderation_command.rb).
-5. Otherwise, hand the event to [lib/moderation/message_router.rb](../lib/moderation/message_router.rb).
+2. If enabled, hand the Discord event to the platform-owned harassment runtime for passive interaction ingestion.
+3. Notify enabled plugins through the `message` hook.
+4. Log a privacy-safe message receipt entry using anonymized user IDs.
+5. If the message matches the admin command surface, dispatch to [lib/discord/moderation_command.rb](../lib/discord/moderation_command.rb).
+6. Otherwise, hand the event to [lib/moderation/message_router.rb](../lib/moderation/message_router.rb).
 
 `MessageRouter` walks the configured strategies in order and executes the first strategy whose `condition(event)` returns true.
 
@@ -77,8 +79,39 @@ Persisted state includes:
 - per-server watchlists
 - per-server user karma scores
 - capped per-user karma history
+- harassment interaction events
+- harassment classification records
+- harassment classification jobs
 
 See [docs/data-model.md](./data-model.md) for the exact Redis structures and field definitions.
+
+## Harassment Pipeline
+
+The harassment pipeline is split between a platform runtime and a plugin-owned read model.
+
+Platform-owned runtime pieces:
+
+- [lib/harassment/runtime.rb](../lib/harassment/runtime.rb)
+- [lib/harassment/message_ingestor.rb](../lib/harassment/message_ingestor.rb)
+- [lib/harassment/classification_pipeline.rb](../lib/harassment/classification_pipeline.rb)
+- [lib/harassment/classification_worker.rb](../lib/harassment/classification_worker.rb)
+- [lib/harassment/context_assembler.rb](../lib/harassment/context_assembler.rb)
+- Redis-backed repositories under [lib/harassment/repositories](../lib/harassment/repositories)
+
+Plugin-owned pieces:
+
+- [lib/plugins/harassment_plugin.rb](../lib/plugins/harassment_plugin.rb)
+- [lib/harassment/read_model.rb](../lib/harassment/read_model.rb)
+- [lib/harassment/query_service.rb](../lib/harassment/query_service.rb)
+- [lib/plugins/harassment_command.rb](../lib/plugins/harassment_command.rb)
+
+The current runtime stores immutable interaction events, enqueues classification jobs keyed by `message_id` and `classifier_version`, assembles bounded transient context, and processes due jobs asynchronously on a background thread. Successful classification records are then handed to the harassment plugin, which updates its idempotent read model and exposes moderator-facing queries.
+
+The harassment plugin is passive-only: it does not punish users automatically. Its operator surface currently lives in Discord through:
+
+- `!moderation harassment risk @user`
+- `!moderation harassment pair @user_a @user_b`
+- `!moderation harassment incidents [@user] [1h|24h|7d] [limit]`
 
 ## Automoderation
 
@@ -115,6 +148,7 @@ Current hook types include:
 
 Current built-in plugins:
 
+- [HarassmentPlugin](../lib/plugins/harassment_plugin.rb)
 - [TelemetryPlugin](../lib/plugins/telemetry_plugin.rb)
 - [PersonalityPlugin](../lib/plugins/personality_plugin.rb)
 
@@ -125,6 +159,7 @@ The project treats Discord identifiers and message content carefully:
 - user IDs are anonymized with [lib/telemetry/anonymizer.rb](../lib/telemetry/anonymizer.rb)
 - logs avoid raw message content
 - logs are emitted as structured events by [lib/logging.rb](../lib/logging.rb)
+- harassment classifier payloads use pseudonymous participant labels and transiently assembled context
 - OpenTelemetry is optional
 
 That means the privacy boundary is part of the core architecture, not just an observability add-on.

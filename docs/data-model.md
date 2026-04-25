@@ -31,6 +31,27 @@ ModerationGPT stores moderation state in Redis. Redis keys are defined in `DataM
 - Retention: latest 50 entries
 - Purpose: stores score changes and automod outcomes for one user in one server
 
+### `harassment_interaction_events`
+
+- Type: Redis hash
+- Fields: Discord message IDs as strings
+- Values: JSON `Harassment::InteractionEvent` records
+- Purpose: stores immutable harassment interaction events, including classification lifecycle state and content retention metadata
+
+### `harassment_classification_records`
+
+- Type: Redis hash
+- Fields: `{message_id}:{classifier_version}`
+- Values: JSON `Harassment::ClassificationRecord` records
+- Purpose: stores immutable structured classifier output for harassment analysis
+
+### `harassment_classification_jobs`
+
+- Type: Redis hash
+- Fields: `{message_id}:{classifier_version}`
+- Values: JSON `Harassment::ClassificationJob` records
+- Purpose: stores idempotent harassment classification job state, retry metadata, and availability timestamps
+
 ## KarmaEvent
 
 ```json
@@ -59,3 +80,71 @@ Common sources:
 - `automod_ban_applied`
 - `automod_ban_unavailable`
 - `automod_skipped_elevated_member`
+
+## Harassment InteractionEvent
+
+```json
+{
+  "message_id": "1234567890",
+  "server_id": "42",
+  "channel_id": "77",
+  "author_id": "100",
+  "target_user_ids": ["200", "300"],
+  "timestamp": "2026-04-25T12:00:00Z",
+  "raw_content": "leave them alone",
+  "classification_status": "pending",
+  "content_retention_expires_at": "2026-05-25T12:00:00Z",
+  "content_redacted_at": null
+}
+```
+
+Notes:
+
+- `classification_status` is one of `pending`, `classified`, `failed_retryable`, or `failed_terminal`
+- `raw_content` may later be replaced with a redacted placeholder after the retention period expires
+- context for classifier prompts is assembled transiently from stored events and is not itself persisted as a separate record
+
+## Harassment ClassificationRecord
+
+```json
+{
+  "message_id": "1234567890",
+  "classifier_version": "harassment-v1",
+  "classification": {
+    "intent": "aggressive",
+    "target_type": "individual",
+    "toxicity_dimensions": {
+      "insult": true,
+      "threat": false,
+      "profanity": true,
+      "exclusion": false,
+      "harassment": true
+    }
+  },
+  "severity_score": 0.82,
+  "confidence": 0.74,
+  "classified_at": "2026-04-25T12:00:05Z"
+}
+```
+
+## Harassment ClassificationJob
+
+```json
+{
+  "message_id": "1234567890",
+  "classifier_version": "harassment-v1",
+  "status": "pending",
+  "attempt_count": 0,
+  "available_at": "2026-04-25T12:00:00Z",
+  "last_error_class": null,
+  "last_error_message": null,
+  "enqueued_at": "2026-04-25T12:00:00Z",
+  "updated_at": "2026-04-25T12:00:00Z"
+}
+```
+
+Notes:
+
+- job keys are idempotent by `message_id` and `classifier_version`
+- retries update the same job record rather than creating duplicates
+- failed jobs remain queryable for operational review

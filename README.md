@@ -123,6 +123,10 @@ Built-in plugins:
 
 The `harassment` plugin passively captures interaction events, enqueues harassment classification work, and records classified incidents in its own read model without applying automated enforcement.
 
+In the current implementation, the core platform owns the harassment runtime: Discord message ingestion, Redis-backed event and job storage, transient context assembly, and background classification processing. The plugin owns the harassment read model, scoring, moderator-facing queries, and Discord command output.
+
+Classifier context is assembled transiently from retained interaction events and sent to OpenAI with pseudonymous participant labels rather than raw Discord IDs.
+
 When the `harassment` plugin is enabled, moderators can inspect the derived signals directly from Discord with:
 
 ```bash
@@ -133,6 +137,8 @@ When the `harassment` plugin is enabled, moderators can inspect the derived sign
 !moderation harassment incidents 24h 3
 !moderation harassment incidents @user 24h 3
 ```
+
+The incidents command supports fixed time windows of `1h`, `24h`, and `7d`. The optional mention, limit, and window tokens can appear in flexible order as long as each is present at most once.
 
 External plugin packages can follow the same `ModerationGPT::Plugin` hook interface and register with `ModerationGPT::PluginRegistry.register`. Use `PLUGIN_REQUIRES` to load plugin packages before `PLUGINS` is resolved:
 
