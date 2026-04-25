@@ -47,6 +47,7 @@ DISCORD_BOT_TOKEN=my_discord_secret
 REDIS_URL=redis://localhost:6379/0
 OPENAI_MODERATION_MODEL=omni-moderation-latest
 OPENAI_REWRITE_MODEL=gpt-4.1-mini
+HARASSMENT_CLASSIFIER_MODEL=gpt-4o-2024-08-06
 KARMA_AUTOMOD_THRESHOLD=-5
 KARMA_AUTOMOD_ACTION=timeout
 KARMA_TIMEOUT_SECONDS=3600
@@ -58,7 +59,7 @@ PLUGINS=
 PERSONALITY=objective
 ```
 
-`OPENAI_MODERATION_MODEL`, `OPENAI_REWRITE_MODEL`, `KARMA_AUTOMOD_THRESHOLD`, `KARMA_AUTOMOD_ACTION`, `KARMA_TIMEOUT_SECONDS`, `LOG_INVITE_URL`, and `LOG_FORMAT` are optional. `TELEMETRY_HASH_SALT` is used to anonymize Discord identifiers in logs and traces; set it to a stable random secret for your deployment.
+`OPENAI_MODERATION_MODEL`, `OPENAI_REWRITE_MODEL`, `HARASSMENT_CLASSIFIER_MODEL`, `KARMA_AUTOMOD_THRESHOLD`, `KARMA_AUTOMOD_ACTION`, `KARMA_TIMEOUT_SECONDS`, `LOG_INVITE_URL`, and `LOG_FORMAT` are optional. `TELEMETRY_HASH_SALT` is used to anonymize Discord identifiers in logs and traces; set it to a stable random secret for your deployment.
 
 ## Local Development
 
@@ -110,8 +111,11 @@ PLUGINS=telemetry
 
 Built-in plugins:
 
+- `harassment`
 - `telemetry`
 - `personality`
+
+The `harassment` plugin passively captures interaction events, enqueues harassment classification work, and records classified incidents in its own read model without applying automated enforcement.
 
 External plugin packages can follow the same `ModerationGPT::Plugin` hook interface and register with `ModerationGPT::PluginRegistry.register`. Use `PLUGIN_REQUIRES` to load plugin packages before `PLUGINS` is resolved:
 

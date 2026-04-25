@@ -18,8 +18,9 @@ require_relative "lib/logging"
 $logger = Logging.build_logger(STDOUT)
 
 Environment.validate!
+app = ModerationGPT::Application.new
 plugins = ModerationGPT::PluginRegistry.from_environment
-plugins.boot
+plugins.boot(app: app)
 
 bot = Discordrb::Bot.new token: Environment.discord_bot_token, intents: :all
 
@@ -27,8 +28,6 @@ if Environment.log_invite_url?
   Logging.info("discord_invite_url_generated", invite_url: bot.invite_url(permission_bits: Discord::Permission::MODERATION_BOT))
   Logging.info("discord_invite_url_notice")
 end
-
-app = ModerationGPT::Application.new
 
 strategies = [
   WatchListStrategy.new(app, plugin_registry: plugins),

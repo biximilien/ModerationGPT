@@ -16,6 +16,7 @@ module Environment
   DEFAULT_KARMA_TIMEOUT_SECONDS = 3_600
   DEFAULT_PERSONALITY = "objective"
   DEFAULT_LOG_FORMAT = "json"
+  DEFAULT_HARASSMENT_CLASSIFIER_MODEL = "gpt-4o-2024-08-06"
 
   def self.validate!
     missing = REQUIRED_VARIABLES.select { |name| missing?(ENV[name]) }
@@ -83,6 +84,10 @@ module Environment
   def self.log_format
     candidate = ENV.fetch("LOG_FORMAT", DEFAULT_LOG_FORMAT).downcase
     %w[json plain].include?(candidate) ? candidate : DEFAULT_LOG_FORMAT
+  end
+
+  def self.harassment_classifier_model
+    ENV.fetch("HARASSMENT_CLASSIFIER_MODEL", DEFAULT_HARASSMENT_CLASSIFIER_MODEL)
   end
 
   def self.missing?(value)

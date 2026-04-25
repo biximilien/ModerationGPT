@@ -1,7 +1,9 @@
 require_relative "../plugin"
 require_relative "../harassment/classification_pipeline"
+require_relative "../harassment/classification_worker"
 require_relative "../harassment/classifier_version"
 require_relative "../harassment/message_ingestor"
+require_relative "../harassment/open_ai_classifier"
 require_relative "../harassment/query_service"
 require_relative "../harassment/repositories/in_memory_classification_job_repository"
 require_relative "../harassment/repositories/in_memory_classification_record_repository"
@@ -22,13 +24,16 @@ module ModerationGPT
         interaction_events: Harassment::Repositories::InMemoryInteractionEventRepository.new,
         classification_records: Harassment::Repositories::InMemoryClassificationRecordRepository.new,
         classification_jobs: Harassment::Repositories::InMemoryClassificationJobRepository.new,
-        classifier_version: DEFAULT_CLASSIFIER_VERSION
+        classifier_version: DEFAULT_CLASSIFIER_VERSION,
+        classifier: nil,
+        classification_worker: nil
       )
         @read_model = read_model
         @classifier_version = Harassment::ClassifierVersion.build(classifier_version)
         @interaction_events = interaction_events
         @classification_records = classification_records
         @classification_jobs = classification_jobs
+        @classifier = classifier
         @classification_pipeline = Harassment::ClassificationPipeline.new(
           interaction_events: @interaction_events,
           classification_records: @classification_records,
@@ -40,10 +45,22 @@ module ModerationGPT
           classifier_version: @classifier_version,
         )
         @query_service = Harassment::QueryService.new(read_model: @read_model)
+        @classification_worker = classification_worker || build_classification_worker
+      end
+
+      def boot(app: nil, **)
+        return unless app
+
+        @classifier ||= Harassment::OpenAIClassifier.new(
+          client: app,
+          model: Environment.harassment_classifier_model,
+        )
+        @classification_worker ||= build_classification_worker
       end
 
       def message(event:, **)
         interaction_event = @message_ingestor.ingest(event)
+        process_due_classifications(as_of: interaction_event.timestamp, limit: 1) if @classification_worker
         Logging.info(
           "harassment_interaction_enqueued",
           message_id: interaction_event.message_id,
@@ -51,6 +68,12 @@ module ModerationGPT
           target_count: interaction_event.target_user_ids.length,
         )
         interaction_event
+      end
+
+      def process_due_classifications(as_of: Time.now.utc, limit: nil)
+        return [] unless @classification_worker
+
+        @classification_worker.process_due_jobs(as_of:, limit:)
       end
 
       def record_classification(event:, record:)
@@ -67,6 +90,20 @@ module ModerationGPT
 
       def recent_incidents(channel_id, limit: 10)
         @query_service.recent_incidents(channel_id, limit:)
+      end
+
+      private
+
+      def build_classification_worker
+        return nil unless @classifier
+
+        Harassment::ClassificationWorker.new(
+          interaction_events: @interaction_events,
+          classification_jobs: @classification_jobs,
+          classification_pipeline: @classification_pipeline,
+          classifier: @classifier,
+          on_success: ->(event:, record:) { record_classification(event:, record:) },
+        )
       end
     end
   end

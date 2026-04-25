@@ -43,6 +43,20 @@ describe Environment do
     end
   end
 
+  describe ".harassment_classifier_model" do
+    it "returns the default model" do
+      ENV.delete("HARASSMENT_CLASSIFIER_MODEL")
+
+      expect(described_class.harassment_classifier_model).to eq("gpt-4o-2024-08-06")
+    end
+
+    it "returns a configured model" do
+      ENV["HARASSMENT_CLASSIFIER_MODEL"] = "gpt-4o-mini"
+
+      expect(described_class.harassment_classifier_model).to eq("gpt-4o-mini")
+    end
+  end
+
   describe ".karma_automod_threshold" do
     it "returns the default threshold" do
       ENV.delete("KARMA_AUTOMOD_THRESHOLD")
