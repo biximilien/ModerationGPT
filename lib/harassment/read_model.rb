@@ -6,9 +6,13 @@ module Harassment
     def initialize
       @incidents_by_channel = Hash.new { |hash, key| hash[key] = [] }
       @edges = {}
+      @processed_classifications = {}
     end
 
     def ingest(event:, record:)
+      processed_key = projection_key(record.message_id, record.classifier_version)
+      return @processed_classifications[processed_key] if @processed_classifications.key?(processed_key)
+
       incident = Incident.from_event_and_record(event:, record:)
       @incidents_by_channel[incident.channel_id] << incident
 
@@ -19,6 +23,7 @@ module Harassment
         @edges[edge_key(incident.author_id, target_user_id)] = update_edge(edge, incident)
       end
 
+      @processed_classifications[processed_key] = incident
       incident
     end
 
@@ -50,6 +55,16 @@ module Harassment
 
     def edge_key(source_user_id, target_user_id)
       "#{source_user_id}:#{target_user_id}"
+    end
+
+    def projection_key(message_id, classifier_version)
+      normalized_version =
+        case classifier_version
+        when ClassifierVersion then classifier_version.value
+        else ClassifierVersion.build(classifier_version).value
+        end
+
+      "#{message_id}:#{normalized_version}"
     end
 
     def update_edge(edge, incident)

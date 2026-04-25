@@ -5,9 +5,8 @@ _Context_: Old interactions should not permanently influence a user's standing.
 
 _Decision_: Apply exponential decay to all interaction-derived scores:
 
-hostility_score = sum(severity * confidence * decay(t))
-
-Where decay(t) = e^(-lambda * delta_t)
+hostility_score = sum(severity \* confidence \* decay(t))
+Where decay(t) = e^(-lambda \* delta_t)
 
 _Consequences_:
 

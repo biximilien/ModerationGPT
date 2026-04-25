@@ -59,4 +59,14 @@ describe Harassment::ReadModel do
 
     expect(read_model.get_user_risk("321")).to be_within(0.0001).of(0.6)
   end
+
+  it "does not double count duplicate classifications for the same message and version" do
+    first = read_model.ingest(event:, record:)
+    second = read_model.ingest(event:, record:)
+
+    expect(first).to eq(second)
+    expect(read_model.recent_incidents("789").length).to eq(1)
+    expect(read_model.get_pair_relationship("321", "654").interaction_count).to eq(1)
+    expect(read_model.get_user_risk("321")).to eq(0.4)
+  end
 end

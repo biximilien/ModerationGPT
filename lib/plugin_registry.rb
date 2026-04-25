@@ -74,6 +74,10 @@ module ModerationGPT
       flat_map_hook(:commands)
     end
 
+    def find_plugin(plugin_class)
+      @plugins.find { |plugin| plugin.is_a?(plugin_class) }
+    end
+
     private
 
     def each_plugin(hook, **context)

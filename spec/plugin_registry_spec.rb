@@ -39,6 +39,7 @@ describe ModerationGPT::PluginRegistry do
 
       expect(registry).to be_a(described_class)
       expect(registry.commands).to eq([])
+      expect(registry.find_plugin(ModerationGPT::Plugins::HarassmentPlugin)).to be_a(ModerationGPT::Plugins::HarassmentPlugin)
     end
 
     it "raises for unknown plugins" do

@@ -14,6 +14,8 @@ require_relative "lib/moderation/message_router"
 require_relative "lib/telemetry"
 require_relative "lib/plugin_registry"
 require_relative "lib/logging"
+require_relative "lib/harassment/runtime"
+require_relative "lib/plugins/harassment_plugin"
 
 $logger = Logging.build_logger(STDOUT)
 
@@ -21,6 +23,15 @@ Environment.validate!
 app = ModerationGPT::Application.new
 plugins = ModerationGPT::PluginRegistry.from_environment
 plugins.boot(app: app)
+harassment_plugin = plugins.find_plugin(ModerationGPT::Plugins::HarassmentPlugin)
+harassment_runtime =
+  if harassment_plugin
+    Harassment::Runtime.new(
+      client: app,
+      on_classification: ->(event:, record:) { harassment_plugin.record_classification(event:, record:) },
+    )
+  end
+harassment_worker_thread = nil
 
 bot = Discordrb::Bot.new token: Environment.discord_bot_token, intents: :all
 
@@ -41,6 +52,10 @@ ready_handler = Discord::ReadyHandler.new(bot, app)
 bot.message do |event|
   next if event.user.current_bot?
 
+  if harassment_runtime
+    interaction_event = harassment_runtime.ingest_message(event)
+    Logging.info("harassment_interaction_enqueued", message_id: interaction_event.message_id, target_count: interaction_event.target_user_ids.length)
+  end
   plugins.message(event: event, app: app, bot: bot)
   Logging.info("discord_message_received", user_hash: Telemetry::Anonymizer.hash(event.user.id), message_length: event.message.content.length)
 
@@ -52,12 +67,27 @@ bot.message do |event|
 end
 
 bot.ready do |event|
+  if harassment_runtime && harassment_worker_thread.nil?
+    harassment_worker_thread = Thread.new do
+      Thread.current.name = "harassment-worker" if Thread.current.respond_to?(:name=)
+
+      loop do
+        harassment_runtime.process_due_classifications
+        sleep 5
+      end
+    rescue StandardError => e
+      Logging.error("harassment_worker_stopped", error_class: e.class.name, error_message: e.message)
+    end
+  end
   plugins.ready(event: event, app: app, bot: bot)
   ready_handler.handle(event)
 end
 
 begin
-  at_exit { bot.stop }
+  at_exit do
+    harassment_worker_thread&.kill
+    bot.stop
+  end
   bot.run
 rescue Interrupt
   Logging.info("bot_stopping")
