@@ -4,11 +4,12 @@ require_relative "relationship_edge"
 
 module Harassment
   class ReadModel
-    def initialize(decay_policy: DecayPolicy.new)
+    def initialize(decay_policy: DecayPolicy.new, score_version: "harassment-score-v1")
       @incidents_by_channel = Hash.new { |hash, key| hash[key] = [] }
       @edges = {}
       @processed_classifications = {}
       @decay_policy = decay_policy
+      @score_version = score_version.to_s
     end
 
     def ingest(event:, record:)
@@ -20,7 +21,7 @@ module Harassment
 
       incident.target_user_ids.each do |target_user_id|
         edge = @edges.fetch(edge_key(incident.author_id, target_user_id)) do
-          RelationshipEdge.build(source_user_id: incident.author_id, target_user_id: target_user_id)
+          RelationshipEdge.build(source_user_id: incident.author_id, target_user_id: target_user_id, score_version: @score_version)
         end
         @edges[edge_key(incident.author_id, target_user_id)] = update_edge(edge, incident)
       end
@@ -100,6 +101,7 @@ module Harassment
       RelationshipEdge.build(
         source_user_id: decayed_edge.source_user_id,
         target_user_id: decayed_edge.target_user_id,
+        score_version: decayed_edge.score_version,
         hostility_score: decayed_edge.hostility_score + incident.severity_score * incident.confidence,
         positive_score: decayed_edge.positive_score,
         interaction_count: decayed_edge.interaction_count + 1,

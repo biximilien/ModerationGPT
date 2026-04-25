@@ -13,6 +13,7 @@ module ModerationGPT
       TOXICITY_DIMENSIONS = %w[insult threat profanity exclusion harassment].freeze
       CLASSIFIER_VERSION = "harassment-v1".freeze
       PROMPT_VERSION = "harassment-prompt-v1".freeze
+      SCORE_VERSION = "harassment-score-v1".freeze
       CLASSIFIER_SCHEMA_NAME = "harassment_classification".freeze
       CLASSIFIER_RESPONSE_SCHEMA = {
         type: "object",
@@ -61,7 +62,7 @@ module ModerationGPT
       attr_reader :read_model
 
       def initialize(
-        read_model: Harassment::ReadModel.new
+        read_model: Harassment::ReadModel.new(score_version: SCORE_VERSION)
       )
         @read_model = read_model
         @query_service = Harassment::QueryService.new(read_model: @read_model)
@@ -89,6 +90,10 @@ module ModerationGPT
 
       def prompt_version
         PROMPT_VERSION
+      end
+
+      def score_version
+        SCORE_VERSION
       end
 
       def build_classifier(client:, model: Environment.harassment_classifier_model)

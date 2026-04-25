@@ -67,6 +67,7 @@ module ModerationGPT
           [
             "Harassment risk for <@#{match[:user_id]}>",
             "Score: #{format('%.2f', report.risk_score)}",
+            "Score version: #{report.score_version}",
             "Relationships: #{report.relationship_count}",
             "Signals:",
             *signal_lines,
@@ -86,6 +87,7 @@ module ModerationGPT
           [
             "Harassment relationship <@#{match[:source_user_id]}> -> <@#{match[:target_user_id]}>",
             "Hostility: #{format('%.2f', edge.hostility_score)}",
+            "Score version: #{report.score_version}",
             "Interactions: #{edge.interaction_count}",
             "Last seen: #{edge.last_interaction_at.iso8601}",
           ].join("\n"),

@@ -34,6 +34,7 @@ describe Harassment::ReadModel do
     expect(read_model.recent_incidents("789")).to eq([incident])
 
     edge = read_model.get_pair_relationship("321", "654", as_of: Time.utc(2026, 4, 25, 16, 0, 0))
+    expect(edge.score_version).to eq("harassment-score-v1")
     expect(edge.hostility_score).to eq(0.4)
     expect(edge.interaction_count).to eq(1)
     expect(edge.last_interaction_at).to eq(Time.utc(2026, 4, 25, 16, 0, 0))

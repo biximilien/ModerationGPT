@@ -11,6 +11,7 @@ describe ModerationGPT::Plugins::HarassmentCommand do
       "HarassmentPlugin",
       get_user_risk: Harassment::UserRiskReport.build(
         user_id: "456",
+        score_version: "harassment-score-v1",
         risk_score: 0.72,
         relationship_count: 2,
         signals: {
@@ -27,6 +28,7 @@ describe ModerationGPT::Plugins::HarassmentCommand do
         relationship_edge: Harassment::RelationshipEdge.build(
           source_user_id: "456",
           target_user_id: "789",
+          score_version: "harassment-score-v1",
           hostility_score: 0.5,
           interaction_count: 3,
           last_interaction_at: Time.utc(2026, 4, 25, 16, 0, 0),
@@ -77,6 +79,7 @@ describe ModerationGPT::Plugins::HarassmentCommand do
       a_string_including(
         "Harassment risk for <@456>",
         "Score: 0.72",
+        "Score version: harassment-score-v1",
         "Relationships: 2",
         "- Asymmetry: 0.80",
       ),
@@ -90,7 +93,7 @@ describe ModerationGPT::Plugins::HarassmentCommand do
     command.handle(event)
 
     expect(event).to have_received(:respond).with(
-      "Harassment relationship <@456> -> <@789>\nHostility: 0.50\nInteractions: 3\nLast seen: 2026-04-25T16:00:00Z",
+      "Harassment relationship <@456> -> <@789>\nHostility: 0.50\nScore version: harassment-score-v1\nInteractions: 3\nLast seen: 2026-04-25T16:00:00Z",
     )
   end
 

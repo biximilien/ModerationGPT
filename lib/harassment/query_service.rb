@@ -16,6 +16,7 @@ module Harassment
 
       UserRiskReport.build(
         user_id: normalized_user_id,
+        score_version: analysis.fetch(:score_version),
         risk_score: analysis.fetch(:harassment_score),
         relationship_count: analysis.fetch(:relationship_count),
         signals: analysis.fetch(:signals),

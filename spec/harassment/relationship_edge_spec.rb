@@ -8,6 +8,7 @@ describe Harassment::RelationshipEdge do
     edge = described_class.build(
       source_user_id: 123,
       target_user_id: 456,
+      score_version: "harassment-score-v1",
       hostility_score: 0.75,
       positive_score: 0.25,
       interaction_count: 4,
@@ -16,6 +17,7 @@ describe Harassment::RelationshipEdge do
 
     expect(edge.source_user_id).to eq("123")
     expect(edge.target_user_id).to eq("456")
+    expect(edge.score_version).to eq("harassment-score-v1")
     expect(edge.hostility_score).to eq(0.75)
     expect(edge.positive_score).to eq(0.25)
     expect(edge.interaction_count).to eq(4)
@@ -36,6 +38,7 @@ describe Harassment::RelationshipEdge do
     edge = described_class.build(
       source_user_id: 123,
       target_user_id: 456,
+      score_version: "harassment-score-v1",
       hostility_score: 1.0,
       positive_score: 0.5,
       interaction_count: 1,
@@ -47,6 +50,7 @@ describe Harassment::RelationshipEdge do
 
     expect(decayed.hostility_score).to be_within(0.0001).of(0.5)
     expect(decayed.positive_score).to be_within(0.0001).of(0.25)
+    expect(decayed.score_version).to eq("harassment-score-v1")
     expect(decayed.interaction_count).to eq(1)
   end
 end

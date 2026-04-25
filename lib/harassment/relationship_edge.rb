@@ -4,6 +4,7 @@ module Harassment
   RelationshipEdge = Data.define(
     :source_user_id,
     :target_user_id,
+    :score_version,
     :hostility_score,
     :positive_score,
     :interaction_count,
@@ -12,6 +13,7 @@ module Harassment
     def self.build(
       source_user_id:,
       target_user_id:,
+      score_version: "unknown-score-version",
       hostility_score: 0.0,
       positive_score: 0.0,
       interaction_count: 0,
@@ -20,6 +22,7 @@ module Harassment
       new(
         source_user_id: identifier!(source_user_id, "source_user_id"),
         target_user_id: identifier!(target_user_id, "target_user_id"),
+        score_version: identifier!(score_version, "score_version"),
         hostility_score: non_negative_float!(hostility_score, "hostility_score"),
         positive_score: non_negative_float!(positive_score, "positive_score"),
         interaction_count: non_negative_integer!(interaction_count, "interaction_count"),
@@ -31,6 +34,7 @@ module Harassment
       self.class.build(
         source_user_id: source_user_id,
         target_user_id: target_user_id,
+        score_version: score_version,
         hostility_score: decay_policy.decay(hostility_score, from: last_interaction_at, to: as_of),
         positive_score: decay_policy.decay(positive_score, from: last_interaction_at, to: as_of),
         interaction_count: interaction_count,

@@ -29,6 +29,7 @@ module Harassment
       }
 
       {
+        score_version: outgoing_edges.first&.score_version || incoming_edges.first&.score_version || "unknown-score-version",
         signals: signals,
         harassment_score: weighted_score(signals),
         relationship_count: outgoing_edges.length,
