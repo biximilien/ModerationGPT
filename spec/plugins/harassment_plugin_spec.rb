@@ -35,6 +35,10 @@ describe ModerationGPT::Plugins::HarassmentPlugin do
     expect(plugin.classifier_version).to eq("harassment-v1")
   end
 
+  it "owns the harassment prompt version" do
+    expect(plugin.prompt_version).to eq("harassment-prompt-v1")
+  end
+
   it "builds the harassment classifier definition" do
     client = instance_double("OpenAIClient")
 

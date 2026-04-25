@@ -7,6 +7,8 @@ describe Harassment::ClassificationRecord do
     record = described_class.build(
       message_id: 123,
       classifier_version: "harassment-v1",
+      model_version: "gpt-4o-2024-08-06",
+      prompt_version: "harassment-prompt-v1",
       classification: {
         intent: "aggressive",
         target_type: "individual",
@@ -19,9 +21,24 @@ describe Harassment::ClassificationRecord do
 
     expect(record.message_id).to eq("123")
     expect(record.classifier_version).to eq(Harassment::ClassifierVersion.build("harassment-v1"))
+    expect(record.model_version).to eq("gpt-4o-2024-08-06")
+    expect(record.prompt_version).to eq("harassment-prompt-v1")
     expect(record.severity_score).to eq(0.8)
     expect(record.confidence).to eq(0.9)
     expect(record.classified_at).to eq(classified_at)
+  end
+
+  it "defaults lineage fields for legacy records" do
+    record = described_class.build(
+      message_id: 123,
+      classifier_version: "harassment-v1",
+      classification: {},
+      severity_score: 0.4,
+      confidence: 0.5,
+    )
+
+    expect(record.model_version).to eq("unknown-model")
+    expect(record.prompt_version).to eq("unknown-prompt")
   end
 
   it "rejects scores outside the 0..1 range" do

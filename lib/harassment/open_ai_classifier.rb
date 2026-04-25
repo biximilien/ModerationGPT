@@ -4,12 +4,13 @@ require_relative "classifier"
 
 module Harassment
   class OpenAIClassifier < Classifier
-    def initialize(client:, model:, instructions:, schema_name:, response_schema:)
+    def initialize(client:, model:, instructions:, schema_name:, response_schema:, prompt_version:)
       @client = client
       @model = model
       @instructions = instructions
       @schema_name = schema_name
       @response_schema = response_schema
+      @prompt_version = prompt_version
     end
 
     def classify(event:, classifier_version:, context: nil, classified_at: Time.now.utc)
@@ -35,6 +36,8 @@ module Harassment
       ClassificationRecord.build(
         message_id: event.message_id,
         classifier_version: classifier_version,
+        model_version: @model,
+        prompt_version: @prompt_version,
         classification: {
           intent: payload.fetch(:intent),
           target_type: payload.fetch(:target_type),

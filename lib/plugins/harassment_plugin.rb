@@ -12,6 +12,7 @@ module ModerationGPT
       TARGET_TYPES = %w[individual group self none].freeze
       TOXICITY_DIMENSIONS = %w[insult threat profanity exclusion harassment].freeze
       CLASSIFIER_VERSION = "harassment-v1".freeze
+      PROMPT_VERSION = "harassment-prompt-v1".freeze
       CLASSIFIER_SCHEMA_NAME = "harassment_classification".freeze
       CLASSIFIER_RESPONSE_SCHEMA = {
         type: "object",
@@ -86,6 +87,10 @@ module ModerationGPT
         CLASSIFIER_VERSION
       end
 
+      def prompt_version
+        PROMPT_VERSION
+      end
+
       def build_classifier(client:, model: Environment.harassment_classifier_model)
         Harassment::OpenAIClassifier.new(
           client: client,
@@ -93,6 +98,7 @@ module ModerationGPT
           instructions: CLASSIFIER_INSTRUCTIONS,
           schema_name: CLASSIFIER_SCHEMA_NAME,
           response_schema: CLASSIFIER_RESPONSE_SCHEMA,
+          prompt_version: prompt_version,
         )
       end
 

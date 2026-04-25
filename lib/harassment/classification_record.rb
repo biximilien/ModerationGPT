@@ -5,6 +5,8 @@ module Harassment
   ClassificationRecord = Data.define(
     :message_id,
     :classifier_version,
+    :model_version,
+    :prompt_version,
     :classification,
     :severity_score,
     :confidence,
@@ -13,6 +15,8 @@ module Harassment
     def self.build(
       message_id:,
       classifier_version:,
+      model_version: "unknown-model",
+      prompt_version: "unknown-prompt",
       classification:,
       severity_score:,
       confidence:,
@@ -21,6 +25,8 @@ module Harassment
       new(
         message_id: identifier!(message_id, "message_id"),
         classifier_version: classifier_version!(classifier_version),
+        model_version: identifier!(model_version, "model_version"),
+        prompt_version: identifier!(prompt_version, "prompt_version"),
         classification: hash!(classification, "classification"),
         severity_score: bounded_float!(severity_score, "severity_score"),
         confidence: bounded_float!(confidence, "confidence"),

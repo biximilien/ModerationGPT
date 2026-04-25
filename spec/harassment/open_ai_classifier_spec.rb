@@ -10,6 +10,7 @@ describe Harassment::OpenAIClassifier do
   let(:instructions) do
     ModerationGPT::Plugins::HarassmentPlugin::CLASSIFIER_INSTRUCTIONS
   end
+  let(:prompt_version) { ModerationGPT::Plugins::HarassmentPlugin::PROMPT_VERSION }
   let(:event) do
     Harassment::InteractionEvent.build(
       message_id: 123,
@@ -29,6 +30,7 @@ describe Harassment::OpenAIClassifier do
       instructions: instructions,
       schema_name: schema_name,
       response_schema: response_schema,
+      prompt_version: prompt_version,
     )
   end
 
@@ -47,6 +49,8 @@ describe Harassment::OpenAIClassifier do
 
     expect(record.message_id).to eq("123")
     expect(record.classifier_version).to eq(Harassment::ClassifierVersion.build("harassment-v1"))
+    expect(record.model_version).to eq("gpt-4o-2024-08-06")
+    expect(record.prompt_version).to eq(prompt_version)
     expect(record.classification).to eq(
       intent: "aggressive",
       target_type: "individual",
