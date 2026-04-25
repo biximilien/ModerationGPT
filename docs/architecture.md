@@ -122,6 +122,7 @@ The project treats Discord identifiers and message content carefully:
 
 - user IDs are anonymized with [lib/telemetry/anonymizer.rb](../lib/telemetry/anonymizer.rb)
 - logs avoid raw message content
+- logs are emitted as structured events by [lib/logging.rb](../lib/logging.rb)
 - OpenTelemetry is optional
 
 That means the privacy boundary is part of the core architecture, not just an observability add-on.

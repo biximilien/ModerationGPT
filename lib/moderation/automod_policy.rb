@@ -2,6 +2,7 @@ require "discordrb/api"
 require "time"
 require_relative "../../environment"
 require_relative "automod_outcome"
+require_relative "../logging"
 require_relative "../telemetry/anonymizer"
 
 module Moderation
@@ -19,7 +20,7 @@ module Moderation
     def apply(event, score)
       user_hash = Telemetry::Anonymizer.hash(event.user.id)
       if @action != "log_only" && protected_member?(event)
-        $logger.warn("User #{user_hash} reached automated moderation threshold with karma #{score}, but has elevated permissions")
+        Logging.warn("automod_skipped_elevated_member", user_hash:, karma_score: score, action: @action)
         return AutomodOutcome::SKIPPED_ELEVATED_MEMBER
       end
 
@@ -34,7 +35,7 @@ module Moderation
     private
 
     def log_only(user_hash, score)
-      $logger.warn("User #{user_hash} reached automated moderation threshold with karma #{score}")
+      Logging.warn("automod_threshold_reached", user_hash:, karma_score: score, action: @action)
       AutomodOutcome::LOG_ONLY
     end
 
@@ -110,7 +111,7 @@ module Moderation
     def applied_or_unavailable(user_hash, score, action_name, applied_outcome, unavailable_outcome)
       return applied_outcome if yield
 
-      $logger.warn("User #{user_hash} reached #{action_name} threshold with karma #{score}, but #{action_name} is unavailable")
+      Logging.warn("automod_action_unavailable", user_hash:, karma_score: score, action: action_name)
       unavailable_outcome
     end
 

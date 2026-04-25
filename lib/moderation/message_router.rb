@@ -1,3 +1,5 @@
+require_relative "../logging"
+
 module Moderation
   class MessageRouter
     def initialize(strategies)
@@ -18,7 +20,7 @@ module Moderation
       strategy.execute(event)
       true
     rescue StandardError => e
-      $logger.error("Moderation strategy failed: #{e.class}: #{e.message}")
+      Logging.error("moderation_strategy_failed", strategy: strategy.class.name, error_class: e.class.name, error_message: e.message)
       false
     end
   end

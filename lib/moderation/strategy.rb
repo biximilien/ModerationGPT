@@ -1,5 +1,6 @@
 require_relative "../../environment"
 require_relative "automod_policy"
+require_relative "../logging"
 require_relative "../telemetry/anonymizer"
 
 class ModerationStrategy
@@ -23,7 +24,7 @@ class ModerationStrategy
 
   def flagged?(event, log_label:)
     result = moderation_result(event)
-    $logger.info("#{log_label} flagged: #{result.flagged}")
+    Logging.info("moderation_flag_evaluated", strategy: self.class.name, log_label:, flagged: result.flagged)
     result.flagged
   end
 
@@ -40,7 +41,7 @@ class ModerationStrategy
     previous_score = @bot.get_user_karma(event.server.id, event.user.id)
     score = @bot.decrement_user_karma(event.server.id, event.user.id)
     user_hash = Telemetry::Anonymizer.hash(event.user.id)
-    $logger.info("Karma score for user=#{user_hash}: #{score}")
+    Logging.info("karma_score_updated", strategy: self.class.name, user_hash:, karma_score: score, previous_score:)
     @plugin_registry&.infraction(event: event, score: score, app: @bot, strategy: self.class.name)
 
     if crossed_automod_threshold?(previous_score, score)

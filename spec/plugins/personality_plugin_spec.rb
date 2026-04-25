@@ -47,6 +47,10 @@ describe ModerationGPT::Plugins::PersonalityPlugin do
     instructions = described_class.new.rewrite_instructions
 
     expect(instructions).to include("direct, neutral tone")
-    expect($logger).to have_received(:warn).with('Unknown moderation personality "wizard"; using objective')
+    expect($logger).to have_received(:warn).with(
+      event: "unknown_moderation_personality",
+      configured_personality: "wizard",
+      fallback_personality: "objective",
+    )
   end
 end

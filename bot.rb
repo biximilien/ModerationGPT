@@ -13,8 +13,9 @@ require_relative "lib/moderation/strategies/watch_list_strategy"
 require_relative "lib/moderation/message_router"
 require_relative "lib/telemetry"
 require_relative "lib/plugin_registry"
+require_relative "lib/logging"
 
-$logger = Logger.new(STDOUT)
+$logger = Logging.build_logger(STDOUT)
 
 Environment.validate!
 plugins = ModerationGPT::PluginRegistry.from_environment
@@ -23,8 +24,8 @@ plugins.boot
 bot = Discordrb::Bot.new token: Environment.discord_bot_token, intents: :all
 
 if Environment.log_invite_url?
-  $logger.info("This bot's invite URL is #{bot.invite_url(permission_bits: Discord::Permission::MODERATION_BOT)}.")
-  $logger.info("Click on it to invite it to your server.")
+  Logging.info("discord_invite_url_generated", invite_url: bot.invite_url(permission_bits: Discord::Permission::MODERATION_BOT))
+  Logging.info("discord_invite_url_notice")
 end
 
 app = ModerationGPT::Application.new
@@ -42,7 +43,7 @@ bot.message do |event|
   next if event.user.current_bot?
 
   plugins.message(event: event, app: app, bot: bot)
-  $logger.info("Message received: user=#{Telemetry::Anonymizer.hash(event.user.id)} length=#{event.message.content.length}")
+  Logging.info("discord_message_received", user_hash: Telemetry::Anonymizer.hash(event.user.id), message_length: event.message.content.length)
 
   if moderation_command.matches?(event)
     moderation_command.handle(event)
@@ -60,6 +61,6 @@ begin
   at_exit { bot.stop }
   bot.run
 rescue Interrupt
-  $logger.info("Exiting...")
+  Logging.info("bot_stopping")
   exit
 end

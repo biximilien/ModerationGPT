@@ -12,7 +12,10 @@ describe Moderation::AutomodPolicy do
     result = policy.apply(event, -5)
 
     expect($logger).to have_received(:warn).with(
-      "User #{Telemetry::Anonymizer.hash(456)} reached automated moderation threshold with karma -5",
+      event: "automod_threshold_reached",
+      user_hash: Telemetry::Anonymizer.hash(456),
+      karma_score: -5,
+      action: "log_only",
     )
     expect(result).to eq(Moderation::AutomodOutcome::LOG_ONLY)
   end
@@ -38,7 +41,10 @@ describe Moderation::AutomodPolicy do
     expect(result).to eq(Moderation::AutomodOutcome::SKIPPED_ELEVATED_MEMBER)
     expect(member).not_to have_received(:timeout_for)
     expect($logger).to have_received(:warn).with(
-      "User #{Telemetry::Anonymizer.hash(456)} reached automated moderation threshold with karma -5, but has elevated permissions",
+      event: "automod_skipped_elevated_member",
+      user_hash: Telemetry::Anonymizer.hash(456),
+      karma_score: -5,
+      action: "timeout",
     )
   end
 
@@ -71,7 +77,10 @@ describe Moderation::AutomodPolicy do
 
     expect(result).to eq(Moderation::AutomodOutcome::TIMEOUT_UNAVAILABLE)
     expect($logger).to have_received(:warn).with(
-      "User #{Telemetry::Anonymizer.hash(456)} reached timeout threshold with karma -5, but timeout is unavailable",
+      event: "automod_action_unavailable",
+      user_hash: Telemetry::Anonymizer.hash(456),
+      karma_score: -5,
+      action: "timeout",
     )
   end
 
@@ -101,7 +110,10 @@ describe Moderation::AutomodPolicy do
 
     expect(result).to eq(Moderation::AutomodOutcome::KICK_UNAVAILABLE)
     expect($logger).to have_received(:warn).with(
-      "User #{Telemetry::Anonymizer.hash(456)} reached kick threshold with karma -5, but kick is unavailable",
+      event: "automod_action_unavailable",
+      user_hash: Telemetry::Anonymizer.hash(456),
+      karma_score: -5,
+      action: "kick",
     )
   end
 
@@ -121,7 +133,10 @@ describe Moderation::AutomodPolicy do
 
     expect(result).to eq(Moderation::AutomodOutcome::BAN_UNAVAILABLE)
     expect($logger).to have_received(:warn).with(
-      "User #{Telemetry::Anonymizer.hash(456)} reached ban threshold with karma -5, but ban is unavailable",
+      event: "automod_action_unavailable",
+      user_hash: Telemetry::Anonymizer.hash(456),
+      karma_score: -5,
+      action: "ban",
     )
   end
 end

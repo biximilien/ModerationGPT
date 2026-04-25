@@ -1,5 +1,6 @@
 require_relative "../environment"
 require_relative "telemetry/anonymizer"
+require_relative "logging"
 
 module Telemetry
   class NoopSpan
@@ -36,7 +37,7 @@ module Telemetry
     @tracer = OpenTelemetry.tracer_provider.tracer("moderation_gpt", "1.0")
     true
   rescue LoadError => e
-    $logger&.warn("OpenTelemetry disabled: #{e.message}")
+    Logging.warn("opentelemetry_disabled", error_class: e.class.name, error_message: e.message)
     @tracer = NoopTracer.new
     false
   end

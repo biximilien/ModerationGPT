@@ -1,4 +1,5 @@
 require_relative "../../environment"
+require_relative "../logging"
 require_relative "../plugin"
 
 module ModerationGPT
@@ -23,7 +24,7 @@ module ModerationGPT
         configured = Environment.personality
         return configured if INSTRUCTIONS.key?(configured)
 
-        $logger&.warn("Unknown moderation personality #{configured.inspect}; using #{DEFAULT_PERSONALITY}")
+        Logging.warn("unknown_moderation_personality", configured_personality: configured, fallback_personality: DEFAULT_PERSONALITY)
         DEFAULT_PERSONALITY
       end
     end

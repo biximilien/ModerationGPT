@@ -1,4 +1,5 @@
 require_relative "../telemetry/anonymizer"
+require_relative "../logging"
 
 module Discord
   class ModerationCommand
@@ -32,7 +33,7 @@ module Discord
       match = COMMAND_PATTERN.match(event.message.content)
       return false unless matches?(event)
 
-      $logger.info("Moderation command from user=#{Telemetry::Anonymizer.hash(event.user.id)}")
+      Logging.info("moderation_command_received", user_hash: Telemetry::Anonymizer.hash(event.user.id))
       return true unless administrator?(event)
 
       respond_to_command(event, match)

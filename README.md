@@ -51,13 +51,14 @@ KARMA_AUTOMOD_THRESHOLD=-5
 KARMA_AUTOMOD_ACTION=timeout
 KARMA_TIMEOUT_SECONDS=3600
 LOG_INVITE_URL=false
+LOG_FORMAT=json
 TELEMETRY_HASH_SALT=replace_with_random_secret
 PLUGIN_REQUIRES=
 PLUGINS=
 PERSONALITY=objective
 ```
 
-`OPENAI_MODERATION_MODEL`, `OPENAI_REWRITE_MODEL`, `KARMA_AUTOMOD_THRESHOLD`, `KARMA_AUTOMOD_ACTION`, `KARMA_TIMEOUT_SECONDS`, and `LOG_INVITE_URL` are optional. `TELEMETRY_HASH_SALT` is used to anonymize Discord identifiers in logs and traces; set it to a stable random secret for your deployment.
+`OPENAI_MODERATION_MODEL`, `OPENAI_REWRITE_MODEL`, `KARMA_AUTOMOD_THRESHOLD`, `KARMA_AUTOMOD_ACTION`, `KARMA_TIMEOUT_SECONDS`, `LOG_INVITE_URL`, and `LOG_FORMAT` are optional. `TELEMETRY_HASH_SALT` is used to anonymize Discord identifiers in logs and traces; set it to a stable random secret for your deployment.
 
 ## Local Development
 
@@ -92,6 +93,12 @@ The default specs stub OpenAI and Redis, so they do not require external API cal
 
 The Redis data model is documented in `docs/data-model.md`.
 The application structure is documented in `docs/architecture.md`.
+
+## Logging
+
+The bot emits structured logs by default using JSON lines. Each entry includes a timestamp, level, event name, and any event-specific fields.
+
+Use `LOG_FORMAT=plain` if you want a more human-oriented log format during local development.
 
 ## Plugins
 

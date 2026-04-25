@@ -114,7 +114,12 @@ describe ModerationGPT::PluginRegistry do
       result = described_class.new([broken, healthy]).rewrite_instructions(event: :event)
 
       expect(result).to eq("Fallback instructions.")
-      expect($logger).to have_received(:error).with("Plugin hook rewrite_instructions failed: StandardError: boom")
+      expect($logger).to have_received(:error).with(
+        event: "plugin_hook_failed",
+        hook: :rewrite_instructions,
+        error_class: "StandardError",
+        error_message: "boom",
+      )
     end
 
     it "aggregates plugin-provided moderation strategies" do
@@ -137,7 +142,12 @@ describe ModerationGPT::PluginRegistry do
       result = described_class.new([broken, healthy]).moderation_strategies(app: :app)
 
       expect(result).to eq([:healthy])
-      expect($logger).to have_received(:error).with("Plugin hook moderation_strategies failed: StandardError: boom")
+      expect($logger).to have_received(:error).with(
+        event: "plugin_hook_failed",
+        hook: :moderation_strategies,
+        error_class: "StandardError",
+        error_message: "boom",
+      )
     end
 
     it "logs and continues when a plugin hook fails" do
@@ -148,7 +158,12 @@ describe ModerationGPT::PluginRegistry do
 
       described_class.new([broken, healthy]).message(event: :message)
 
-      expect($logger).to have_received(:error).with("Plugin hook message failed: StandardError: boom")
+      expect($logger).to have_received(:error).with(
+        event: "plugin_hook_failed",
+        hook: :message,
+        error_class: "StandardError",
+        error_message: "boom",
+      )
       expect(healthy).to have_received(:message).with(event: :message)
     end
   end

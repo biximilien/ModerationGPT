@@ -185,4 +185,24 @@ describe Environment do
       expect(described_class.log_invite_url?).to eq(true)
     end
   end
+
+  describe ".log_format" do
+    it "defaults to json" do
+      ENV.delete("LOG_FORMAT")
+
+      expect(described_class.log_format).to eq("json")
+    end
+
+    it "returns a configured format" do
+      ENV["LOG_FORMAT"] = "plain"
+
+      expect(described_class.log_format).to eq("plain")
+    end
+
+    it "falls back to json for unknown formats" do
+      ENV["LOG_FORMAT"] = "xml"
+
+      expect(described_class.log_format).to eq("json")
+    end
+  end
 end

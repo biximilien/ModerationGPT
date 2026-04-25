@@ -1,4 +1,5 @@
 require_relative "../environment"
+require_relative "logging"
 require_relative "plugin"
 require_relative "plugins/personality_plugin"
 require_relative "plugins/telemetry_plugin"
@@ -103,7 +104,7 @@ module ModerationGPT
     end
 
     def log_hook_failure(hook, error)
-      $logger&.error("Plugin hook #{hook} failed: #{error.class}: #{error.message}")
+      Logging.error("plugin_hook_failed", hook: hook, error_class: error.class.name, error_message: error.message)
     end
   end
 
