@@ -27,6 +27,17 @@ module Harassment
       )
     end
 
+    def decay_to(as_of:, decay_policy:)
+      self.class.build(
+        source_user_id: source_user_id,
+        target_user_id: target_user_id,
+        hostility_score: decay_policy.decay(hostility_score, from: last_interaction_at, to: as_of),
+        positive_score: decay_policy.decay(positive_score, from: last_interaction_at, to: as_of),
+        interaction_count: interaction_count,
+        last_interaction_at: last_interaction_at,
+      )
+    end
+
     class << self
       private
 

@@ -1,12 +1,14 @@
 require_relative "incident"
+require_relative "decay_policy"
 require_relative "relationship_edge"
 
 module Harassment
   class ReadModel
-    def initialize
+    def initialize(decay_policy: DecayPolicy.new)
       @incidents_by_channel = Hash.new { |hash, key| hash[key] = [] }
       @edges = {}
       @processed_classifications = {}
+      @decay_policy = decay_policy
     end
 
     def ingest(event:, record:)
@@ -34,21 +36,23 @@ module Harassment
         .first(limit)
     end
 
-    def get_pair_relationship(user_a, user_b)
-      @edges[edge_key(user_a, user_b)]
+    def get_pair_relationship(user_a, user_b, as_of: Time.now.utc)
+      edge = @edges[edge_key(user_a, user_b)]
+      edge&.decay_to(as_of:, decay_policy: @decay_policy)
     end
 
-    def get_user_risk(user_id)
-      source_user_id = user_id.to_s
-      edges = @edges.values.select { |edge| edge.source_user_id == source_user_id }
+    def get_user_risk(user_id, as_of: Time.now.utc)
+      edges = outgoing_relationships(user_id, as_of:)
       return 0.0 if edges.empty?
 
       edges.sum(&:hostility_score)
     end
 
-    def outgoing_relationships(user_id)
+    def outgoing_relationships(user_id, as_of: Time.now.utc)
       source_user_id = user_id.to_s
-      @edges.values.select { |edge| edge.source_user_id == source_user_id }
+      @edges.values
+            .select { |edge| edge.source_user_id == source_user_id }
+            .map { |edge| edge.decay_to(as_of:, decay_policy: @decay_policy) }
     end
 
     private
@@ -68,12 +72,14 @@ module Harassment
     end
 
     def update_edge(edge, incident)
+      decayed_edge = edge.decay_to(as_of: incident.classified_at, decay_policy: @decay_policy)
+
       RelationshipEdge.build(
-        source_user_id: edge.source_user_id,
-        target_user_id: edge.target_user_id,
-        hostility_score: edge.hostility_score + incident.severity_score * incident.confidence,
-        positive_score: edge.positive_score,
-        interaction_count: edge.interaction_count + 1,
+        source_user_id: decayed_edge.source_user_id,
+        target_user_id: decayed_edge.target_user_id,
+        hostility_score: decayed_edge.hostility_score + incident.severity_score * incident.confidence,
+        positive_score: decayed_edge.positive_score,
+        interaction_count: decayed_edge.interaction_count + 1,
         last_interaction_at: incident.classified_at,
       )
     end

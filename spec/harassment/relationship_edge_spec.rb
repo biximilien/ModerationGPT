@@ -1,4 +1,5 @@
 require "harassment/relationship_edge"
+require "harassment/decay_policy"
 
 describe Harassment::RelationshipEdge do
   it "builds a normalized relationship edge" do
@@ -29,5 +30,23 @@ describe Harassment::RelationshipEdge do
         hostility_score: -0.1,
       )
     end.to raise_error(ArgumentError, "hostility_score must be non-negative")
+  end
+
+  it "decays scores to a later point in time" do
+    edge = described_class.build(
+      source_user_id: 123,
+      target_user_id: 456,
+      hostility_score: 1.0,
+      positive_score: 0.5,
+      interaction_count: 1,
+      last_interaction_at: Time.utc(2026, 4, 25, 12, 0, 0),
+    )
+    decay_policy = Harassment::DecayPolicy.new(lambda_value: Math.log(2) / 3600.0)
+
+    decayed = edge.decay_to(as_of: Time.utc(2026, 4, 25, 13, 0, 0), decay_policy: decay_policy)
+
+    expect(decayed.hostility_score).to be_within(0.0001).of(0.5)
+    expect(decayed.positive_score).to be_within(0.0001).of(0.25)
+    expect(decayed.interaction_count).to eq(1)
   end
 end

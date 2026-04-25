@@ -18,12 +18,12 @@ module ModerationGPT
         @read_model.ingest(event:, record:)
       end
 
-      def get_user_risk(user_id)
-        @query_service.get_user_risk(user_id)
+      def get_user_risk(user_id, as_of: Time.now.utc)
+        @query_service.get_user_risk(user_id, as_of:)
       end
 
-      def get_pair_relationship(user_a, user_b)
-        @query_service.get_pair_relationship(user_a, user_b)
+      def get_pair_relationship(user_a, user_b, as_of: Time.now.utc)
+        @query_service.get_pair_relationship(user_a, user_b, as_of:)
       end
 
       def recent_incidents(channel_id, limit: 10)

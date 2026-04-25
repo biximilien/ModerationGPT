@@ -34,8 +34,8 @@ describe ModerationGPT::Plugins::HarassmentPlugin do
   it "exposes user risk and pair relationships" do
     plugin.record_classification(event:, record:)
 
-    expect(plugin.get_user_risk("321").risk_score).to eq(0.4)
-    expect(plugin.get_pair_relationship("321", "654").relationship_edge.interaction_count).to eq(1)
+    expect(plugin.get_user_risk("321", as_of: record.classified_at).risk_score).to eq(0.4)
+    expect(plugin.get_pair_relationship("321", "654", as_of: record.classified_at).relationship_edge.interaction_count).to eq(1)
   end
 
   it "is idempotent for duplicate classification deliveries" do

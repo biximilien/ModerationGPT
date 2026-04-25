@@ -8,9 +8,9 @@ module Harassment
       @read_model = read_model
     end
 
-    def get_user_risk(user_id)
+    def get_user_risk(user_id, as_of: Time.now.utc)
       normalized_user_id = user_id.to_s
-      edges = @read_model.outgoing_relationships(normalized_user_id)
+      edges = @read_model.outgoing_relationships(normalized_user_id, as_of:)
 
       UserRiskReport.build(
         user_id: normalized_user_id,
@@ -19,11 +19,11 @@ module Harassment
       )
     end
 
-    def get_pair_relationship(user_a, user_b)
+    def get_pair_relationship(user_a, user_b, as_of: Time.now.utc)
       PairRelationshipReport.build(
         source_user_id: user_a,
         target_user_id: user_b,
-        relationship_edge: @read_model.get_pair_relationship(user_a, user_b),
+        relationship_edge: @read_model.get_pair_relationship(user_a, user_b, as_of:),
       )
     end
 
