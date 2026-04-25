@@ -12,6 +12,7 @@ module Harassment
     :raw_content,
     :classification_status,
     :content_retention_expires_at,
+    :content_redacted_at,
   ) do
     def self.build(
       message_id:,
@@ -22,7 +23,8 @@ module Harassment
       timestamp: Time.now.utc,
       raw_content:,
       classification_status: ClassificationStatus::PENDING,
-      content_retention_expires_at: nil
+      content_retention_expires_at: nil,
+      content_redacted_at: nil
     )
       new(
         message_id: identifier!(message_id, "message_id"),
@@ -34,11 +36,30 @@ module Harassment
         raw_content: string!(raw_content, "raw_content"),
         classification_status: classification_status!(classification_status),
         content_retention_expires_at: optional_time(content_retention_expires_at, "content_retention_expires_at"),
+        content_redacted_at: optional_time(content_redacted_at, "content_redacted_at"),
       )
     end
 
     def with_classification_status(status)
       self.class.build(**to_h, classification_status: status)
+    end
+
+    def retention_expired?(as_of: Time.now.utc)
+      return false unless content_retention_expires_at
+
+      content_retention_expires_at <= as_of.utc
+    end
+
+    def redacted?
+      !content_redacted_at.nil?
+    end
+
+    def redact_content(redacted_at: Time.now.utc, replacement: "[REDACTED]")
+      self.class.build(
+        **to_h,
+        raw_content: replacement.to_s,
+        content_redacted_at: redacted_at,
+      )
     end
 
     class << self

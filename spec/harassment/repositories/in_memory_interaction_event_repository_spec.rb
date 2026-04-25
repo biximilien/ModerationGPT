@@ -50,4 +50,24 @@ describe Harassment::Repositories::InMemoryInteractionEventRepository do
     expect(repository.list_by_classification_status(Harassment::ClassificationStatus::PENDING).map(&:message_id)).to eq(["123"])
     expect(repository.list_by_classification_status(Harassment::ClassificationStatus::FAILED_RETRYABLE).map(&:message_id)).to eq(["124"])
   end
+
+  it "lists events with expired content and redacts them" do
+    repository.save(
+      Harassment::InteractionEvent.build(
+        message_id: 123,
+        server_id: 456,
+        channel_id: 789,
+        author_id: 321,
+        raw_content: "hello there",
+        content_retention_expires_at: Time.utc(2026, 4, 1, 12, 0, 0),
+      ),
+    )
+
+    expect(repository.list_with_expired_content(as_of: Time.utc(2026, 4, 2, 12, 0, 0)).map(&:message_id)).to eq(["123"])
+
+    redacted = repository.redact_content("123", redacted_at: Time.utc(2026, 4, 2, 12, 0, 0))
+
+    expect(redacted.raw_content).to eq("[REDACTED]")
+    expect(repository.find("123").content_redacted_at).to eq(Time.utc(2026, 4, 2, 12, 0, 0))
+  end
 end

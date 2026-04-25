@@ -19,6 +19,14 @@ module Harassment
       def list_by_classification_status(_status)
         raise NotImplementedError, "#{self.class} must implement #list_by_classification_status"
       end
+
+      def list_with_expired_content(as_of: Time.now.utc)
+        raise NotImplementedError, "#{self.class} must implement #list_with_expired_content"
+      end
+
+      def redact_content(_message_id, redacted_at: Time.now.utc)
+        raise NotImplementedError, "#{self.class} must implement #redact_content"
+      end
     end
   end
 end

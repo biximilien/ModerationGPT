@@ -31,6 +31,18 @@ module Harassment
         @events.values.select { |event| event.classification_status == normalized_status }
       end
 
+      def list_with_expired_content(as_of: Time.now.utc)
+        @events.values.select { |event| event.retention_expired?(as_of:) }
+      end
+
+      def redact_content(message_id, redacted_at: Time.now.utc)
+        event = find(message_id)
+        return nil unless event
+
+        redacted = event.redact_content(redacted_at:)
+        @events[event.message_id] = redacted
+      end
+
       private
 
       def normalize_status(status)

@@ -25,6 +25,7 @@ describe Harassment::InteractionEvent do
     expect(event.raw_content).to eq("hello there")
     expect(event.classification_status).to eq(Harassment::ClassificationStatus::PENDING)
     expect(event.content_retention_expires_at).to eq(retention)
+    expect(event.content_redacted_at).to eq(nil)
   end
 
   it "supports updating classification status immutably" do
@@ -53,5 +54,24 @@ describe Harassment::InteractionEvent do
         classification_status: "mystery",
       )
     end.to raise_error(ArgumentError, "classification_status must be one of: pending, classified, failed_retryable, failed_terminal")
+  end
+
+  it "detects retention expiry and supports immutable redaction" do
+    event = described_class.build(
+      message_id: 123,
+      server_id: 456,
+      channel_id: 789,
+      author_id: 321,
+      raw_content: "hello there",
+      content_retention_expires_at: Time.utc(2026, 4, 1, 12, 0, 0),
+    )
+
+    expect(event.retention_expired?(as_of: Time.utc(2026, 4, 2, 12, 0, 0))).to eq(true)
+
+    redacted = event.redact_content(redacted_at: Time.utc(2026, 4, 2, 12, 0, 0))
+
+    expect(redacted.raw_content).to eq("[REDACTED]")
+    expect(redacted.content_redacted_at).to eq(Time.utc(2026, 4, 2, 12, 0, 0))
+    expect(event.content_redacted_at).to eq(nil)
   end
 end
