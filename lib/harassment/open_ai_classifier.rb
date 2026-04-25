@@ -1,62 +1,15 @@
 require "json"
 require_relative "classification_record"
 require_relative "classifier"
-require_relative "../../environment"
 
 module Harassment
   class OpenAIClassifier < Classifier
-    INTENTS = %w[neutral friendly teasing aggressive abusive threatening].freeze
-    TARGET_TYPES = %w[individual group self none].freeze
-    TOXICITY_DIMENSIONS = %w[insult threat profanity exclusion harassment].freeze
-
-    RESPONSE_SCHEMA = {
-      type: "object",
-      additionalProperties: false,
-      required: %w[intent target_type toxicity_dimensions severity_score confidence],
-      properties: {
-        intent: {
-          type: "string",
-          enum: INTENTS,
-        },
-        target_type: {
-          type: "string",
-          enum: TARGET_TYPES,
-        },
-        toxicity_dimensions: {
-          type: "object",
-          additionalProperties: false,
-          required: TOXICITY_DIMENSIONS,
-          properties: TOXICITY_DIMENSIONS.to_h { |dimension| [dimension, { type: "boolean" }] },
-        },
-        severity_score: {
-          type: "number",
-          minimum: 0.0,
-          maximum: 1.0,
-        },
-        confidence: {
-          type: "number",
-          minimum: 0.0,
-          maximum: 1.0,
-        },
-      },
-    }.freeze
-
-    INSTRUCTIONS = <<~TEXT.freeze
-      Classify a Discord moderation event for harassment analysis.
-      Return only structured JSON that matches the supplied schema.
-      Use the message content and target metadata to infer:
-      - intent
-      - target_type
-      - toxicity_dimensions
-      - severity_score
-      - confidence
-      Do not recommend punishment or policy actions.
-      Treat this as semantic labeling only.
-    TEXT
-
-    def initialize(client:, model: Environment.harassment_classifier_model)
+    def initialize(client:, model:, instructions:, schema_name:, response_schema:)
       @client = client
       @model = model
+      @instructions = instructions
+      @schema_name = schema_name
+      @response_schema = response_schema
     end
 
     def classify(event:, classifier_version:, context: nil, classified_at: Time.now.utc)
@@ -64,14 +17,14 @@ module Harassment
         "https://api.openai.com/v1/responses",
         {
           model: @model,
-          instructions: INSTRUCTIONS,
+          instructions: @instructions,
           input: classifier_input(event, context: context),
           text: {
             format: {
               type: "json_schema",
-              name: "harassment_classification",
+              name: @schema_name,
               strict: true,
-              schema: RESPONSE_SCHEMA,
+              schema: @response_schema,
             },
           },
         },

@@ -1,7 +1,15 @@
 require "harassment/open_ai_classifier"
+require "plugins/harassment_plugin"
 
 describe Harassment::OpenAIClassifier do
   let(:client) { instance_double("OpenAIClient") }
+  let(:schema_name) { "custom_harassment_schema" }
+  let(:response_schema) do
+    ModerationGPT::Plugins::HarassmentPlugin::CLASSIFIER_RESPONSE_SCHEMA
+  end
+  let(:instructions) do
+    ModerationGPT::Plugins::HarassmentPlugin::CLASSIFIER_INSTRUCTIONS
+  end
   let(:event) do
     Harassment::InteractionEvent.build(
       message_id: 123,
@@ -14,7 +22,15 @@ describe Harassment::OpenAIClassifier do
     )
   end
 
-  subject(:classifier) { described_class.new(client: client, model: "gpt-4o-2024-08-06") }
+  subject(:classifier) do
+    described_class.new(
+      client: client,
+      model: "gpt-4o-2024-08-06",
+      instructions: instructions,
+      schema_name: schema_name,
+      response_schema: response_schema,
+    )
+  end
 
   it "builds a classification record from structured OpenAI output" do
     response = { "output_text" => <<~JSON.strip }
@@ -53,7 +69,7 @@ describe Harassment::OpenAIClassifier do
         text: hash_including(
           format: hash_including(
             type: "json_schema",
-            name: "harassment_classification",
+            name: "custom_harassment_schema",
             strict: true,
           ),
         ),

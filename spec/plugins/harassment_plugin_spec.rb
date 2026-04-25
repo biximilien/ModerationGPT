@@ -31,6 +31,18 @@ describe ModerationGPT::Plugins::HarassmentPlugin do
     expect(plugin.recent_incidents("789").incidents).to eq([incident])
   end
 
+  it "owns the harassment classifier version" do
+    expect(plugin.classifier_version).to eq("harassment-v1")
+  end
+
+  it "builds the harassment classifier definition" do
+    client = instance_double("OpenAIClient")
+
+    classifier = plugin.build_classifier(client:, model: "gpt-4o-test")
+
+    expect(classifier).to be_a(Harassment::OpenAIClassifier)
+  end
+
   it "exposes user risk and pair relationships" do
     plugin.record_classification(event:, record:)
 

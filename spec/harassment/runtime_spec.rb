@@ -23,8 +23,8 @@ describe Harassment::Runtime do
 
   subject(:runtime) do
     described_class.new(
-      client: client,
       redis: redis,
+      classifier_version: "harassment-v1",
       classifier: classifier,
       on_classification: ->(event:, record:) { recorded << [event, record] },
     )
@@ -81,7 +81,7 @@ describe Harassment::Runtime do
       allow(classifier).to receive(:classify).and_return(record)
       runtime.process_due_classifications(as_of: Time.utc(2026, 4, 25, 16, 1, 0))
 
-      second_runtime = described_class.new(client: client, redis: redis, classifier: classifier)
+      second_runtime = described_class.new(redis: redis, classifier_version: "harassment-v1", classifier: classifier)
 
       expect(second_runtime.interaction_events.find("123")&.classification_status).to eq(Harassment::ClassificationStatus::CLASSIFIED)
       expect(second_runtime.classification_records.latest_for_message("123")).to eq(record)

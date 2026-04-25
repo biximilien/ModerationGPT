@@ -123,7 +123,7 @@ Built-in plugins:
 
 The `harassment` plugin passively captures interaction events, enqueues harassment classification work, and records classified incidents in its own read model without applying automated enforcement.
 
-In the current implementation, the core platform owns the harassment runtime: Discord message ingestion, Redis-backed event and job storage, transient context assembly, and background classification processing. The plugin owns the harassment read model, scoring, moderator-facing queries, and Discord command output.
+In the current implementation, the core platform owns the harassment runtime: Discord message ingestion, Redis-backed event and job storage, transient context assembly, and background classification processing. The plugin owns the harassment classifier version, prompt/schema definition, read model, scoring, moderator-facing queries, and Discord command output.
 
 Classifier context is assembled transiently from retained interaction events and sent to OpenAI with pseudonymous participant labels rather than raw Discord IDs.
 

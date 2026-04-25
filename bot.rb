@@ -27,8 +27,9 @@ harassment_plugin = plugins.find_plugin(ModerationGPT::Plugins::HarassmentPlugin
 harassment_runtime =
   if harassment_plugin
     Harassment::Runtime.new(
-      client: app,
       redis: app.redis,
+      classifier_version: harassment_plugin.classifier_version,
+      classifier: harassment_plugin.build_classifier(client: app),
       on_classification: ->(event:, record:) { harassment_plugin.record_classification(event:, record:) },
     )
   end
