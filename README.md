@@ -51,11 +51,13 @@ Create a `.env` file in the project root. The simplest approach is to copy `.env
 OPENAI_API_KEY=my_openai_secret
 DISCORD_BOT_TOKEN=my_discord_secret
 REDIS_URL=redis://localhost:6379/0
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/moderationgpt
 OPENAI_MODERATION_MODEL=omni-moderation-latest
 OPENAI_REWRITE_MODEL=gpt-4.1-mini
 HARASSMENT_CLASSIFIER_MODEL=gpt-4o-2024-08-06
 HARASSMENT_CLASSIFIER_CACHE_TTL_SECONDS=3600
 HARASSMENT_CLASSIFIER_RATE_LIMIT_PER_MINUTE=30
+HARASSMENT_STORAGE_BACKEND=redis
 KARMA_AUTOMOD_THRESHOLD=-5
 KARMA_AUTOMOD_ACTION=timeout
 KARMA_TIMEOUT_SECONDS=3600
@@ -67,7 +69,7 @@ PLUGINS=
 PERSONALITY=objective
 ```
 
-`OPENAI_MODERATION_MODEL`, `OPENAI_REWRITE_MODEL`, `HARASSMENT_CLASSIFIER_MODEL`, `HARASSMENT_CLASSIFIER_CACHE_TTL_SECONDS`, `HARASSMENT_CLASSIFIER_RATE_LIMIT_PER_MINUTE`, `KARMA_AUTOMOD_THRESHOLD`, `KARMA_AUTOMOD_ACTION`, `KARMA_TIMEOUT_SECONDS`, `LOG_INVITE_URL`, and `LOG_FORMAT` are optional. `TELEMETRY_HASH_SALT` is used to anonymize Discord identifiers in logs and traces; set it to a stable random secret for your deployment.
+`DATABASE_URL`, `OPENAI_MODERATION_MODEL`, `OPENAI_REWRITE_MODEL`, `HARASSMENT_CLASSIFIER_MODEL`, `HARASSMENT_CLASSIFIER_CACHE_TTL_SECONDS`, `HARASSMENT_CLASSIFIER_RATE_LIMIT_PER_MINUTE`, `HARASSMENT_STORAGE_BACKEND`, `KARMA_AUTOMOD_THRESHOLD`, `KARMA_AUTOMOD_ACTION`, `KARMA_TIMEOUT_SECONDS`, `LOG_INVITE_URL`, and `LOG_FORMAT` are optional. `TELEMETRY_HASH_SALT` is used to anonymize Discord identifiers in logs and traces; set it to a stable random secret for your deployment.
 
 ## Local Development
 
@@ -126,6 +128,8 @@ Built-in plugins:
 The `harassment` plugin passively captures interaction events, enqueues harassment classification work, and records classified incidents in its own read model without applying automated enforcement.
 
 In the current implementation, the core platform owns the harassment runtime: Discord message ingestion, Redis-backed event and job storage, transient context assembly, classifier-output caching, per-server rate limiting, and background classification processing. The plugin owns the harassment classifier version, prompt/schema definition, read model, scoring, moderator-facing queries, and Discord command output.
+
+`HARASSMENT_STORAGE_BACKEND` currently supports `redis` in production code today. `postgres` is now an explicit migration target with schema groundwork in `db/harassment/001_initial_schema.sql`, but the Postgres repository implementations are not wired in yet.
 
 Classifier context is assembled transiently from retained interaction events and sent to OpenAI with pseudonymous participant labels rather than raw Discord IDs.
 

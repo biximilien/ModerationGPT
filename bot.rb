@@ -28,6 +28,7 @@ harassment_runtime =
   if harassment_plugin
     Harassment::Runtime.new(
       redis: app.redis,
+      storage_backend: Environment.harassment_storage_backend,
       classifier_version: harassment_plugin.classifier_version,
       classifier: harassment_plugin.build_classifier(client: app),
       on_classification: ->(event:, record:) { harassment_plugin.record_classification(event:, record:) },

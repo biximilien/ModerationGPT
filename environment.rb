@@ -19,6 +19,7 @@ module Environment
   DEFAULT_HARASSMENT_CLASSIFIER_MODEL = "gpt-4o-2024-08-06"
   DEFAULT_HARASSMENT_CLASSIFIER_CACHE_TTL_SECONDS = 3_600
   DEFAULT_HARASSMENT_CLASSIFIER_RATE_LIMIT_PER_MINUTE = 30
+  DEFAULT_HARASSMENT_STORAGE_BACKEND = "redis"
 
   def self.validate!
     missing = REQUIRED_VARIABLES.select { |name| missing?(ENV[name]) }
@@ -37,6 +38,10 @@ module Environment
 
   def self.redis_url
     ENV["REDIS_URL"]
+  end
+
+  def self.database_url
+    ENV["DATABASE_URL"]
   end
 
   def self.openai_moderation_model
@@ -98,6 +103,11 @@ module Environment
 
   def self.harassment_classifier_rate_limit_per_minute
     ENV.fetch("HARASSMENT_CLASSIFIER_RATE_LIMIT_PER_MINUTE", DEFAULT_HARASSMENT_CLASSIFIER_RATE_LIMIT_PER_MINUTE).to_i
+  end
+
+  def self.harassment_storage_backend
+    candidate = ENV.fetch("HARASSMENT_STORAGE_BACKEND", DEFAULT_HARASSMENT_STORAGE_BACKEND).downcase
+    %w[redis postgres].include?(candidate) ? candidate : DEFAULT_HARASSMENT_STORAGE_BACKEND
   end
 
   def self.missing?(value)
