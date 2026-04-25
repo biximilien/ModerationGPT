@@ -28,6 +28,7 @@ harassment_runtime =
   if harassment_plugin
     Harassment::Runtime.new(
       client: app,
+      redis: app.redis,
       on_classification: ->(event:, record:) { harassment_plugin.record_classification(event:, record:) },
     )
   end

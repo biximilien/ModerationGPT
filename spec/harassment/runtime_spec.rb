@@ -1,9 +1,11 @@
 require "harassment/runtime"
+require_relative "../support/fake_redis"
 
 describe Harassment::Runtime do
   let(:client) { instance_double("OpenAIClient") }
   let(:classifier) { instance_double("Classifier") }
   let(:recorded) { [] }
+  let(:redis) { nil }
   let(:mentioned_user) { instance_double("User", id: 654) }
   let(:message) do
     instance_double(
@@ -22,6 +24,7 @@ describe Harassment::Runtime do
   subject(:runtime) do
     described_class.new(
       client: client,
+      redis: redis,
       classifier: classifier,
       on_classification: ->(event:, record:) { recorded << [event, record] },
     )
@@ -68,5 +71,21 @@ describe Harassment::Runtime do
     expect(recorded.first.first.classification_status).to eq(Harassment::ClassificationStatus::PENDING)
     expect(runtime.interaction_events.find("123").classification_status).to eq(Harassment::ClassificationStatus::CLASSIFIED)
     expect(runtime.classification_records.latest_for_message("123")).to eq(record)
+  end
+
+  context "with Redis-backed repositories" do
+    let(:redis) { FakeRedis.new }
+
+    it "persists runtime data across instances that share Redis" do
+      runtime.ingest_message(event)
+      allow(classifier).to receive(:classify).and_return(record)
+      runtime.process_due_classifications(as_of: Time.utc(2026, 4, 25, 16, 1, 0))
+
+      second_runtime = described_class.new(client: client, redis: redis, classifier: classifier)
+
+      expect(second_runtime.interaction_events.find("123")&.classification_status).to eq(Harassment::ClassificationStatus::CLASSIFIED)
+      expect(second_runtime.classification_records.latest_for_message("123")).to eq(record)
+      expect(second_runtime.classification_jobs.find(message_id: "123", classifier_version: "harassment-v1")&.status).to eq(Harassment::ClassificationStatus::CLASSIFIED)
+    end
   end
 end

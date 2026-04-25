@@ -79,6 +79,10 @@ module Backend
     @redis.smembers(DataModel::Keys.servers).map(&:to_i)
   end
 
+  def redis
+    @redis
+  end
+
   private
 
   def change_user_karma(server_id, user_id, delta, source:, actor_id:, reason:)

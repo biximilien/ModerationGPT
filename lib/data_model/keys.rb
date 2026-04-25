@@ -21,5 +21,17 @@ module DataModel
     def karma_history_pattern(server_id)
       "server_#{server_id}_user_*_karma_history"
     end
+
+    def harassment_interaction_events
+      "harassment_interaction_events"
+    end
+
+    def harassment_classification_records
+      "harassment_classification_records"
+    end
+
+    def harassment_classification_jobs
+      "harassment_classification_jobs"
+    end
   end
 end
