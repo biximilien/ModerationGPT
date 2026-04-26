@@ -131,6 +131,14 @@ In the current implementation, the core platform owns the harassment runtime: Di
 
 `HARASSMENT_STORAGE_BACKEND=postgres` now routes the durable harassment pipeline spine through Postgres-backed repositories for interaction events, classification records, and classification jobs. During this migration phase, classifier caching and per-server rate limiting still use the existing Redis-backed operational path.
 
+To bootstrap the current Redis harassment state into Postgres before cutover, run:
+
+```bash
+ruby scripts/bootstrap_harassment_postgres.rb
+```
+
+This script is idempotent for already-migrated interaction events, classification records, and classification jobs.
+
 Classifier context is assembled transiently from retained interaction events and sent to OpenAI with pseudonymous participant labels rather than raw Discord IDs.
 
 Harassment classifications are cached by server, classifier version, prompt/schema identity, and normalized message/context input for `HARASSMENT_CLASSIFIER_CACHE_TTL_SECONDS`. Outbound harassment classification calls are also paced per server with `HARASSMENT_CLASSIFIER_RATE_LIMIT_PER_MINUTE`; deferred jobs are rescheduled without consuming retry attempts.
