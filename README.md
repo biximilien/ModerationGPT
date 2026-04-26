@@ -139,6 +139,14 @@ ruby scripts/bootstrap_harassment_postgres.rb
 
 This script is idempotent for already-migrated interaction events, classification records, and classification jobs.
 
+To compare Redis and Postgres harassment counts before cutover, run:
+
+```bash
+ruby scripts/verify_harassment_postgres.rb
+```
+
+The cutover sequence is documented in `docs/harassment-postgres-cutover.md`.
+
 Classifier context is assembled transiently from retained interaction events and sent to OpenAI with pseudonymous participant labels rather than raw Discord IDs.
 
 Harassment classifications are cached by server, classifier version, prompt/schema identity, and normalized message/context input for `HARASSMENT_CLASSIFIER_CACHE_TTL_SECONDS`. Outbound harassment classification calls are also paced per server with `HARASSMENT_CLASSIFIER_RATE_LIMIT_PER_MINUTE`; deferred jobs are rescheduled without consuming retry attempts.

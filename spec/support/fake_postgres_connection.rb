@@ -42,6 +42,18 @@ class FakePostgresConnection
       update_classification_job(params)
     when /SELECT \*\s+FROM classification_jobs\s+WHERE available_at <= \$1\s+AND status IN \('pending', 'failed_retryable'\)/im
       due_classification_jobs(params[0])
+    when /SELECT COUNT\(\*\) AS count\s+FROM interaction_events/im
+      [{ "count" => @interaction_events.length }]
+    when /SELECT guild_id, COUNT\(\*\) AS count\s+FROM interaction_events\s+GROUP BY guild_id/im
+      grouped_counts(@interaction_events)
+    when /SELECT COUNT\(\*\) AS count\s+FROM classification_records/im
+      [{ "count" => @classification_records.length }]
+    when /SELECT guild_id, COUNT\(\*\) AS count\s+FROM classification_records\s+GROUP BY guild_id/im
+      grouped_counts(@classification_records)
+    when /SELECT COUNT\(\*\) AS count\s+FROM classification_jobs/im
+      [{ "count" => @classification_jobs.length }]
+    when /SELECT guild_id, COUNT\(\*\) AS count\s+FROM classification_jobs\s+GROUP BY guild_id/im
+      grouped_counts(@classification_jobs)
     else
       raise "Unsupported SQL: #{sql}"
     end
@@ -240,5 +252,12 @@ class FakePostgresConnection
           %w[pending failed_retryable].include?(job["status"])
       end
       .sort_by { |job| Time.parse(job["available_at"]).utc }
+  end
+
+  def grouped_counts(rows)
+    rows
+      .group_by { |row| row["guild_id"] }
+      .sort.to_h
+      .map { |guild_id, entries| { "guild_id" => guild_id, "count" => entries.length } }
   end
 end
