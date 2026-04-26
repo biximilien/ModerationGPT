@@ -19,19 +19,12 @@ module Harassment
         event
       end
 
-      def find(message_id, server_id: nil)
-        payload =
-          if server_id
-            @redis.hget(@key, repository_key(server_id, message_id))
-          else
-            @redis.hgetall(@key).values.find do |serialized|
-              deserialize_event(serialized).message_id == message_id.to_s
-            end
-          end
+      def find(message_id, server_id:)
+        payload = @redis.hget(@key, repository_key(server_id, message_id))
         payload ? deserialize_event(payload) : nil
       end
 
-      def update_classification_status(message_id, status, server_id: nil)
+      def update_classification_status(message_id, status, server_id:)
         event = find(message_id, server_id:)
         return nil unless event
 
@@ -49,7 +42,7 @@ module Harassment
         all_events.select { |event| event.retention_expired?(as_of:) }
       end
 
-      def redact_content(message_id, server_id: nil, redacted_at: Time.now.utc)
+      def redact_content(message_id, server_id:, redacted_at: Time.now.utc)
         event = find(message_id, server_id:)
         return nil unless event
 

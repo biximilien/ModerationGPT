@@ -18,11 +18,13 @@ describe Harassment::Repositories::InteractionEventRepository do
   end
 
   it "requires subclasses to implement #find" do
-    expect { repository.find("123") }.to raise_error(NotImplementedError, /must implement #find/)
+    expect { repository.find("123", server_id: "456") }.to raise_error(NotImplementedError, /must implement #find/)
   end
 
   it "requires subclasses to implement #update_classification_status" do
-    expect { repository.update_classification_status("123", Harassment::ClassificationStatus::CLASSIFIED) }.to raise_error(NotImplementedError, /must implement #update_classification_status/)
+    expect do
+      repository.update_classification_status("123", Harassment::ClassificationStatus::CLASSIFIED, server_id: "456")
+    end.to raise_error(NotImplementedError, /must implement #update_classification_status/)
   end
 
   it "requires subclasses to implement #list_by_classification_status" do
@@ -34,7 +36,7 @@ describe Harassment::Repositories::InteractionEventRepository do
   end
 
   it "requires subclasses to implement #redact_content" do
-    expect { repository.redact_content("123") }.to raise_error(NotImplementedError, /must implement #redact_content/)
+    expect { repository.redact_content("123", server_id: "456") }.to raise_error(NotImplementedError, /must implement #redact_content/)
   end
 
   it "requires subclasses to implement #recent_in_channel" do

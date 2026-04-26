@@ -31,15 +31,15 @@ describe Harassment::ClassificationPipeline do
   end
 
   it "enqueues a unique classification job per message and classifier version" do
-    first = pipeline.enqueue(message_id: "123", classifier_version: "harassment-v1")
-    second = pipeline.enqueue(message_id: "123", classifier_version: "harassment-v1")
+    first = pipeline.enqueue(message_id: "123", server_id: "456", classifier_version: "harassment-v1")
+    second = pipeline.enqueue(message_id: "123", server_id: "456", classifier_version: "harassment-v1")
 
     expect(first).to eq(second)
     expect(classification_jobs.due_jobs.length).to eq(1)
   end
 
   it "records a successful classification idempotently" do
-    pipeline.enqueue(message_id: "123", classifier_version: "harassment-v1")
+    pipeline.enqueue(message_id: "123", server_id: "456", classifier_version: "harassment-v1")
     record = Harassment::ClassificationRecord.build(
       server_id: "456",
       message_id: "123",
@@ -54,13 +54,13 @@ describe Harassment::ClassificationPipeline do
 
     expect(first).to eq(record)
     expect(second).to eq(record)
-    expect(interaction_events.find("123").classification_status).to eq(Harassment::ClassificationStatus::CLASSIFIED)
+    expect(interaction_events.find("123", server_id: "456").classification_status).to eq(Harassment::ClassificationStatus::CLASSIFIED)
     expect(classification_jobs.find(server_id: "456", message_id: "123", classifier_version: "harassment-v1").status).to eq(Harassment::ClassificationStatus::CLASSIFIED)
   end
 
   it "records retryable failures with attempt tracking" do
     retry_at = Time.utc(2026, 4, 25, 15, 10, 0)
-    pipeline.enqueue(message_id: "123", classifier_version: "harassment-v1")
+    pipeline.enqueue(message_id: "123", server_id: "456", classifier_version: "harassment-v1")
 
     job = pipeline.record_retryable_failure(
       server_id: "456",
@@ -73,11 +73,11 @@ describe Harassment::ClassificationPipeline do
     expect(job.status).to eq(Harassment::ClassificationStatus::FAILED_RETRYABLE)
     expect(job.attempt_count).to eq(1)
     expect(job.available_at).to eq(retry_at)
-    expect(interaction_events.find("123").classification_status).to eq(Harassment::ClassificationStatus::FAILED_RETRYABLE)
+    expect(interaction_events.find("123", server_id: "456").classification_status).to eq(Harassment::ClassificationStatus::FAILED_RETRYABLE)
   end
 
   it "records terminal failures" do
-    pipeline.enqueue(message_id: "123", classifier_version: "harassment-v1")
+    pipeline.enqueue(message_id: "123", server_id: "456", classifier_version: "harassment-v1")
 
     job = pipeline.record_terminal_failure(
       server_id: "456",
@@ -88,11 +88,11 @@ describe Harassment::ClassificationPipeline do
 
     expect(job.status).to eq(Harassment::ClassificationStatus::FAILED_TERMINAL)
     expect(job.attempt_count).to eq(1)
-    expect(interaction_events.find("123").classification_status).to eq(Harassment::ClassificationStatus::FAILED_TERMINAL)
+    expect(interaction_events.find("123", server_id: "456").classification_status).to eq(Harassment::ClassificationStatus::FAILED_TERMINAL)
   end
 
   it "defers jobs without consuming an attempt" do
-    pipeline.enqueue(message_id: "123", classifier_version: "harassment-v1")
+    pipeline.enqueue(message_id: "123", server_id: "456", classifier_version: "harassment-v1")
 
     job = pipeline.defer_job(
       server_id: "456",
@@ -104,6 +104,6 @@ describe Harassment::ClassificationPipeline do
     expect(job.status).to eq(Harassment::ClassificationStatus::PENDING)
     expect(job.attempt_count).to eq(0)
     expect(job.available_at).to eq(Time.utc(2026, 4, 25, 15, 10, 0))
-    expect(interaction_events.find("123").classification_status).to eq(Harassment::ClassificationStatus::PENDING)
+    expect(interaction_events.find("123", server_id: "456").classification_status).to eq(Harassment::ClassificationStatus::PENDING)
   end
 end

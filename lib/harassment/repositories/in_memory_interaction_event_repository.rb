@@ -14,13 +14,11 @@ module Harassment
         @events[key] = event
       end
 
-      def find(message_id, server_id: nil)
-        return @events[repository_key(server_id, message_id)] if server_id
-
-        @events.values.find { |event| event.message_id == message_id.to_s }
+      def find(message_id, server_id:)
+        @events[repository_key(server_id, message_id)]
       end
 
-      def update_classification_status(message_id, status, server_id: nil)
+      def update_classification_status(message_id, status, server_id:)
         event = find(message_id, server_id:)
         return nil unless event
 
@@ -37,7 +35,7 @@ module Harassment
         @events.values.select { |event| event.retention_expired?(as_of:) }
       end
 
-      def redact_content(message_id, server_id: nil, redacted_at: Time.now.utc)
+      def redact_content(message_id, server_id:, redacted_at: Time.now.utc)
         event = find(message_id, server_id:)
         return nil unless event
 

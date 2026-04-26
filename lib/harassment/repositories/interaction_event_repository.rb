@@ -8,11 +8,11 @@ module Harassment
         raise NotImplementedError, "#{self.class} must implement #save"
       end
 
-      def find(_message_id, server_id: nil)
+      def find(_message_id, server_id:)
         raise NotImplementedError, "#{self.class} must implement #find"
       end
 
-      def update_classification_status(_message_id, _status, server_id: nil)
+      def update_classification_status(_message_id, _status, server_id:)
         raise NotImplementedError, "#{self.class} must implement #update_classification_status"
       end
 
@@ -24,7 +24,7 @@ module Harassment
         raise NotImplementedError, "#{self.class} must implement #list_with_expired_content"
       end
 
-      def redact_content(_message_id, server_id: nil, redacted_at: Time.now.utc)
+      def redact_content(_message_id, server_id:, redacted_at: Time.now.utc)
         raise NotImplementedError, "#{self.class} must implement #redact_content"
       end
 

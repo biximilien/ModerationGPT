@@ -17,20 +17,14 @@ class FakePostgresConnection
       insert_interaction_event(params)
     when /SELECT \*\s+FROM interaction_events\s+WHERE guild_id = \$1\s+AND message_id = \$2\s+LIMIT 1/im
       find_interaction_event(params[1], guild_id: params[0])
-    when /SELECT \*\s+FROM interaction_events\s+WHERE message_id = \$1\s+LIMIT 1/im
-      find_interaction_event(params[0])
     when /UPDATE interaction_events\s+SET classification_status = \$3/im
       update_classification_status(params[1], params[2], guild_id: params[0])
-    when /UPDATE interaction_events\s+SET classification_status = \$2/im
-      update_classification_status(params[0], params[1])
     when /SELECT \*\s+FROM interaction_events\s+WHERE classification_status = \$1/im
       list_by_status(params[0])
     when /SELECT \*\s+FROM interaction_events\s+WHERE content_retention_expires_at IS NOT NULL/im
       list_expired(params[0])
     when /UPDATE interaction_events\s+SET raw_content = \$3,\s+content_redacted_at = \$4/im
       redact_content(params[1], params[2], params[3], guild_id: params[0])
-    when /UPDATE interaction_events\s+SET raw_content = \$2,\s+content_redacted_at = \$3/im
-      redact_content(params[0], params[1], params[2])
     when /SELECT \*\s+FROM interaction_events\s+WHERE guild_id = \$1\s+AND channel_id = \$2/im
       recent_in_channel(params[0], params[1], params[2], params[3])
     when /SELECT \*\s+FROM interaction_events\s+WHERE guild_id = \$1\s+AND created_at < \$2/im
@@ -116,18 +110,18 @@ class FakePostgresConnection
     [row]
   end
 
-  def find_interaction_event(message_id, guild_id: nil)
+  def find_interaction_event(message_id, guild_id:)
     row = @interaction_events.find do |event|
       event["message_id"] == message_id.to_s &&
-        (guild_id.nil? || event["guild_id"] == guild_id.to_s)
+        event["guild_id"] == guild_id.to_s
     end
     row ? [row] : []
   end
 
-  def update_classification_status(message_id, status, guild_id: nil)
+  def update_classification_status(message_id, status, guild_id:)
     row = @interaction_events.find do |event|
       event["message_id"] == message_id.to_s &&
-        (guild_id.nil? || event["guild_id"] == guild_id.to_s)
+        event["guild_id"] == guild_id.to_s
     end
     return [] unless row
 
@@ -151,10 +145,10 @@ class FakePostgresConnection
       .sort_by { |event| Time.parse(event["created_at"]).utc }
   end
 
-  def redact_content(message_id, raw_content, redacted_at, guild_id: nil)
+  def redact_content(message_id, raw_content, redacted_at, guild_id:)
     row = @interaction_events.find do |event|
       event["message_id"] == message_id.to_s &&
-        (guild_id.nil? || event["guild_id"] == guild_id.to_s)
+        event["guild_id"] == guild_id.to_s
     end
     return [] unless row
 

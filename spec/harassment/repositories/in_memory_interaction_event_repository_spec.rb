@@ -15,10 +15,10 @@ describe Harassment::Repositories::InMemoryInteractionEventRepository do
     )
   end
 
-  it "stores and retrieves interaction events by message id" do
+  it "stores and retrieves interaction events by server and message id" do
     repository.save(event)
 
-    expect(repository.find("123")).to eq(event)
+    expect(repository.find("123", server_id: "456")).to eq(event)
   end
 
   it "rejects duplicate interaction events" do
@@ -47,10 +47,10 @@ describe Harassment::Repositories::InMemoryInteractionEventRepository do
   it "updates classification status immutably" do
     repository.save(event)
 
-    updated = repository.update_classification_status("123", Harassment::ClassificationStatus::CLASSIFIED)
+    updated = repository.update_classification_status("123", Harassment::ClassificationStatus::CLASSIFIED, server_id: "456")
 
     expect(updated.classification_status).to eq(Harassment::ClassificationStatus::CLASSIFIED)
-    expect(repository.find("123").classification_status).to eq(Harassment::ClassificationStatus::CLASSIFIED)
+    expect(repository.find("123", server_id: "456").classification_status).to eq(Harassment::ClassificationStatus::CLASSIFIED)
   end
 
   it "lists events by classification status" do
@@ -84,10 +84,10 @@ describe Harassment::Repositories::InMemoryInteractionEventRepository do
 
     expect(repository.list_with_expired_content(as_of: Time.utc(2026, 4, 2, 12, 0, 0)).map(&:message_id)).to eq(["123"])
 
-    redacted = repository.redact_content("123", redacted_at: Time.utc(2026, 4, 2, 12, 0, 0))
+    redacted = repository.redact_content("123", server_id: "456", redacted_at: Time.utc(2026, 4, 2, 12, 0, 0))
 
     expect(redacted.raw_content).to eq("[REDACTED]")
-    expect(repository.find("123").content_redacted_at).to eq(Time.utc(2026, 4, 2, 12, 0, 0))
+    expect(repository.find("123", server_id: "456").content_redacted_at).to eq(Time.utc(2026, 4, 2, 12, 0, 0))
   end
 
   it "lists recent events in a channel before a cutoff" do

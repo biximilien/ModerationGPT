@@ -33,7 +33,7 @@ module Harassment
       when "postgres"
         Repositories::PostgresInteractionEventRepository.new(connection: connection!)
       else
-        raise NotImplementedError, "Postgres harassment interaction repositories are not implemented yet"
+        raise NotImplementedError, "unsupported harassment interaction-events backend: #{@backend}"
       end
     end
 
@@ -46,7 +46,7 @@ module Harassment
       when "postgres"
         Repositories::PostgresClassificationRecordRepository.new(connection: connection!)
       else
-        raise NotImplementedError, "Postgres harassment classification-record repositories are not implemented yet"
+        raise NotImplementedError, "unsupported harassment classification-records backend: #{@backend}"
       end
     end
 
@@ -59,7 +59,7 @@ module Harassment
       when "postgres"
         Repositories::PostgresClassificationJobRepository.new(connection: connection!)
       else
-        raise NotImplementedError, "Postgres harassment classification-job repositories are not implemented yet"
+        raise NotImplementedError, "unsupported harassment classification-jobs backend: #{@backend}"
       end
     end
 

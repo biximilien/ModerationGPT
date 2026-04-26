@@ -19,7 +19,7 @@ describe Harassment::RetentionManager do
     interaction_events.save(event)
 
     redacted_events = manager.redact_expired_content(as_of: Time.utc(2026, 4, 2, 12, 0, 0))
-    redacted_event = interaction_events.find("123")
+    redacted_event = interaction_events.find("123", server_id: "456")
 
     expect(redacted_events).to eq([redacted_event])
     expect(redacted_event.raw_content).to eq("[REDACTED]")

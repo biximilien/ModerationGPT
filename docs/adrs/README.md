@@ -6,7 +6,7 @@ ADR numbers are stable identifiers. Superseded ADR files are kept in place so ol
 
 - [ADR-001: Represent User Interactions as Append-Only Events](./001_represent_user_interactions_events.md)
 - [ADR-002: Use LLM for Semantic Classification Only](./002_use_llm_for_semantic_classification_only.md)
-- [ADR-003: Model Relationships as Directed Edges](./003_model_relationships_as_directed_edgs.md)
+- [ADR-003: Model Relationships as Directed Edges](./003_model_relationships_as_directed_edges.md)
 - [ADR-004: Apply Time Decay to Interaction Scores](./004_apply_time_decay_to_interaction_scores.md)
 - [ADR-006: Detect Harassment via Composite Signals](./006_detect_harassment_via_composite_signals.md)
 - [ADR-007: Plugin Implements Its Own Read Model](./007_plugin_implements_its_own_read_model.md)

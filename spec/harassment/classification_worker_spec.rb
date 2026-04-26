@@ -67,7 +67,7 @@ describe Harassment::ClassificationWorker do
 
   before do
     interaction_events.save(event)
-    classification_pipeline.enqueue(message_id: "123", classifier_version: "harassment-v1", enqueued_at: event.timestamp)
+    classification_pipeline.enqueue(message_id: "123", server_id: "456", classifier_version: "harassment-v1", enqueued_at: event.timestamp)
     allow(context_assembler).to receive(:build_for).and_return({ recent_channel_messages: [], recent_pair_interactions: [], participant_labels: {} })
   end
 
