@@ -1,10 +1,13 @@
 require "json"
 require "time"
 require_relative "interaction_event_repository"
+require_relative "postgres_helpers"
 
 module Harassment
   module Repositories
     class PostgresInteractionEventRepository < InteractionEventRepository
+      include PostgresHelpers
+
       REDACTED_CONTENT = "[REDACTED]".freeze
 
       def initialize(connection:)
@@ -190,18 +193,7 @@ module Harassment
       end
 
       def parse_target_user_ids(value)
-        case value
-        when Array then value
-        else JSON.parse(value.to_s)
-        end
-      end
-
-      def first_row(result)
-        rows(result).first
-      end
-
-      def rows(result)
-        result.respond_to?(:to_a) ? result.to_a : Array(result)
+        parse_json_value(value)
       end
 
       def normalize_status(status)

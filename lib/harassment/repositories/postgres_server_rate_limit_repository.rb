@@ -1,10 +1,13 @@
 require "json"
 require "time"
 require_relative "server_rate_limit_repository"
+require_relative "postgres_helpers"
 
 module Harassment
   module Repositories
     class PostgresServerRateLimitRepository < ServerRateLimitRepository
+      include PostgresHelpers
+
       def initialize(connection:)
         @connection = connection
       end
@@ -44,21 +47,9 @@ module Harassment
       private
 
       def parse_timestamps(value)
-        parsed =
-          case value
-          when Array then value
-          else JSON.parse(value.to_s)
-          end
+        parsed = parse_json_value(value)
 
         parsed.map { |timestamp| Time.parse(timestamp.to_s).utc }
-      end
-
-      def first_row(result)
-        rows(result).first
-      end
-
-      def rows(result)
-        result.respond_to?(:to_a) ? result.to_a : Array(result)
       end
     end
   end

@@ -1,21 +1,24 @@
 require_relative "interaction_event_repository"
+require_relative "repository_keys"
 
 module Harassment
   module Repositories
     class InMemoryInteractionEventRepository < InteractionEventRepository
+      include RepositoryKeys
+
       def initialize
         @events = {}
       end
 
       def save(event)
-        key = repository_key(event.server_id, event.message_id)
+        key = interaction_event_key(event.server_id, event.message_id)
         raise ArgumentError, "interaction event already exists for server_id=#{event.server_id} message_id=#{event.message_id}" if @events.key?(key)
 
         @events[key] = event
       end
 
       def find(message_id, server_id:)
-        @events[repository_key(server_id, message_id)]
+        @events[interaction_event_key(server_id, message_id)]
       end
 
       def update_classification_status(message_id, status, server_id:)
@@ -23,7 +26,7 @@ module Harassment
         return nil unless event
 
         updated = event.with_classification_status(status)
-        @events[repository_key(event.server_id, event.message_id)] = updated
+        @events[interaction_event_key(event.server_id, event.message_id)] = updated
       end
 
       def list_by_classification_status(status)
@@ -40,7 +43,7 @@ module Harassment
         return nil unless event
 
         redacted = event.redact_content(redacted_at:)
-        @events[repository_key(event.server_id, event.message_id)] = redacted
+        @events[interaction_event_key(event.server_id, event.message_id)] = redacted
       end
 
       def recent_in_channel(server_id:, channel_id:, before:, limit:)
@@ -68,10 +71,6 @@ module Harassment
       end
 
       private
-
-      def repository_key(server_id, message_id)
-        "#{server_id}:#{message_id}"
-      end
 
       def interaction_involves_participants?(event, participant_ids)
         event_participants = [event.author_id, *event.target_user_ids].to_set

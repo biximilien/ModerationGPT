@@ -1,17 +1,20 @@
 require "json"
 require_relative "classification_record_repository"
+require_relative "repository_keys"
 require_relative "../../data_model/keys"
 
 module Harassment
   module Repositories
     class RedisClassificationRecordRepository < ClassificationRecordRepository
+      include RepositoryKeys
+
       def initialize(redis:, key: DataModel::Keys.harassment_classification_records)
         @redis = redis
         @key = key
       end
 
       def save(record)
-        key = repository_key(record.server_id, record.message_id, record.classifier_version)
+        key = classification_key(record.server_id, record.message_id, record.classifier_version)
         raise ArgumentError, "classification record already exists for #{key}" if @redis.hget(@key, key)
 
         @redis.hset(@key, key, JSON.generate(serialize_record(record)))
@@ -19,7 +22,7 @@ module Harassment
       end
 
       def find(server_id:, message_id:, classifier_version:)
-        payload = @redis.hget(@key, repository_key(server_id, message_id, classifier_version))
+        payload = @redis.hget(@key, classification_key(server_id, message_id, classifier_version))
         payload ? deserialize_record(payload) : nil
       end
 
@@ -37,17 +40,6 @@ module Harassment
 
       def all_records
         @redis.hgetall(@key).values.map { |payload| deserialize_record(payload) }
-      end
-
-      def repository_key(server_id, message_id, classifier_version)
-        normalized_server_id = server_id.to_s
-        normalized_version =
-          case classifier_version
-          when ClassifierVersion then classifier_version.value
-          else ClassifierVersion.build(classifier_version).value
-          end
-
-        "#{normalized_server_id}:#{message_id}:#{normalized_version}"
       end
 
       def serialize_record(record)

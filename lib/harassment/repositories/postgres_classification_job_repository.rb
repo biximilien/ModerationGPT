@@ -1,9 +1,12 @@
 require "time"
 require_relative "classification_job_repository"
+require_relative "postgres_helpers"
 
 module Harassment
   module Repositories
     class PostgresClassificationJobRepository < ClassificationJobRepository
+      include PostgresHelpers
+
       def initialize(connection:)
         @connection = connection
       end
@@ -123,20 +126,6 @@ module Harassment
         )
       end
 
-      def first_row(result)
-        rows(result).first
-      end
-
-      def rows(result)
-        result.respond_to?(:to_a) ? result.to_a : Array(result)
-      end
-
-      def normalize_classifier_version(classifier_version)
-        case classifier_version
-        when ClassifierVersion then classifier_version.value
-        else ClassifierVersion.build(classifier_version).value
-        end
-      end
     end
   end
 end

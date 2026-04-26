@@ -1,9 +1,12 @@
 require "time"
 require_relative "relationship_edge_repository"
+require_relative "postgres_helpers"
 
 module Harassment
   module Repositories
     class PostgresRelationshipEdgeRepository < RelationshipEdgeRepository
+      include PostgresHelpers
+
       def initialize(connection:)
         @connection = connection
       end
@@ -135,13 +138,6 @@ module Harassment
         )
       end
 
-      def first_row(result)
-        rows(result).first
-      end
-
-      def rows(result)
-        result.respond_to?(:to_a) ? result.to_a : Array(result)
-      end
     end
   end
 end
