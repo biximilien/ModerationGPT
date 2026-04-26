@@ -40,6 +40,16 @@ module Harassment
         end
       end
 
+      def delete_all(score_version:, server_id: nil)
+        normalized_score_version = score_version.to_s
+        normalized_server_id = server_id&.to_s
+
+        @edges.delete_if do |_key, edge|
+          edge.score_version == normalized_score_version &&
+            (normalized_server_id.nil? || edge.server_id == normalized_server_id)
+        end
+      end
+
       private
 
       def edge_key(server_id, source_user_id, target_user_id, score_version)

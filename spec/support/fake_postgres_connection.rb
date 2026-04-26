@@ -59,6 +59,10 @@ class FakePostgresConnection
       outgoing_relationship_edges(params[0], params[1], params[2])
     when /SELECT \*\s+FROM relationship_edges\s+WHERE guild_id = \$1\s+AND target_user_id = \$2\s+AND score_version = \$3/im
       incoming_relationship_edges(params[0], params[1], params[2])
+    when /DELETE FROM relationship_edges\s+WHERE guild_id = \$1\s+AND score_version = \$2/im
+      delete_relationship_edges_for_server(params[0], params[1])
+    when /DELETE FROM relationship_edges\s+WHERE score_version = \$1/im
+      delete_relationship_edges_for_score_version(params[0])
     when /SELECT \*\s+FROM server_rate_limits\s+WHERE guild_id = \$1\s+LIMIT 1/im
       find_server_rate_limit(params[0])
     when /INSERT INTO server_rate_limits/i
@@ -360,6 +364,18 @@ class FakePostgresConnection
           edge["score_version"] == score_version.to_s
       end
       .sort_by { |edge| edge["source_user_id"] }
+  end
+
+  def delete_relationship_edges_for_server(guild_id, score_version)
+    @relationship_edges.reject! do |edge|
+      edge["guild_id"] == guild_id.to_s && edge["score_version"] == score_version.to_s
+    end
+    []
+  end
+
+  def delete_relationship_edges_for_score_version(score_version)
+    @relationship_edges.reject! { |edge| edge["score_version"] == score_version.to_s }
+    []
   end
 
   def find_server_rate_limit(guild_id)

@@ -44,7 +44,23 @@ Use Postgres for the harassment runtime state:
 
    into Postgres.
 
-3. **Verify Redis and Postgres counts plus spot checks**
+3. **Rebuild relationship-edge projections**
+
+   Run:
+
+   ```bash
+   ruby scripts/rebuild_harassment_relationship_edges.rb
+   ```
+
+   If you want to rebuild only one server:
+
+   ```bash
+   ruby scripts/rebuild_harassment_relationship_edges.rb 123456789012345678
+   ```
+
+   This rebuilds the current `score_version` relationship-edge projections from stored classified interaction events and their latest stored classification records.
+
+4. **Verify Redis and Postgres counts plus spot checks**
 
    Run:
 
@@ -72,7 +88,7 @@ Use Postgres for the harassment runtime state:
 
    If you passed explicit message IDs, confirm those known-message checks also report `matches=true`.
 
-4. **Pause and sanity-check**
+5. **Pause and sanity-check**
 
    Before flipping the runtime, confirm:
 
@@ -81,7 +97,7 @@ Use Postgres for the harassment runtime state:
    - Postgres connectivity is stable
    - logs are clean
 
-5. **Flip the backend**
+6. **Flip the backend**
 
    Set:
 
@@ -91,7 +107,7 @@ Use Postgres for the harassment runtime state:
 
    and restart the bot.
 
-6. **Observe after cutover**
+7. **Observe after cutover**
 
    Watch for:
 
@@ -113,5 +129,6 @@ Because Redis remains the source before cutover and the backend switch is config
 ## Notes
 
 - The bootstrap script is idempotent for already-migrated durable records.
+- The relationship-edge rebuild script clears and rebuilds the current `score_version` projection from stored classified events and their latest stored classification records.
 - The verification script compares counts broadly and also performs a small sample of row-level spot checks.
-- Cache, rate-limit, and relationship-edge projection state are not bootstrapped; they start fresh after cutover.
+- Cache and rate-limit state are not bootstrapped; they start fresh after cutover.

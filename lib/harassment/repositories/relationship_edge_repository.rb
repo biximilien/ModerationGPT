@@ -18,6 +18,10 @@ module Harassment
       def incoming(server_id:, target_user_id:, score_version:)
         raise NotImplementedError, "#{self.class} must implement #incoming"
       end
+
+      def delete_all(score_version:, server_id: nil)
+        raise NotImplementedError, "#{self.class} must implement #delete_all"
+      end
     end
   end
 end

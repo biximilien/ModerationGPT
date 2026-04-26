@@ -86,6 +86,27 @@ module Harassment
         ).map { |row| deserialize_edge(row) }
       end
 
+      def delete_all(score_version:, server_id: nil)
+        if server_id
+          @connection.exec_params(
+            <<~SQL,
+              DELETE FROM relationship_edges
+              WHERE guild_id = $1
+                AND score_version = $2
+            SQL
+            [server_id.to_s, score_version.to_s],
+          )
+        else
+          @connection.exec_params(
+            <<~SQL,
+              DELETE FROM relationship_edges
+              WHERE score_version = $1
+            SQL
+            [score_version.to_s],
+          )
+        end
+      end
+
       private
 
       def serialize_edge(edge)

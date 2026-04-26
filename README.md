@@ -141,6 +141,18 @@ This script is idempotent for already-migrated interaction events, classificatio
 
 Classifier cache entries and per-server rate-limit buckets are operational state and are not bootstrapped. They start fresh on cutover. Relationship-edge projections also start fresh today; they are rebuilt only from new post-cutover classifications in the current implementation.
 
+To rebuild relationship-edge projections from stored harassment interaction events and classification records, run:
+
+```bash
+ruby scripts/rebuild_harassment_relationship_edges.rb
+```
+
+You can scope the rebuild to a specific server:
+
+```bash
+ruby scripts/rebuild_harassment_relationship_edges.rb 123456789012345678
+```
+
 To compare Redis and Postgres harassment counts and a small set of sampled rows before cutover, run:
 
 ```bash
