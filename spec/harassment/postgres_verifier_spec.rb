@@ -65,6 +65,26 @@ describe Harassment::PostgresVerifier do
     )
     expect(summary[:classification_records][:matches]).to eq(true)
     expect(summary[:classification_jobs][:matches]).to eq(true)
+    expect(summary[:spot_checks]).to eq(
+      interaction_events: {
+        sampled: 1,
+        matched: 1,
+        mismatches: [],
+        matches: true,
+      },
+      classification_records: {
+        sampled: 1,
+        matched: 1,
+        mismatches: [],
+        matches: true,
+      },
+      classification_jobs: {
+        sampled: 1,
+        matched: 1,
+        mismatches: [],
+        matches: true,
+      },
+    )
   end
 
   it "reports mismatches when counts diverge" do
@@ -81,5 +101,45 @@ describe Harassment::PostgresVerifier do
     expect(summary[:classification_jobs][:redis_total]).to eq(1)
     expect(summary[:classification_jobs][:postgres_total]).to eq(2)
     expect(summary[:classification_jobs][:matches]).to eq(false)
+  end
+
+  it "reports spot-check mismatches for missing migrated rows" do
+    verifier_with_missing_record = described_class.new(
+      redis: redis,
+      connection: connection,
+      classification_record_repository: double(find: nil),
+    )
+
+    summary = verifier_with_missing_record.run
+
+    expect(summary[:spot_checks][:classification_records]).to eq(
+      sampled: 1,
+      matched: 0,
+      mismatches: [
+        {
+          server_id: "456",
+          message_id: "123",
+          classifier_version: "harassment-v1",
+          reason: "missing",
+        },
+      ],
+      matches: false,
+    )
+  end
+
+  it "limits spot checks to the requested sample size" do
+    extra_event = Harassment::InteractionEvent.build(
+      message_id: 124,
+      server_id: 456,
+      channel_id: 789,
+      author_id: 654,
+      raw_content: "another message",
+    )
+    source_interaction_events.save(extra_event)
+    target_interaction_events.save(extra_event)
+
+    summary = verifier.run(spot_check_limit: 1)
+
+    expect(summary[:spot_checks][:interaction_events][:sampled]).to eq(1)
   end
 end

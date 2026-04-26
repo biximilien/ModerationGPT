@@ -139,7 +139,7 @@ ruby scripts/bootstrap_harassment_postgres.rb
 
 This script is idempotent for already-migrated interaction events, classification records, and classification jobs.
 
-To compare Redis and Postgres harassment counts before cutover, run:
+To compare Redis and Postgres harassment counts and a small set of sampled rows before cutover, run:
 
 ```bash
 ruby scripts/verify_harassment_postgres.rb

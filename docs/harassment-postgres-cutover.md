@@ -43,7 +43,7 @@ while leaving cache and rate-limiting on Redis during the migration phase.
 
    into Postgres.
 
-3. **Verify Redis and Postgres counts**
+3. **Verify Redis and Postgres counts plus spot checks**
 
    Run:
 
@@ -57,11 +57,18 @@ while leaving cache and rate-limiting on Redis during the migration phase.
    - `classification_records`
    - `classification_jobs`
 
+   Also confirm that the spot checks report `matches=true` for the sampled:
+
+   - `interaction_events`
+   - `classification_records`
+   - `classification_jobs`
+
 4. **Pause and sanity-check**
 
    Before flipping the runtime, confirm:
 
    - the verification output reports `matches=true` for all three data sets
+   - the verification spot checks also report `matches=true`
    - Postgres connectivity is stable
    - logs are clean
 
@@ -97,5 +104,5 @@ Because Redis remains the operational source before cutover and cache/rate-limit
 ## Notes
 
 - The bootstrap script is idempotent for already-migrated durable records.
-- The verification script is count-based, not a full row-by-row diff.
+- The verification script compares counts broadly and also performs a small sample of row-level spot checks.
 - Cache and rate-limit repositories are intentionally still Redis-backed in this phase.
