@@ -11,7 +11,7 @@ module Harassment
       @interaction_events.list_with_expired_content(as_of:).filter_map do |event|
         next unless @policy.redactable?(event, as_of:)
 
-        @interaction_events.redact_content(event.message_id, redacted_at: as_of)
+        @interaction_events.redact_content(event.message_id, server_id: event.server_id, redacted_at: as_of)
       end
     end
   end

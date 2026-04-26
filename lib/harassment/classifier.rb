@@ -1,4 +1,6 @@
 module Harassment
+  class ClassifierOutputError < StandardError; end
+
   class Classifier
     def classify(_event:, _classifier_version:, context: nil, classified_at: Time.now.utc)
       raise NotImplementedError, "#{self.class} must implement #classify"

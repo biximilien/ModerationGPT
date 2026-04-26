@@ -12,24 +12,31 @@ module Harassment
       end
 
       def save(event)
-        message_id = event.message_id
-        raise ArgumentError, "interaction event already exists for message_id=#{message_id}" if find(message_id)
+        key = repository_key(event.server_id, event.message_id)
+        raise ArgumentError, "interaction event already exists for server_id=#{event.server_id} message_id=#{event.message_id}" if @redis.hget(@key, key)
 
-        @redis.hset(@key, message_id, JSON.generate(serialize_event(event)))
+        @redis.hset(@key, key, JSON.generate(serialize_event(event)))
         event
       end
 
-      def find(message_id)
-        payload = @redis.hget(@key, message_id.to_s)
+      def find(message_id, server_id: nil)
+        payload =
+          if server_id
+            @redis.hget(@key, repository_key(server_id, message_id))
+          else
+            @redis.hgetall(@key).values.find do |serialized|
+              deserialize_event(serialized).message_id == message_id.to_s
+            end
+          end
         payload ? deserialize_event(payload) : nil
       end
 
-      def update_classification_status(message_id, status)
-        event = find(message_id)
+      def update_classification_status(message_id, status, server_id: nil)
+        event = find(message_id, server_id:)
         return nil unless event
 
         updated = event.with_classification_status(status)
-        @redis.hset(@key, updated.message_id, JSON.generate(serialize_event(updated)))
+        @redis.hset(@key, repository_key(updated.server_id, updated.message_id), JSON.generate(serialize_event(updated)))
         updated
       end
 
@@ -42,12 +49,12 @@ module Harassment
         all_events.select { |event| event.retention_expired?(as_of:) }
       end
 
-      def redact_content(message_id, redacted_at: Time.now.utc)
-        event = find(message_id)
+      def redact_content(message_id, server_id: nil, redacted_at: Time.now.utc)
+        event = find(message_id, server_id:)
         return nil unless event
 
         redacted = event.redact_content(redacted_at:)
-        @redis.hset(@key, redacted.message_id, JSON.generate(serialize_event(redacted)))
+        @redis.hset(@key, repository_key(redacted.server_id, redacted.message_id), JSON.generate(serialize_event(redacted)))
         redacted
       end
 
@@ -76,6 +83,10 @@ module Harassment
       end
 
       private
+
+      def repository_key(server_id, message_id)
+        "#{server_id}:#{message_id}"
+      end
 
       def all_events
         @redis.hgetall(@key).values.map { |payload| deserialize_event(payload) }

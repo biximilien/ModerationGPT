@@ -34,37 +34,43 @@ module Harassment
             serialize_event(event),
           ),
         )
-        raise ArgumentError, "interaction event already exists for message_id=#{event.message_id}" unless row
+        raise ArgumentError, "interaction event already exists for server_id=#{event.server_id} message_id=#{event.message_id}" unless row
 
         deserialize_event(row)
       end
 
-      def find(message_id)
+      def find(message_id, server_id: nil)
+        return find_unscoped(message_id) unless server_id
+
         row = first_row(
           @connection.exec_params(
             <<~SQL,
               SELECT *
               FROM interaction_events
-              WHERE message_id = $1
+              WHERE guild_id = $1
+                AND message_id = $2
               LIMIT 1
             SQL
-            [message_id.to_s],
+            [server_id.to_s, message_id.to_s],
           ),
         )
         row ? deserialize_event(row) : nil
       end
 
-      def update_classification_status(message_id, status)
+      def update_classification_status(message_id, status, server_id: nil)
         normalized_status = normalize_status(status)
+        return update_classification_status_unscoped(message_id, normalized_status) unless server_id
+
         row = first_row(
           @connection.exec_params(
             <<~SQL,
               UPDATE interaction_events
-              SET classification_status = $2
-              WHERE message_id = $1
+              SET classification_status = $3
+              WHERE guild_id = $1
+                AND message_id = $2
               RETURNING *
             SQL
-            [message_id.to_s, normalized_status],
+            [server_id.to_s, message_id.to_s, normalized_status],
           ),
         )
         row ? deserialize_event(row) : nil
@@ -101,17 +107,20 @@ module Harassment
         ).map { |row| deserialize_event(row) }
       end
 
-      def redact_content(message_id, redacted_at: Time.now.utc)
+      def redact_content(message_id, server_id: nil, redacted_at: Time.now.utc)
+        return redact_content_unscoped(message_id, redacted_at:) unless server_id
+
         row = first_row(
           @connection.exec_params(
             <<~SQL,
               UPDATE interaction_events
-              SET raw_content = $2,
-                  content_redacted_at = $3
-              WHERE message_id = $1
+              SET raw_content = $3,
+                  content_redacted_at = $4
+              WHERE guild_id = $1
+                AND message_id = $2
               RETURNING *
             SQL
-            [message_id.to_s, REDACTED_CONTENT, redacted_at.utc.iso8601(9)],
+            [server_id.to_s, message_id.to_s, REDACTED_CONTENT, redacted_at.utc.iso8601(9)],
           ),
         )
         row ? deserialize_event(row) : nil
@@ -155,6 +164,52 @@ module Harassment
       end
 
       private
+
+      def find_unscoped(message_id)
+        row = first_row(
+          @connection.exec_params(
+            <<~SQL,
+              SELECT *
+              FROM interaction_events
+              WHERE message_id = $1
+              LIMIT 1
+            SQL
+            [message_id.to_s],
+          ),
+        )
+        row ? deserialize_event(row) : nil
+      end
+
+      def update_classification_status_unscoped(message_id, normalized_status)
+        row = first_row(
+          @connection.exec_params(
+            <<~SQL,
+              UPDATE interaction_events
+              SET classification_status = $2
+              WHERE message_id = $1
+              RETURNING *
+            SQL
+            [message_id.to_s, normalized_status],
+          ),
+        )
+        row ? deserialize_event(row) : nil
+      end
+
+      def redact_content_unscoped(message_id, redacted_at:)
+        row = first_row(
+          @connection.exec_params(
+            <<~SQL,
+              UPDATE interaction_events
+              SET raw_content = $2,
+                  content_redacted_at = $3
+              WHERE message_id = $1
+              RETURNING *
+            SQL
+            [message_id.to_s, REDACTED_CONTENT, redacted_at.utc.iso8601(9)],
+          ),
+        )
+        row ? deserialize_event(row) : nil
+      end
 
       def serialize_event(event)
         [

@@ -3,6 +3,7 @@ require_relative "classification_pipeline"
 require_relative "classification_worker"
 require_relative "context_assembler"
 require_relative "message_ingestor"
+require_relative "retention_manager"
 require_relative "repository_factory"
 require_relative "server_rate_limiter"
 require_relative "../../environment"
@@ -46,6 +47,7 @@ module Harassment
         classifier_version: @classifier_version,
       )
       @context_assembler = ContextAssembler.new(interaction_events: @interaction_events)
+      @retention_manager = RetentionManager.new(interaction_events: @interaction_events)
       @classification_worker = ClassificationWorker.new(
         interaction_events: @interaction_events,
         classification_jobs: @classification_jobs,
@@ -62,6 +64,7 @@ module Harassment
     end
 
     def process_due_classifications(as_of: Time.now.utc, limit: nil)
+      @retention_manager.redact_expired_content(as_of:)
       @classification_worker.process_due_jobs(as_of:, limit:)
     end
     private

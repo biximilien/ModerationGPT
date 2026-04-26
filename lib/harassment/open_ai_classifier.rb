@@ -32,6 +32,7 @@ module Harassment
       )
 
       payload = parse_response_payload(response)
+      classification, severity_score, confidence = validated_payload(payload)
 
       ClassificationRecord.build(
         server_id: event.server_id,
@@ -39,13 +40,9 @@ module Harassment
         classifier_version: classifier_version,
         model_version: @model,
         prompt_version: @prompt_version,
-        classification: {
-          intent: payload.fetch(:intent),
-          target_type: payload.fetch(:target_type),
-          toxicity_dimensions: payload.fetch(:toxicity_dimensions),
-        },
-        severity_score: payload.fetch(:severity_score),
-        confidence: payload.fetch(:confidence),
+        classification: classification,
+        severity_score: severity_score,
+        confidence: confidence,
         classified_at: classified_at,
       )
     end
@@ -77,11 +74,42 @@ module Harassment
 
     def parse_response_payload(response)
       output = @client.response_text(response)
-      raise ArgumentError, "OpenAI harassment classifier returned no structured output" if output.nil? || output.strip.empty?
+      raise ClassifierOutputError, "OpenAI harassment classifier returned no structured output" if output.nil? || output.strip.empty?
 
       JSON.parse(output, symbolize_names: true)
     rescue JSON::ParserError => e
-      raise ArgumentError, "OpenAI harassment classifier returned invalid JSON: #{e.message}"
+      raise ClassifierOutputError, "OpenAI harassment classifier returned invalid JSON: #{e.message}"
+    end
+
+    def validated_payload(payload)
+      classification = {
+        intent: payload.fetch(:intent),
+        target_type: payload.fetch(:target_type),
+        toxicity_dimensions: output_hash(payload.fetch(:toxicity_dimensions), "toxicity_dimensions"),
+      }
+
+      [
+        classification,
+        bounded_output_float(payload.fetch(:severity_score), "severity_score"),
+        bounded_output_float(payload.fetch(:confidence), "confidence"),
+      ]
+    rescue KeyError => e
+      raise ClassifierOutputError, "OpenAI harassment classifier output failed validation: missing #{e.key}"
+    end
+
+    def bounded_output_float(value, name)
+      numeric = Float(value)
+      raise ClassifierOutputError, "OpenAI harassment classifier output failed validation: #{name} must be between 0.0 and 1.0" unless numeric.between?(0.0, 1.0)
+
+      numeric
+    rescue ArgumentError, TypeError
+      raise ClassifierOutputError, "OpenAI harassment classifier output failed validation: #{name} must be between 0.0 and 1.0"
+    end
+
+    def output_hash(value, name)
+      return value if value.is_a?(Hash)
+
+      raise ClassifierOutputError, "OpenAI harassment classifier output failed validation: #{name} must be an object"
     end
   end
 end

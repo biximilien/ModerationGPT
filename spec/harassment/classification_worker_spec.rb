@@ -1,4 +1,5 @@
 require "harassment/classification_worker"
+require "harassment/classifier"
 require "harassment/classification_pipeline"
 require "harassment/repositories/in_memory_classification_job_repository"
 require "harassment/repositories/in_memory_classification_record_repository"
@@ -106,6 +107,17 @@ describe Harassment::ClassificationWorker do
     job = classification_jobs.find(server_id: "456", message_id: "123", classifier_version: "harassment-v1")
     expect(job.status).to eq(Harassment::ClassificationStatus::FAILED_TERMINAL)
     expect(job.attempt_count).to eq(1)
+  end
+
+  it "retries malformed classifier output" do
+    allow(classifier).to receive(:classify).and_raise(Harassment::ClassifierOutputError, "invalid model output")
+
+    worker.process_due_jobs(as_of: Time.utc(2026, 4, 25, 18, 1, 0))
+
+    job = classification_jobs.find(server_id: "456", message_id: "123", classifier_version: "harassment-v1")
+    expect(job.status).to eq(Harassment::ClassificationStatus::FAILED_RETRYABLE)
+    expect(job.attempt_count).to eq(1)
+    expect(job.available_at).to eq(Time.utc(2026, 4, 25, 18, 2, 0))
   end
 
   it "stops retrying once max attempts are exhausted" do

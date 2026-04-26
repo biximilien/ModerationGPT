@@ -11,14 +11,14 @@ module Harassment
       @classification_jobs = classification_jobs
     end
 
-    def enqueue(message_id:, classifier_version:, enqueued_at: Time.now.utc)
-      event = @interaction_events.find(message_id)
-      raise ArgumentError, "interaction event not found for message_id=#{message_id}" unless event
+    def enqueue(message_id:, classifier_version:, server_id: nil, enqueued_at: Time.now.utc)
+      event = @interaction_events.find(message_id, server_id:)
+      raise ArgumentError, "interaction event not found for server_id=#{server_id || 'unknown'} message_id=#{message_id}" unless event
 
       existing_job = @classification_jobs.find(server_id: event.server_id, message_id:, classifier_version:)
       return existing_job if existing_job
 
-      @interaction_events.update_classification_status(message_id, ClassificationStatus::PENDING)
+      @interaction_events.update_classification_status(message_id, ClassificationStatus::PENDING, server_id: event.server_id)
 
       job = ClassificationJob.build(
         server_id: event.server_id,
@@ -42,14 +42,14 @@ module Harassment
       return existing_record if existing_record
 
       @classification_records.save(record)
-      @interaction_events.update_classification_status(record.message_id, ClassificationStatus::CLASSIFIED)
+      @interaction_events.update_classification_status(record.message_id, ClassificationStatus::CLASSIFIED, server_id: record.server_id)
       update_job_status(record.server_id, record.message_id, record.classifier_version, ClassificationStatus::CLASSIFIED, updated_at: record.classified_at)
 
       record
     end
 
     def record_retryable_failure(server_id:, message_id:, classifier_version:, error:, retry_at:)
-      @interaction_events.update_classification_status(message_id, ClassificationStatus::FAILED_RETRYABLE)
+      @interaction_events.update_classification_status(message_id, ClassificationStatus::FAILED_RETRYABLE, server_id:)
       update_failed_job(
         server_id:,
         message_id:,
@@ -61,7 +61,7 @@ module Harassment
     end
 
     def record_terminal_failure(server_id:, message_id:, classifier_version:, error:)
-      @interaction_events.update_classification_status(message_id, ClassificationStatus::FAILED_TERMINAL)
+      @interaction_events.update_classification_status(message_id, ClassificationStatus::FAILED_TERMINAL, server_id:)
       update_failed_job(
         server_id:,
         message_id:,
@@ -79,7 +79,7 @@ module Harassment
         updated_at: available_at,
       )
       @classification_jobs.save(deferred_job)
-      @interaction_events.update_classification_status(message_id, ClassificationStatus::PENDING)
+      @interaction_events.update_classification_status(message_id, ClassificationStatus::PENDING, server_id:)
       deferred_job
     end
 

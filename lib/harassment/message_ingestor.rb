@@ -27,13 +27,14 @@ module Harassment
       @interaction_events.save(interaction_event)
       @classification_pipeline.enqueue(
         message_id: interaction_event.message_id,
+        server_id: interaction_event.server_id,
         classifier_version: @classifier_version,
         enqueued_at: interaction_event.timestamp,
       )
 
       interaction_event
     rescue ArgumentError => e
-      return @interaction_events.find(event.message.id) if duplicate_interaction_event?(e)
+      return @interaction_events.find(event.message.id, server_id: event.server.id) if duplicate_interaction_event?(e)
 
       raise
     end

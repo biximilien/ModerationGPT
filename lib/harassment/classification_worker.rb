@@ -41,8 +41,8 @@ module Harassment
     private
 
     def process_job(job, as_of:)
-      event = @interaction_events.find(job.message_id)
-      raise ArgumentError, "interaction event not found for message_id=#{job.message_id}" unless event
+      event = @interaction_events.find(job.message_id, server_id: job.server_id)
+      raise ArgumentError, "interaction event not found for server_id=#{job.server_id} message_id=#{job.message_id}" unless event
 
       retry_at = reserve_rate_limit(job, as_of:)
       return nil if retry_at

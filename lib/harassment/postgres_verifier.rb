@@ -114,7 +114,10 @@ module Harassment
     def spot_check_interaction_events(limit:)
       source_events = redis_rows_for(DataModel::Keys.harassment_interaction_events).take(limit)
       build_spot_check_summary(source_events) do |data|
-        postgres_event = @interaction_event_repository.find(data.fetch("message_id"))
+        postgres_event = @interaction_event_repository.find(
+          data.fetch("message_id"),
+          server_id: data.fetch("server_id"),
+        )
         next [false, { message_id: data.fetch("message_id").to_s, reason: "missing" }] unless postgres_event
 
         expected = {
@@ -242,11 +245,11 @@ module Harassment
     end
 
     def verify_known_interaction_event(message_id)
-      payload = @redis.hget(DataModel::Keys.harassment_interaction_events, message_id)
-      return { found_in_redis: false, found_in_postgres: false, matches: false } unless payload
+      data = redis_rows_for(DataModel::Keys.harassment_interaction_events)
+        .find { |row| row.fetch("message_id").to_s == message_id.to_s }
+      return { found_in_redis: false, found_in_postgres: false, matches: false } unless data
 
-      data = JSON.parse(payload)
-      postgres_event = @interaction_event_repository.find(message_id)
+      postgres_event = @interaction_event_repository.find(message_id, server_id: data.fetch("server_id"))
       return { found_in_redis: true, found_in_postgres: false, matches: false } unless postgres_event
 
       expected = {

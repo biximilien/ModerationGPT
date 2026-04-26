@@ -121,13 +121,13 @@ describe Harassment::OpenAIClassifier do
     )
   end
 
-  it "raises a terminal validation error when OpenAI returns invalid JSON" do
+  it "raises a retryable classifier output error when OpenAI returns invalid JSON" do
     response = { "output_text" => "definitely not json" }
     allow(client).to receive(:query).and_return(response)
     allow(client).to receive(:response_text).with(response).and_return(response["output_text"])
 
     expect do
       classifier.classify(event: event, classifier_version: "harassment-v1")
-    end.to raise_error(ArgumentError, /returned invalid JSON/)
+    end.to raise_error(Harassment::ClassifierOutputError, /returned invalid JSON/)
   end
 end

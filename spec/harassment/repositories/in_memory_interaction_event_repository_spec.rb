@@ -24,7 +24,24 @@ describe Harassment::Repositories::InMemoryInteractionEventRepository do
   it "rejects duplicate interaction events" do
     repository.save(event)
 
-    expect { repository.save(event) }.to raise_error(ArgumentError, "interaction event already exists for message_id=123")
+    expect { repository.save(event) }.to raise_error(ArgumentError, "interaction event already exists for server_id=456 message_id=123")
+  end
+
+  it "scopes lookup and status updates by server" do
+    other_server_event = Harassment::InteractionEvent.build(
+      message_id: 123,
+      server_id: 999,
+      channel_id: 789,
+      author_id: 321,
+      raw_content: "other server",
+    )
+    repository.save(event)
+    repository.save(other_server_event)
+
+    repository.update_classification_status("123", Harassment::ClassificationStatus::CLASSIFIED, server_id: "999")
+
+    expect(repository.find("123", server_id: "456").classification_status).to eq(Harassment::ClassificationStatus::PENDING)
+    expect(repository.find("123", server_id: "999").classification_status).to eq(Harassment::ClassificationStatus::CLASSIFIED)
   end
 
   it "updates classification status immutably" do

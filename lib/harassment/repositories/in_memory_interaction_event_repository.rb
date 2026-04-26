@@ -8,22 +8,24 @@ module Harassment
       end
 
       def save(event)
-        message_id = event.message_id
-        raise ArgumentError, "interaction event already exists for message_id=#{message_id}" if @events.key?(message_id)
+        key = repository_key(event.server_id, event.message_id)
+        raise ArgumentError, "interaction event already exists for server_id=#{event.server_id} message_id=#{event.message_id}" if @events.key?(key)
 
-        @events[message_id] = event
+        @events[key] = event
       end
 
-      def find(message_id)
-        @events[message_id.to_s]
+      def find(message_id, server_id: nil)
+        return @events[repository_key(server_id, message_id)] if server_id
+
+        @events.values.find { |event| event.message_id == message_id.to_s }
       end
 
-      def update_classification_status(message_id, status)
-        event = find(message_id)
+      def update_classification_status(message_id, status, server_id: nil)
+        event = find(message_id, server_id:)
         return nil unless event
 
         updated = event.with_classification_status(status)
-        @events[event.message_id] = updated
+        @events[repository_key(event.server_id, event.message_id)] = updated
       end
 
       def list_by_classification_status(status)
@@ -35,12 +37,12 @@ module Harassment
         @events.values.select { |event| event.retention_expired?(as_of:) }
       end
 
-      def redact_content(message_id, redacted_at: Time.now.utc)
-        event = find(message_id)
+      def redact_content(message_id, server_id: nil, redacted_at: Time.now.utc)
+        event = find(message_id, server_id:)
         return nil unless event
 
         redacted = event.redact_content(redacted_at:)
-        @events[event.message_id] = redacted
+        @events[repository_key(event.server_id, event.message_id)] = redacted
       end
 
       def recent_in_channel(server_id:, channel_id:, before:, limit:)
@@ -68,6 +70,10 @@ module Harassment
       end
 
       private
+
+      def repository_key(server_id, message_id)
+        "#{server_id}:#{message_id}"
+      end
 
       def interaction_involves_participants?(event, participant_ids)
         event_participants = [event.author_id, *event.target_user_ids].to_set
