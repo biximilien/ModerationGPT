@@ -44,6 +44,26 @@ CREATE INDEX classification_records_classification_gin_idx
   ON classification_records
   USING GIN (classification);
 
+CREATE TABLE classification_jobs (
+  id BIGSERIAL PRIMARY KEY,
+  guild_id TEXT NOT NULL,
+  message_id TEXT NOT NULL,
+  classifier_version TEXT NOT NULL,
+  status TEXT NOT NULL,
+  attempt_count INTEGER NOT NULL,
+  available_at TIMESTAMPTZ NOT NULL,
+  last_error_class TEXT,
+  last_error_message TEXT,
+  enqueued_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL
+);
+
+CREATE UNIQUE INDEX classification_jobs_guild_message_classifier_uidx
+  ON classification_jobs (guild_id, message_id, classifier_version);
+
+CREATE INDEX classification_jobs_available_status_idx
+  ON classification_jobs (available_at, status);
+
 CREATE TABLE relationship_edges (
   id BIGSERIAL PRIMARY KEY,
   guild_id TEXT NOT NULL,

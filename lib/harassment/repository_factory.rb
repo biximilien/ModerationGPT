@@ -3,6 +3,8 @@ require_relative "repositories/in_memory_classification_job_repository"
 require_relative "repositories/in_memory_classification_record_repository"
 require_relative "repositories/in_memory_interaction_event_repository"
 require_relative "repositories/in_memory_server_rate_limit_repository"
+require_relative "repositories/postgres_classification_job_repository"
+require_relative "repositories/postgres_classification_record_repository"
 require_relative "repositories/postgres_interaction_event_repository"
 require_relative "repositories/redis_classification_cache_repository"
 require_relative "repositories/redis_classification_job_repository"
@@ -37,6 +39,8 @@ module Harassment
         Repositories::InMemoryClassificationRecordRepository.new
       when "redis"
         Repositories::RedisClassificationRecordRepository.new(redis: redis!)
+      when "postgres"
+        Repositories::PostgresClassificationRecordRepository.new(connection: connection!)
       else
         raise NotImplementedError, "Postgres harassment classification-record repositories are not implemented yet"
       end
@@ -48,6 +52,8 @@ module Harassment
         Repositories::InMemoryClassificationJobRepository.new
       when "redis"
         Repositories::RedisClassificationJobRepository.new(redis: redis!)
+      when "postgres"
+        Repositories::PostgresClassificationJobRepository.new(connection: connection!)
       else
         raise NotImplementedError, "Postgres harassment classification-job repositories are not implemented yet"
       end

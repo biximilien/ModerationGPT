@@ -4,6 +4,8 @@ require "time"
 class FakePostgresConnection
   def initialize
     @interaction_events = []
+    @classification_records = []
+    @classification_jobs = []
   end
 
   def exec_params(sql, params)
@@ -24,6 +26,22 @@ class FakePostgresConnection
       recent_in_channel(params[0], params[1], params[2], params[3])
     when /SELECT \*\s+FROM interaction_events\s+WHERE guild_id = \$1\s+AND created_at < \$2/im
       recent_between_participants(params[0], params[1], params[2], params[3])
+    when /INSERT INTO classification_records/i
+      insert_classification_record(params)
+    when /SELECT \*\s+FROM classification_records\s+WHERE guild_id = \$1\s+AND message_id = \$2\s+AND classifier_version = \$3\s+LIMIT 1/im
+      find_classification_record(params[0], params[1], params[2])
+    when /SELECT \*\s+FROM classification_records\s+WHERE guild_id = \$1\s+AND message_id = \$2\s+ORDER BY classified_at ASC/im
+      all_classification_records_for_message(params[0], params[1])
+    when /SELECT \*\s+FROM classification_records\s+WHERE guild_id = \$1\s+AND message_id = \$2\s+ORDER BY classified_at DESC\s+LIMIT 1/im
+      latest_classification_record_for_message(params[0], params[1])
+    when /INSERT INTO classification_jobs/i
+      insert_classification_job(params)
+    when /SELECT \*\s+FROM classification_jobs\s+WHERE guild_id = \$1\s+AND message_id = \$2\s+AND classifier_version = \$3\s+LIMIT 1/im
+      find_classification_job(params[0], params[1], params[2])
+    when /UPDATE classification_jobs\s+SET status = \$4/im
+      update_classification_job(params)
+    when /SELECT \*\s+FROM classification_jobs\s+WHERE available_at <= \$1\s+AND status IN \('pending', 'failed_retryable'\)/im
+      due_classification_jobs(params[0])
     else
       raise "Unsupported SQL: #{sql}"
     end
@@ -117,5 +135,110 @@ class FakePostgresConnection
   def interaction_involves_participants?(event, participant_ids)
     participants = [event["author_id"], *JSON.parse(event["target_user_ids"])]
     !(participants & participant_ids).empty?
+  end
+
+  def insert_classification_record(params)
+    guild_id, message_id, classifier_version, model_version, prompt_version, classification, severity_score, confidence, classified_at = params
+    return [] if @classification_records.any? do |record|
+      record["guild_id"] == guild_id &&
+        record["message_id"] == message_id &&
+        record["classifier_version"] == classifier_version
+    end
+
+    row = {
+      "guild_id" => guild_id,
+      "message_id" => message_id,
+      "classifier_version" => classifier_version,
+      "model_version" => model_version,
+      "prompt_version" => prompt_version,
+      "classification" => classification,
+      "severity_score" => severity_score,
+      "confidence" => confidence,
+      "classified_at" => classified_at,
+    }
+    @classification_records << row
+    [row]
+  end
+
+  def find_classification_record(guild_id, message_id, classifier_version)
+    row = @classification_records.find do |record|
+      record["guild_id"] == guild_id.to_s &&
+        record["message_id"] == message_id.to_s &&
+        record["classifier_version"] == classifier_version.to_s
+    end
+    row ? [row] : []
+  end
+
+  def all_classification_records_for_message(guild_id, message_id)
+    @classification_records
+      .select { |record| record["guild_id"] == guild_id.to_s && record["message_id"] == message_id.to_s }
+      .sort_by { |record| Time.parse(record["classified_at"]).utc }
+  end
+
+  def latest_classification_record_for_message(guild_id, message_id)
+    row = all_classification_records_for_message(guild_id, message_id).last
+    row ? [row] : []
+  end
+
+  def insert_classification_job(params)
+    guild_id, message_id, classifier_version, status, attempt_count, available_at, last_error_class, last_error_message, enqueued_at, updated_at = params
+    return [] if @classification_jobs.any? do |job|
+      job["guild_id"] == guild_id &&
+        job["message_id"] == message_id &&
+        job["classifier_version"] == classifier_version
+    end
+
+    row = {
+      "guild_id" => guild_id,
+      "message_id" => message_id,
+      "classifier_version" => classifier_version,
+      "status" => status,
+      "attempt_count" => attempt_count,
+      "available_at" => available_at,
+      "last_error_class" => last_error_class,
+      "last_error_message" => last_error_message,
+      "enqueued_at" => enqueued_at,
+      "updated_at" => updated_at,
+    }
+    @classification_jobs << row
+    [row]
+  end
+
+  def find_classification_job(guild_id, message_id, classifier_version)
+    row = @classification_jobs.find do |job|
+      job["guild_id"] == guild_id.to_s &&
+        job["message_id"] == message_id.to_s &&
+        job["classifier_version"] == classifier_version.to_s
+    end
+    row ? [row] : []
+  end
+
+  def update_classification_job(params)
+    guild_id, message_id, classifier_version, status, attempt_count, available_at, last_error_class, last_error_message, enqueued_at, updated_at = params
+    row = @classification_jobs.find do |job|
+      job["guild_id"] == guild_id.to_s &&
+        job["message_id"] == message_id.to_s &&
+        job["classifier_version"] == classifier_version.to_s
+    end
+    return [] unless row
+
+    row["status"] = status
+    row["attempt_count"] = attempt_count
+    row["available_at"] = available_at
+    row["last_error_class"] = last_error_class
+    row["last_error_message"] = last_error_message
+    row["enqueued_at"] = enqueued_at
+    row["updated_at"] = updated_at
+    [row]
+  end
+
+  def due_classification_jobs(as_of)
+    cutoff = Time.parse(as_of).utc
+    @classification_jobs
+      .select do |job|
+        Time.parse(job["available_at"]).utc <= cutoff &&
+          %w[pending failed_retryable].include?(job["status"])
+      end
+      .sort_by { |job| Time.parse(job["available_at"]).utc }
   end
 end
