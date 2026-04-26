@@ -10,12 +10,12 @@ Expose read endpoints:
 - pairwise relationship metrics
 - recent flagged interactions
 
-These operate on derived state, not raw events.
+These expose moderator-safe insight views, not raw event rows.
 
 _Contract_:
 
 - All read operations are scoped to a guild
-- Read results are eventually consistent snapshots of derived state, not recomputed-on-read truth
+- Read results are eventually consistent with stored classification records and derived projections
 - Read surfaces must make score and classifier versioning visible where relevant
 - Read surfaces must not expose raw content unless that exposure is explicitly allowed by the retention and privacy policy
 - Channel, user, and time-window filtering are valid read concerns
@@ -28,7 +28,8 @@ _Access control_:
 _Data source_:
 
 - User risk and pairwise metrics come from versioned derived projections
-- Recent flagged interactions may reference derived incident views and may only include raw-content fields when retention policy still permits it
+- Recent flagged interactions may come from a persisted incident projection or from durable reconstruction over stored interaction events plus classification records
+- Recent flagged interaction surfaces must expose derived incident fields by default and may only include raw-content fields when retention policy explicitly permits it
 
 _Consequences_:
 

@@ -34,7 +34,7 @@ ModerationGPT stores its original moderation state in Redis. Redis keys are defi
 ### `harassment_interaction_events`
 
 - Type: Redis hash
-- Fields: Discord message IDs as strings
+- Fields: `{server_id}:{message_id}`
 - Values: JSON `Harassment::InteractionEvent` records
 - Purpose: stores immutable harassment interaction events, including classification lifecycle state and content retention metadata
 

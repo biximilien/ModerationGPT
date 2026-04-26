@@ -9,19 +9,19 @@ _Output Schema (authoritative)_:
 
 - intent: neutral | friendly | teasing | aggressive | abusive | threatening
 - target_type: individual | group | self | none
-- categories:
+- toxicity_dimensions:
   - insult: boolean
   - threat: boolean
   - harassment: boolean
   - profanity: boolean
   - exclusion: boolean
-- severity: float (0-1)
+- severity_score: float (0-1)
 - confidence: float (0-1)
-- rationale_summary: short string suitable for moderator review
 
 _Constraints_:
 
 - Responses must be schema-bound JSON only
+- Long-lived classifier records must avoid free-form rationale text unless a later privacy and review-surface decision explicitly permits it
 - Prompts must be deterministic and versioned
 - Classification output is advisory input to the scoring engine, not a moderation decision
 

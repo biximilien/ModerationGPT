@@ -3,7 +3,7 @@
 _Status_: Accepted
 _Context_: Harassment detection requires analyzing patterns over time. A simple "user-to-user state" model loses temporal resolution and makes reprocessing difficult.
 
-_Decision_: All Discord messages will be modeled as immutable interaction events. Classification output is not embedded directly into the base interaction record; it is stored as a separate immutable classification record keyed by `message_id` and `classifier_version`.
+_Decision_: All Discord messages will be modeled as immutable interaction events. Classification output is not embedded directly into the base interaction record; it is stored as a separate immutable classification record keyed by `server_id`, `message_id`, and `classifier_version`.
 
 _Schema (logical)_:
 
@@ -21,6 +21,7 @@ _Related classification record_:
 
 - message_id
 - classifier_version
+- server_id
 - classification (JSON)
 - severity_score
 - confidence

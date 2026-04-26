@@ -3,7 +3,7 @@
 _Status_: Accepted
 _Context_: The system stores immutable interaction events, classifies them asynchronously, and derives read models from classification results. Without explicit delivery semantics, retries, duplicates, and reprocessing behavior will drift into ad hoc implementation.
 
-_Decision_: The classification pipeline will use explicit idempotent state transitions keyed by `message_id` and `classifier_version`.
+_Decision_: The classification pipeline will use explicit idempotent state transitions keyed by `server_id`, `message_id`, and `classifier_version`.
 
 _Classification lifecycle_:
 
@@ -14,10 +14,10 @@ _Classification lifecycle_:
 
 _Rules_:
 
-- Enqueue at most one active classification job per `message_id` and `classifier_version`
-- Worker execution must be idempotent for the same `message_id` and `classifier_version`
+- Enqueue at most one active classification job per `server_id`, `message_id`, and `classifier_version`
+- Worker execution must be idempotent for the same `server_id`, `message_id`, and `classifier_version`
 - Retries use bounded exponential backoff
-- Projection updates must also be idempotent and keyed by `message_id` and `classifier_version`
+- Projection updates must also be idempotent and keyed by `server_id`, `message_id`, and `classifier_version`
 - Reprocessing is performed by re-enqueueing stored interaction events with a new `classifier_version`, not by mutating old classification records
 
 _Operational requirements_:
