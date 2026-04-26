@@ -51,6 +51,12 @@ while leaving cache and rate-limiting on Redis during the migration phase.
    ruby scripts/verify_harassment_postgres.rb
    ```
 
+   Or, if you want to sanity-check specific known incidents as well:
+
+   ```bash
+   ruby scripts/verify_harassment_postgres.rb 123456789012345678 234567890123456789
+   ```
+
    Confirm that totals and per-server counts match for:
 
    - `interaction_events`
@@ -62,6 +68,8 @@ while leaving cache and rate-limiting on Redis during the migration phase.
    - `interaction_events`
    - `classification_records`
    - `classification_jobs`
+
+   If you passed explicit message IDs, confirm those known-message checks also report `matches=true`.
 
 4. **Pause and sanity-check**
 

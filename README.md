@@ -145,6 +145,12 @@ To compare Redis and Postgres harassment counts and a small set of sampled rows 
 ruby scripts/verify_harassment_postgres.rb
 ```
 
+To verify specific known message IDs as part of the cutover check, pass them as arguments:
+
+```bash
+ruby scripts/verify_harassment_postgres.rb 123456789012345678 234567890123456789
+```
+
 The cutover sequence is documented in `docs/harassment-postgres-cutover.md`.
 
 Classifier context is assembled transiently from retained interaction events and sent to OpenAI with pseudonymous participant labels rather than raw Discord IDs.

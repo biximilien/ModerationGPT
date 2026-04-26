@@ -142,4 +142,74 @@ describe Harassment::PostgresVerifier do
 
     expect(summary[:spot_checks][:interaction_events][:sampled]).to eq(1)
   end
+
+  it "verifies specific known message ids when requested" do
+    summary = verifier.run(verify_message_ids: [123])
+
+    expect(summary[:known_message_ids]).to eq(
+      "123" => {
+        interaction_event: {
+          found_in_redis: true,
+          found_in_postgres: true,
+          matches: true,
+        },
+        classification_records: {
+          found_in_redis: true,
+          found_in_postgres: true,
+          matches: true,
+          entries: [
+            {
+              found_in_redis: true,
+              found_in_postgres: true,
+              matches: true,
+              identifier: {
+                server_id: "456",
+                classifier_version: "harassment-v1",
+              },
+            },
+          ],
+        },
+        classification_jobs: {
+          found_in_redis: true,
+          found_in_postgres: true,
+          matches: true,
+          entries: [
+            {
+              found_in_redis: true,
+              found_in_postgres: true,
+              matches: true,
+              identifier: {
+                server_id: "456",
+                classifier_version: "harassment-v1",
+              },
+            },
+          ],
+        },
+      },
+    )
+  end
+
+  it "reports known message ids that are missing from Redis" do
+    summary = verifier.run(verify_message_ids: [999])
+
+    expect(summary[:known_message_ids]["999"]).to eq(
+      interaction_event: {
+        found_in_redis: false,
+        found_in_postgres: false,
+        matches: false,
+      },
+      classification_records: {
+        found_in_redis: false,
+        found_in_postgres: false,
+        matches: false,
+        entries: [],
+      },
+      classification_jobs: {
+        found_in_redis: false,
+        found_in_postgres: false,
+        matches: false,
+        entries: [],
+      },
+    )
+  end
 end

@@ -3,13 +3,14 @@ require_relative "../lib/application"
 require_relative "../lib/harassment/postgres_verifier"
 
 app = ModerationGPT::Application.new
+message_ids = ARGV
 
 verifier = Harassment::PostgresVerifier.new(
   redis: app.redis,
   connection: app.database_connection,
 )
 
-summary = verifier.run
+summary = verifier.run(verify_message_ids: message_ids)
 
 puts "Harassment Postgres verification"
 summary.each do |name, counts|
@@ -27,5 +28,22 @@ summary.fetch(:spot_checks).each do |name, details|
   puts "- #{name}: sampled=#{details[:sampled]} matched=#{details[:matched]} matches=#{details[:matches]}"
   details[:mismatches].each do |mismatch|
     puts "  - mismatch: #{mismatch}"
+  end
+end
+
+unless message_ids.empty?
+  puts "Known message IDs"
+  summary.fetch(:known_message_ids).each do |message_id, details|
+    puts "- message #{message_id}"
+    details.each do |name, verification|
+      if verification.key?(:entries)
+        puts "  - #{name}: found_in_redis=#{verification[:found_in_redis]} found_in_postgres=#{verification[:found_in_postgres]} matches=#{verification[:matches]}"
+        verification[:entries].each do |entry|
+          puts "    - entry: #{entry}"
+        end
+      else
+        puts "  - #{name}: #{verification}"
+      end
+    end
   end
 end
