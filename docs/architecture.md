@@ -35,7 +35,7 @@ Incoming Discord messages flow through [bot.rb](../bot.rb) like this:
 
 `MessageRouter` walks the configured strategies in order and executes the first strategy whose `condition(event)` returns true.
 
-`ModerationCommand` owns the built-in admin commands and can also dispatch plugin-provided admin command objects contributed through the plugin registry.
+`ModerationCommand` owns the built-in admin command dispatch and can also dispatch plugin-provided admin command objects contributed through the plugin registry. Parsing plus watchlist and karma handlers live in separate classes under [lib/discord](../lib/discord).
 
 ## Moderation Pipeline
 
@@ -74,6 +74,8 @@ OpenAI requests are wrapped in `Telemetry.in_span(...)`, but telemetry exporting
 ## Persistence Model
 
 [lib/backend.rb](../lib/backend.rb) stores the original moderation state in Redis. The key definitions live in [lib/data_model/keys.rb](../lib/data_model/keys.rb), and karma audit entries are represented by [lib/data_model/karma_event.rb](../lib/data_model/karma_event.rb).
+
+The Redis backend is grouped into small store modules under [lib/backend](../lib/backend): `KarmaStore`, `WatchlistStore`, and `ServerStore`. The shared application still includes them through `Backend`, so callers keep using the same application-level methods.
 
 Redis-backed state includes:
 
@@ -114,6 +116,8 @@ The harassment domain is grouped by responsibility under [lib/harassment](../lib
 - `relationship/` for relationship edges, rebuilds, and pair reports
 - `risk/` for scoring, decay, read-model projections, and risk reports
 - `persistence/` for repository factory and Postgres migration/verification helpers
+
+Flat files such as `lib/harassment/classification_record.rb` are compatibility shims that require the grouped implementation files. New code should prefer the grouped paths when adding direct requires.
 
 The current runtime stores immutable interaction events, enqueues classification jobs keyed by `server_id`, `message_id`, and `classifier_version`, assembles bounded transient context, wraps classifier calls with cache and per-server rate-limit enforcement, and processes due jobs asynchronously on a background thread. The harassment classification service provides the classifier version and the harassment-specific prompt/schema definition used by [lib/harassment/classifier/open_ai_classifier.rb](../lib/harassment/classifier/open_ai_classifier.rb). Successful classification records are then handed to the classification service, which updates its idempotent read model. The query service exposes moderator-facing reports from that read model and, when configured, durable incident repositories.
 

@@ -15,6 +15,7 @@ require_relative "lib/telemetry"
 require_relative "lib/plugin_registry"
 require_relative "lib/logging"
 require_relative "lib/harassment/runtime"
+require_relative "lib/harassment/worker_runner"
 require_relative "lib/plugins/harassment_plugin"
 
 $logger = Logging.build_logger(STDOUT)
@@ -41,7 +42,7 @@ harassment_runtime =
       on_classification: ->(event:, record:) { harassment_classification.record(event:, record:) },
     )
   end
-harassment_worker_thread = nil
+harassment_worker_runner = harassment_runtime ? Harassment::WorkerRunner.new(runtime: harassment_runtime) : nil
 
 bot = Discordrb::Bot.new token: Environment.discord_bot_token, intents: :all
 
@@ -77,25 +78,14 @@ bot.message do |event|
 end
 
 bot.ready do |event|
-  if harassment_runtime && harassment_worker_thread.nil?
-    harassment_worker_thread = Thread.new do
-      Thread.current.name = "harassment-worker" if Thread.current.respond_to?(:name=)
-
-      loop do
-        harassment_runtime.process_due_classifications
-        sleep 5
-      end
-    rescue StandardError => e
-      Logging.error("harassment_worker_stopped", error_class: e.class.name, error_message: e.message)
-    end
-  end
+  harassment_worker_runner&.start
   plugins.ready(event: event, app: app, bot: bot)
   ready_handler.handle(event)
 end
 
 begin
   at_exit do
-    harassment_worker_thread&.kill
+    harassment_worker_runner&.stop
     bot.stop
   end
   bot.run

@@ -18,6 +18,39 @@ require_relative "../repositories/redis_server_rate_limit_repository"
 
 module Harassment
   class RepositoryFactory
+    REPOSITORIES = {
+      interaction_events: {
+        "memory" => Repositories::InMemoryInteractionEventRepository,
+        "redis" => Repositories::RedisInteractionEventRepository,
+        "postgres" => Repositories::PostgresInteractionEventRepository,
+      },
+      classification_records: {
+        "memory" => Repositories::InMemoryClassificationRecordRepository,
+        "redis" => Repositories::RedisClassificationRecordRepository,
+        "postgres" => Repositories::PostgresClassificationRecordRepository,
+      },
+      classification_jobs: {
+        "memory" => Repositories::InMemoryClassificationJobRepository,
+        "redis" => Repositories::RedisClassificationJobRepository,
+        "postgres" => Repositories::PostgresClassificationJobRepository,
+      },
+      classification_cache: {
+        "memory" => Repositories::InMemoryClassificationCacheRepository,
+        "redis" => Repositories::RedisClassificationCacheRepository,
+        "postgres" => Repositories::PostgresClassificationCacheRepository,
+      },
+      server_rate_limits: {
+        "memory" => Repositories::InMemoryServerRateLimitRepository,
+        "redis" => Repositories::RedisServerRateLimitRepository,
+        "postgres" => Repositories::PostgresServerRateLimitRepository,
+      },
+      relationship_edges: {
+        "memory" => Repositories::InMemoryRelationshipEdgeRepository,
+        "redis" => Repositories::InMemoryRelationshipEdgeRepository,
+        "postgres" => Repositories::PostgresRelationshipEdgeRepository,
+      },
+    }.freeze
+
     def initialize(backend:, redis: nil, connection: nil)
       @redis = redis
       @connection = connection
@@ -25,82 +58,47 @@ module Harassment
     end
 
     def interaction_events
-      case @backend
-      when "memory"
-        Repositories::InMemoryInteractionEventRepository.new
-      when "redis"
-        Repositories::RedisInteractionEventRepository.new(redis: redis!)
-      when "postgres"
-        Repositories::PostgresInteractionEventRepository.new(connection: connection!)
-      else
-        raise NotImplementedError, "unsupported harassment interaction-events backend: #{@backend}"
-      end
+      build_repository(:interaction_events)
     end
 
     def classification_records
-      case @backend
-      when "memory"
-        Repositories::InMemoryClassificationRecordRepository.new
-      when "redis"
-        Repositories::RedisClassificationRecordRepository.new(redis: redis!)
-      when "postgres"
-        Repositories::PostgresClassificationRecordRepository.new(connection: connection!)
-      else
-        raise NotImplementedError, "unsupported harassment classification-records backend: #{@backend}"
-      end
+      build_repository(:classification_records)
     end
 
     def classification_jobs
-      case @backend
-      when "memory"
-        Repositories::InMemoryClassificationJobRepository.new
-      when "redis"
-        Repositories::RedisClassificationJobRepository.new(redis: redis!)
-      when "postgres"
-        Repositories::PostgresClassificationJobRepository.new(connection: connection!)
-      else
-        raise NotImplementedError, "unsupported harassment classification-jobs backend: #{@backend}"
-      end
+      build_repository(:classification_jobs)
     end
 
     def classification_cache
-      case @backend
-      when "memory"
-        Repositories::InMemoryClassificationCacheRepository.new
-      when "redis"
-        Repositories::RedisClassificationCacheRepository.new(redis: redis!)
-      when "postgres"
-        Repositories::PostgresClassificationCacheRepository.new(connection: connection!)
-      else
-        raise NotImplementedError, "unsupported harassment classification-cache backend: #{@backend}"
-      end
+      build_repository(:classification_cache)
     end
 
     def server_rate_limits
-      case @backend
-      when "memory"
-        Repositories::InMemoryServerRateLimitRepository.new
-      when "redis"
-        Repositories::RedisServerRateLimitRepository.new(redis: redis!)
-      when "postgres"
-        Repositories::PostgresServerRateLimitRepository.new(connection: connection!)
-      else
-        raise NotImplementedError, "unsupported harassment rate-limit backend: #{@backend}"
-      end
+      build_repository(:server_rate_limits)
     end
 
     def relationship_edges
-      case @backend
-      when "memory", "redis"
-        Repositories::InMemoryRelationshipEdgeRepository.new
-      when "postgres"
-        Repositories::PostgresRelationshipEdgeRepository.new(connection: connection!)
-      else
-        raise NotImplementedError, "unsupported harassment relationship-edge backend: #{@backend}"
-      end
+      build_repository(:relationship_edges)
     end
 
     private
+
+    def build_repository(kind)
+      repository_class = REPOSITORIES.fetch(kind).fetch(@backend) do
+        raise NotImplementedError, "unsupported harassment #{kind.to_s.tr('_', '-')} backend: #{@backend}"
+      end
+      if @backend == "postgres"
+        repository_class.new(connection: connection!)
+      elsif @backend == "redis" && redis_repository?(kind)
+        repository_class.new(redis: redis!)
+      else
+        repository_class.new
+      end
+    end
+
+    def redis_repository?(kind)
+      REPOSITORIES.fetch(kind).fetch("redis") != Repositories::InMemoryRelationshipEdgeRepository
+    end
 
     def normalize_backend(backend)
       normalized = backend.to_s.strip.downcase

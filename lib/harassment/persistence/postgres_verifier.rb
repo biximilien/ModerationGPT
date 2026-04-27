@@ -1,11 +1,13 @@
 require "json"
 require_relative "../../data_model/keys"
+require_relative "postgres_verification_helpers"
 require_relative "../repositories/postgres_classification_job_repository"
 require_relative "../repositories/postgres_classification_record_repository"
 require_relative "../repositories/postgres_interaction_event_repository"
 
 module Harassment
   class PostgresVerifier
+    include PostgresVerificationHelpers
     TABLES = {
       interaction_events: {
         redis_key: DataModel::Keys.harassment_interaction_events,
@@ -131,7 +133,7 @@ module Harassment
           raw_content: postgres_event.raw_content,
         }
 
-        compare_spot_check_record(
+        compare_record(
           identifier: { message_id: data.fetch("message_id").to_s },
           expected:,
           actual:,
@@ -167,7 +169,7 @@ module Harassment
           confidence: postgres_record.confidence,
         }
 
-        compare_spot_check_record(identifier:, expected:, actual:)
+        compare_record(identifier:, expected:, actual:)
       end
     end
 
@@ -195,42 +197,8 @@ module Harassment
           attempt_count: postgres_job.attempt_count,
         }
 
-        compare_spot_check_record(identifier:, expected:, actual:)
+        compare_record(identifier:, expected:, actual:)
       end
-    end
-
-    def build_spot_check_summary(source_rows)
-      mismatches = []
-      matched = 0
-
-      source_rows.each do |data|
-        row_matched, details = yield(data)
-        if row_matched
-          matched += 1
-        else
-          mismatches << details
-        end
-      end
-
-      {
-        sampled: source_rows.length,
-        matched:,
-        mismatches:,
-        matches: mismatches.empty?,
-      }
-    end
-
-    def compare_spot_check_record(identifier:, expected:, actual:)
-      return [true, nil] if expected == actual
-
-      mismatch_fields = expected.each_with_object({}) do |(field, expected_value), result|
-        actual_value = actual.fetch(field)
-        next if actual_value == expected_value
-
-        result[field] = { expected: expected_value, actual: actual_value }
-      end
-
-      [false, identifier.merge(fields: mismatch_fields)]
     end
 
     def verify_known_message_ids(message_ids)
@@ -340,39 +308,8 @@ module Harassment
       }
     end
 
-    def build_known_verification_result(expected:, actual:, identifier: nil)
-      result = {
-        found_in_redis: true,
-        found_in_postgres: true,
-        matches: expected == actual,
-      }
-      result[:identifier] = identifier if identifier
-      return result if expected == actual
-
-      result[:fields] = expected.each_with_object({}) do |(field, expected_value), mismatches|
-        actual_value = actual.fetch(field)
-        next if actual_value == expected_value
-
-        mismatches[field] = { expected: expected_value, actual: actual_value }
-      end
-      result
-    end
-
-    def missing_known_result(identifier)
-      {
-        found_in_redis: true,
-        found_in_postgres: false,
-        matches: false,
-        identifier:,
-      }
-    end
-
     def redis_rows_for(key)
       @redis.hgetall(key).values.map { |payload| JSON.parse(payload) }
-    end
-
-    def rows(result)
-      result.respond_to?(:to_a) ? result.to_a : Array(result)
     end
   end
 end
