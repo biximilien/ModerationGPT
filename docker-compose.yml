@@ -9,7 +9,7 @@ services:
       DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN:-}
       OPENAI_MODERATION_MODEL: ${OPENAI_MODERATION_MODEL:-omni-moderation-latest}
       OPENAI_REWRITE_MODEL: ${OPENAI_REWRITE_MODEL:-gpt-4.1-mini}
-      DATABASE_URL: ${DATABASE_URL:-}
+      DATABASE_URL: ${DATABASE_URL:-postgres://postgres:postgres@postgres:5432/moderationgpt}
       HARASSMENT_CLASSIFIER_MODEL: ${HARASSMENT_CLASSIFIER_MODEL:-gpt-4o-2024-08-06}
       HARASSMENT_CLASSIFIER_CACHE_TTL_SECONDS: ${HARASSMENT_CLASSIFIER_CACHE_TTL_SECONDS:-3600}
       HARASSMENT_CLASSIFIER_RATE_LIMIT_PER_MINUTE: ${HARASSMENT_CLASSIFIER_RATE_LIMIT_PER_MINUTE:-30}
@@ -29,7 +29,8 @@ services:
       OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
       OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-ModerationGPT}
     depends_on:
-      - redis
+      redis:
+        condition: service_started
     networks:
       - backend
 
@@ -45,6 +46,31 @@ services:
     networks:
       - backend
 
+  postgres:
+    image: postgres:16-alpine
+    container_name: moderationgpt-postgres
+    profiles:
+      - postgres
+    environment:
+      POSTGRES_DB: moderationgpt
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./db/harassment/001_initial_schema.sql:/docker-entrypoint-initdb.d/001_harassment_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d moderationgpt"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - backend
+
 networks:
   backend:
     driver: bridge
+
+volumes:
+  postgres-data:

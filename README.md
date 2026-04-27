@@ -257,6 +257,14 @@ docker compose up --build
 
 The bot service reads secrets from `.env`. Inside Compose, `REDIS_URL` is set to `redis://redis:6379/0`. Redis uses append-only persistence with `appendfsync everysec`, and stores local state in `./redis-data`.
 
+To run with the optional Postgres-backed harassment storage path, build the image with the `postgres` bundle group and enable the Compose Postgres profile:
+
+```bash
+BUNDLE_WITH=postgres PLUGINS=postgres,harassment HARASSMENT_STORAGE_BACKEND=postgres docker compose --profile postgres up --build
+```
+
+Compose starts a local `postgres` service, initializes the harassment schema from `db/harassment/001_initial_schema.sql`, and points the bot at `postgres://postgres:postgres@postgres:5432/moderationgpt` unless `DATABASE_URL` is overridden.
+
 ## OpenTelemetry
 
 Optional OpenTelemetry settings can be added to `.env`:
