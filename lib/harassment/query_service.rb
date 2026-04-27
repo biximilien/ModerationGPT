@@ -1,7 +1,7 @@
-require_relative "composite_signal_analyzer"
-require_relative "pair_relationship_report"
-require_relative "recent_incidents_report"
-require_relative "user_risk_report"
+require_relative "risk/composite_signal_analyzer"
+require_relative "relationship/pair_relationship_report"
+require_relative "incident/recent_incidents_report"
+require_relative "risk/user_risk_report"
 
 module Harassment
   class QueryService

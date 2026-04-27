@@ -1,7 +1,7 @@
-require_relative "incident_query"
+require_relative "incident/query"
 require_relative "query_service"
-require_relative "read_model"
-require_relative "repository_factory"
+require_relative "risk/read_model"
+require_relative "persistence/repository_factory"
 require_relative "../plugins/postgres_plugin"
 require_relative "../../environment"
 

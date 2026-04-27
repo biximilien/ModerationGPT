@@ -99,11 +99,21 @@ Platform-owned runtime pieces:
 Plugin-owned pieces:
 
 - [lib/plugins/harassment_plugin.rb](../lib/plugins/harassment_plugin.rb)
-- [lib/harassment/classification_service.rb](../lib/harassment/classification_service.rb)
-- [lib/harassment/classifier_definition.rb](../lib/harassment/classifier_definition.rb)
-- [lib/harassment/read_model.rb](../lib/harassment/read_model.rb)
+- [lib/harassment/classification/service.rb](../lib/harassment/classification/service.rb)
+- [lib/harassment/classifier/definition.rb](../lib/harassment/classifier/definition.rb)
+- [lib/harassment/risk/read_model.rb](../lib/harassment/risk/read_model.rb)
 - [lib/harassment/query_service.rb](../lib/harassment/query_service.rb)
 - [lib/plugins/harassment_command.rb](../lib/plugins/harassment_command.rb)
+
+The harassment domain is grouped by responsibility under [lib/harassment](../lib/harassment):
+
+- `classification/` for classification jobs, records, pipeline, worker, status, and classification service
+- `classifier/` for classifier identity and OpenAI/cached classifier implementations
+- `incident/` for incident values, collections, queries, and incident reports
+- `interaction/` for captured Discord interaction events, context assembly, ingestion, and retention
+- `relationship/` for relationship edges, rebuilds, and pair reports
+- `risk/` for scoring, decay, read-model projections, and risk reports
+- `persistence/` for repository factory and Postgres migration/verification helpers
 
 The current runtime stores immutable interaction events, enqueues classification jobs keyed by `server_id`, `message_id`, and `classifier_version`, assembles bounded transient context, wraps classifier calls with cache and per-server rate-limit enforcement, and processes due jobs asynchronously on a background thread. The harassment classification service provides the classifier version and the harassment-specific prompt/schema definition used by [lib/harassment/open_ai_classifier.rb](../lib/harassment/open_ai_classifier.rb). Successful classification records are then handed to the classification service, which updates its idempotent read model. The query service exposes moderator-facing reports from that read model and, when configured, durable incident repositories.
 
