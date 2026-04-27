@@ -90,10 +90,10 @@ The harassment pipeline is split between a platform runtime and plugin-composed 
 Platform-owned runtime pieces:
 
 - [lib/harassment/runtime.rb](../lib/harassment/runtime.rb)
-- [lib/harassment/message_ingestor.rb](../lib/harassment/message_ingestor.rb)
-- [lib/harassment/classification_pipeline.rb](../lib/harassment/classification_pipeline.rb)
-- [lib/harassment/classification_worker.rb](../lib/harassment/classification_worker.rb)
-- [lib/harassment/context_assembler.rb](../lib/harassment/context_assembler.rb)
+- [lib/harassment/interaction/message_ingestor.rb](../lib/harassment/interaction/message_ingestor.rb)
+- [lib/harassment/classification/pipeline.rb](../lib/harassment/classification/pipeline.rb)
+- [lib/harassment/classification/worker.rb](../lib/harassment/classification/worker.rb)
+- [lib/harassment/interaction/context_assembler.rb](../lib/harassment/interaction/context_assembler.rb)
 - backend-specific repositories under [lib/harassment/repositories](../lib/harassment/repositories)
 
 Plugin-owned pieces:
@@ -115,7 +115,7 @@ The harassment domain is grouped by responsibility under [lib/harassment](../lib
 - `risk/` for scoring, decay, read-model projections, and risk reports
 - `persistence/` for repository factory and Postgres migration/verification helpers
 
-The current runtime stores immutable interaction events, enqueues classification jobs keyed by `server_id`, `message_id`, and `classifier_version`, assembles bounded transient context, wraps classifier calls with cache and per-server rate-limit enforcement, and processes due jobs asynchronously on a background thread. The harassment classification service provides the classifier version and the harassment-specific prompt/schema definition used by [lib/harassment/open_ai_classifier.rb](../lib/harassment/open_ai_classifier.rb). Successful classification records are then handed to the classification service, which updates its idempotent read model. The query service exposes moderator-facing reports from that read model and, when configured, durable incident repositories.
+The current runtime stores immutable interaction events, enqueues classification jobs keyed by `server_id`, `message_id`, and `classifier_version`, assembles bounded transient context, wraps classifier calls with cache and per-server rate-limit enforcement, and processes due jobs asynchronously on a background thread. The harassment classification service provides the classifier version and the harassment-specific prompt/schema definition used by [lib/harassment/classifier/open_ai_classifier.rb](../lib/harassment/classifier/open_ai_classifier.rb). Successful classification records are then handed to the classification service, which updates its idempotent read model. The query service exposes moderator-facing reports from that read model and, when configured, durable incident repositories.
 
 Classifier cache keys are derived from server scope, classifier version, classifier prompt/schema identity, and normalized message/context input. When a server exceeds the configured classifier call budget, the runtime defers the job forward without consuming a retry attempt.
 

@@ -133,7 +133,7 @@ Built-in plugins:
 - `telemetry`
 - `personality`
 
-The `harassment` plugin passively captures interaction events, enqueues harassment classification work, and records classified incidents in its own read model without applying automated enforcement.
+When the `harassment` plugin is enabled, the bot passively captures interaction events, enqueues harassment classification work, and records classified incidents in a harassment read model without applying automated enforcement.
 
 In the current implementation, the core platform owns the harassment runtime: Discord message ingestion, backend-owned event and job storage, transient context assembly, classifier-output caching, per-server rate limiting, and background classification processing. The harassment plugin composes the harassment classification service, query service, read model, and Discord command output without applying automated enforcement.
 
@@ -170,6 +170,8 @@ ruby scripts/rebuild_harassment_relationship_edges.rb 123456789012345678
 ```
 
 When the harassment plugin boots against durable repositories, moderator-facing `risk` and `recent incidents` queries are reconstructed from stored interaction events and classification records rather than relying only on process-local incident memory.
+
+The harassment implementation is organized by domain under `lib/harassment`, with grouped folders for `classification`, `classifier`, `incident`, `interaction`, `relationship`, `risk`, and `persistence`. Compatibility require files remain at the old flat paths for callers that still use them.
 
 To compare Redis and Postgres harassment counts, inspect Postgres relationship-edge totals, and run a small set of sampled row checks before cutover, run:
 
