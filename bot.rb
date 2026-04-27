@@ -22,13 +22,18 @@ $logger = Logging.build_logger(STDOUT)
 Environment.validate!
 app = ModerationGPT::Application.new
 plugins = ModerationGPT::PluginRegistry.from_environment
-plugins.boot(app: app)
+plugins.boot(app: app, plugin_registry: plugins)
 harassment_plugin = plugins.find_plugin(ModerationGPT::Plugins::HarassmentPlugin)
+postgres_plugin = plugins.find_plugin(ModerationGPT::Plugins::PostgresPlugin)
 harassment_runtime =
   if harassment_plugin
+    if Environment.harassment_storage_backend == "postgres" && postgres_plugin.nil?
+      raise "HARASSMENT_STORAGE_BACKEND=postgres requires the postgres plugin to be enabled"
+    end
+
     Harassment::Runtime.new(
       redis: app.redis,
-      connection: (Environment.harassment_storage_backend == "postgres" ? app.database_connection : nil),
+      connection: (Environment.harassment_storage_backend == "postgres" ? postgres_plugin.database_connection : nil),
       storage_backend: Environment.harassment_storage_backend,
       classifier_version: harassment_plugin.classifier_version,
       classifier: harassment_plugin.build_classifier(client: app),

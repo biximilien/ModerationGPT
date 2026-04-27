@@ -1,14 +1,16 @@
 require_relative "../environment"
-require_relative "../lib/application"
+require_relative "../lib/plugin_registry"
 require_relative "../lib/harassment/relationship_edge_rebuilder"
 require_relative "../lib/harassment/repository_factory"
 require_relative "../lib/plugins/harassment_plugin"
 
-app = ModerationGPT::Application.new
+plugins = ModerationGPT::PluginRegistry.from_environment
+postgres_plugin = plugins.find_plugin(ModerationGPT::Plugins::PostgresPlugin)
+raise "rebuild_harassment_relationship_edges requires the postgres plugin to be enabled" unless postgres_plugin
+
 factory = Harassment::RepositoryFactory.new(
-  backend: Environment.harassment_storage_backend,
-  redis: app.redis,
-  connection: (Environment.harassment_storage_backend == "postgres" ? app.database_connection : nil),
+  backend: "postgres",
+  connection: postgres_plugin.database_connection,
 )
 plugin = ModerationGPT::Plugins::HarassmentPlugin.new
 server_id = ARGV[0]

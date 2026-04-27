@@ -16,6 +16,7 @@ Use Postgres for the harassment runtime state:
 ## Preconditions
 
 - `DATABASE_URL` points to the target Postgres database
+- the optional `postgres` plugin dependency group has been installed
 - the schema in `db/harassment/001_initial_schema.sql` has been applied
 - Redis still contains the active harassment runtime state
 - the bot is still running with `HARASSMENT_STORAGE_BACKEND=redis`
@@ -33,6 +34,7 @@ Use Postgres for the harassment runtime state:
    Run:
 
    ```bash
+   PLUGINS=postgres
    ruby scripts/bootstrap_harassment_postgres.rb
    ```
 
@@ -49,12 +51,14 @@ Use Postgres for the harassment runtime state:
    Run:
 
    ```bash
+   PLUGINS=postgres
    ruby scripts/rebuild_harassment_relationship_edges.rb
    ```
 
    If you want to rebuild only one server:
 
    ```bash
+   PLUGINS=postgres
    ruby scripts/rebuild_harassment_relationship_edges.rb 123456789012345678
    ```
 
@@ -67,12 +71,14 @@ Use Postgres for the harassment runtime state:
    Run:
 
    ```bash
+   PLUGINS=postgres
    ruby scripts/verify_harassment_postgres.rb
    ```
 
    Or, if you want to sanity-check specific known incidents as well:
 
    ```bash
+   PLUGINS=postgres
    ruby scripts/verify_harassment_postgres.rb 123456789012345678 234567890123456789
    ```
 
@@ -106,6 +112,7 @@ Use Postgres for the harassment runtime state:
    Set:
 
    ```bash
+   PLUGINS=postgres,harassment
    HARASSMENT_STORAGE_BACKEND=postgres
    ```
 

@@ -43,6 +43,14 @@ describe ModerationGPT::PluginRegistry do
       expect(registry.find_plugin(ModerationGPT::Plugins::HarassmentPlugin)).to be_a(ModerationGPT::Plugins::HarassmentPlugin)
     end
 
+    it "builds the built-in postgres plugin" do
+      ENV["PLUGINS"] = "postgres"
+
+      registry = described_class.from_environment
+
+      expect(registry.find_plugin(ModerationGPT::Plugins::PostgresPlugin)).to be_a(ModerationGPT::Plugins::PostgresPlugin)
+    end
+
     it "raises for unknown plugins" do
       ENV["PLUGINS"] = "missing"
 

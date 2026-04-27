@@ -1,4 +1,5 @@
 require_relative "incident"
+require_relative "incident_collection"
 require_relative "decay_policy"
 require_relative "relationship_edge"
 require_relative "repositories/in_memory_relationship_edge_repository"
@@ -47,14 +48,8 @@ module Harassment
     end
 
     def recent_incidents(server_id, channel_id, limit: 10, user_id: nil, since: nil)
-      incidents = @incidents_by_channel[channel_key(server_id, channel_id)]
-      incidents = filter_incidents_for_user(incidents, user_id) if user_id
-      incidents = incidents.select { |incident| incident.classified_at >= since.utc } if since
-
-      incidents
-        .sort_by(&:classified_at)
-        .reverse
-        .first(limit)
+      IncidentCollection.new(@incidents_by_channel[channel_key(server_id, channel_id)])
+        .recent(server_id:, channel_id:, limit:, user_id:, since:)
     end
 
     def get_pair_relationship(server_id, user_a, user_b, as_of: Time.now.utc)
@@ -82,19 +77,10 @@ module Harassment
     end
 
     def incidents_for_author(server_id, user_id)
-      normalized_server_id = server_id.to_s
-      author_id = user_id.to_s
-      @incidents_by_channel.values.flatten.select { |incident| incident.server_id == normalized_server_id && incident.author_id == author_id }
+      IncidentCollection.new(@incidents_by_channel.values.flatten).for_author(server_id:, user_id:)
     end
 
     private
-
-    def filter_incidents_for_user(incidents, user_id)
-      normalized_user_id = user_id.to_s
-      incidents.select do |incident|
-        incident.author_id == normalized_user_id || incident.target_user_ids.include?(normalized_user_id)
-      end
-    end
 
     def channel_key(server_id, channel_id)
       "#{server_id}:#{channel_id}"

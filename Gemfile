@@ -13,6 +13,11 @@ gem 'dotenv'
 # redis is used as backend
 gem "redis"
 
+# optional postgres database plugin
+group :postgres, optional: true do
+  gem "pg"
+end
+
 # testing
 gem "rspec", group: :test
 

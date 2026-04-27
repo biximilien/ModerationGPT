@@ -81,6 +81,8 @@ The harassment runtime can store its own pipeline state in either Redis or Postg
   - `server_rate_limits`
   - `relationship_edges`
 
+Postgres storage also requires the optional `postgres` plugin to be enabled so the runtime can use the shared database connection.
+
 The Redis-to-Postgres bootstrap path migrates interaction events, classification records, and classification jobs. Cache, rate-limit, and relationship-edge projection state are not bootstrapped.
 
 ## KarmaEvent

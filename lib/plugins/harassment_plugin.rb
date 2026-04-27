@@ -6,6 +6,7 @@ require_relative "../harassment/query_service"
 require_relative "../harassment/read_model"
 require_relative "../harassment/repository_factory"
 require_relative "harassment_command"
+require_relative "postgres_plugin"
 
 module ModerationGPT
   module Plugins
@@ -70,11 +71,13 @@ module ModerationGPT
         @query_service = Harassment::QueryService.new(read_model: @read_model)
       end
 
-      def boot(app:, **)
+      def boot(app:, plugin_registry: nil, **)
+        storage_backend = Environment.harassment_storage_backend
+        connection = postgres_connection(plugin_registry:) if storage_backend == "postgres"
         factory = Harassment::RepositoryFactory.new(
-          backend: Environment.harassment_storage_backend,
+          backend: storage_backend,
           redis: app.redis,
-          connection: (Environment.harassment_storage_backend == "postgres" ? app.database_connection : nil),
+          connection: connection,
         )
         incident_query = Harassment::IncidentQuery.new(
           interaction_events: factory.interaction_events,
@@ -82,7 +85,7 @@ module ModerationGPT
         )
 
         read_model =
-          if Environment.harassment_storage_backend == "postgres"
+          if storage_backend == "postgres"
             Harassment::ReadModel.new(
               score_version: SCORE_VERSION,
               edge_repository: factory.relationship_edges,
@@ -153,6 +156,13 @@ module ModerationGPT
           read_model: @read_model,
           incident_query: incident_query,
         )
+      end
+
+      def postgres_connection(plugin_registry:)
+        postgres_plugin = plugin_registry&.find_plugin(ModerationGPT::Plugins::PostgresPlugin)
+        return postgres_plugin.database_connection if postgres_plugin
+
+        raise "HARASSMENT_STORAGE_BACKEND=postgres requires the postgres plugin to be enabled"
       end
     end
   end

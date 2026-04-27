@@ -20,6 +20,8 @@ The shared application object lives in [lib/application.rb](../lib/application.r
 
 This keeps the rest of the bot working with a single `app` dependency.
 
+Postgres is intentionally not part of the shared application object. When database-backed features are needed, the optional [PostgresPlugin](../lib/plugins/postgres_plugin.rb) owns the `DATABASE_URL` connection and exposes it to other plugins through the plugin registry.
+
 ## Message Handling
 
 Incoming Discord messages flow through [bot.rb](../bot.rb) like this:
@@ -105,7 +107,7 @@ The current runtime stores immutable interaction events, enqueues classification
 
 Classifier cache keys are derived from server scope, classifier version, classifier prompt/schema identity, and normalized message/context input. When a server exceeds the configured classifier call budget, the runtime defers the job forward without consuming a retry attempt.
 
-When `HARASSMENT_STORAGE_BACKEND=postgres` is enabled, the runtime uses Postgres-backed repositories for interaction events, classification records, classification jobs, classifier cache entries, per-server rate-limit buckets, and relationship-edge projections. The Redis bootstrap path migrates the durable interaction, classification, and job records; cache/rate-limit state resets on cutover, while relationship-edge projections can be rebuilt from stored classified events and their latest stored classification records.
+When `HARASSMENT_STORAGE_BACKEND=postgres` is enabled, the `postgres` plugin must also be enabled. The harassment runtime then uses the shared Postgres plugin connection with Postgres-backed repositories for interaction events, classification records, classification jobs, classifier cache entries, per-server rate-limit buckets, and relationship-edge projections. The Redis bootstrap path migrates the durable interaction, classification, and job records; cache/rate-limit state resets on cutover, while relationship-edge projections can be rebuilt from stored classified events and their latest stored classification records.
 
 The moderator-facing incident and risk surface no longer depends only on process-local incident memory when durable repositories are available. The harassment query layer can reconstruct incidents from stored classified interaction events plus stored classification records, which keeps `recent incidents` and incident-derived risk signals meaningful across restarts.
 
@@ -151,6 +153,7 @@ Current hook types include:
 Current built-in plugins:
 
 - [HarassmentPlugin](../lib/plugins/harassment_plugin.rb)
+- [PostgresPlugin](../lib/plugins/postgres_plugin.rb)
 - [TelemetryPlugin](../lib/plugins/telemetry_plugin.rb)
 - [PersonalityPlugin](../lib/plugins/personality_plugin.rb)
 

@@ -69,7 +69,7 @@ PLUGINS=
 PERSONALITY=objective
 ```
 
-`DATABASE_URL`, `OPENAI_MODERATION_MODEL`, `OPENAI_REWRITE_MODEL`, `HARASSMENT_CLASSIFIER_MODEL`, `HARASSMENT_CLASSIFIER_CACHE_TTL_SECONDS`, `HARASSMENT_CLASSIFIER_RATE_LIMIT_PER_MINUTE`, `HARASSMENT_STORAGE_BACKEND`, `KARMA_AUTOMOD_THRESHOLD`, `KARMA_AUTOMOD_ACTION`, `KARMA_TIMEOUT_SECONDS`, `LOG_INVITE_URL`, and `LOG_FORMAT` are optional. `TELEMETRY_HASH_SALT` is used to anonymize Discord identifiers in logs and traces; set it to a stable random secret for your deployment.
+`DATABASE_URL`, `OPENAI_MODERATION_MODEL`, `OPENAI_REWRITE_MODEL`, `HARASSMENT_CLASSIFIER_MODEL`, `HARASSMENT_CLASSIFIER_CACHE_TTL_SECONDS`, `HARASSMENT_CLASSIFIER_RATE_LIMIT_PER_MINUTE`, `HARASSMENT_STORAGE_BACKEND`, `KARMA_AUTOMOD_THRESHOLD`, `KARMA_AUTOMOD_ACTION`, `KARMA_TIMEOUT_SECONDS`, `LOG_INVITE_URL`, and `LOG_FORMAT` are optional. `DATABASE_URL` is only used when the `postgres` plugin is enabled. `TELEMETRY_HASH_SALT` is used to anonymize Discord identifiers in logs and traces; set it to a stable random secret for your deployment.
 
 ## Local Development
 
@@ -77,6 +77,13 @@ Install dependencies:
 
 ```bash
 gem install bundler -v 2.4.5
+bundle install
+```
+
+Enable optional Postgres dependencies when using the Postgres plugin:
+
+```bash
+bundle config set --local with postgres
 bundle install
 ```
 
@@ -122,6 +129,7 @@ PLUGINS=telemetry
 Built-in plugins:
 
 - `harassment`
+- `postgres`
 - `telemetry`
 - `personality`
 
@@ -129,11 +137,17 @@ The `harassment` plugin passively captures interaction events, enqueues harassme
 
 In the current implementation, the core platform owns the harassment runtime: Discord message ingestion, backend-owned event and job storage, transient context assembly, classifier-output caching, per-server rate limiting, and background classification processing. The plugin owns the harassment classifier version, prompt/schema definition, read model, scoring, moderator-facing queries, and Discord command output.
 
-`HARASSMENT_STORAGE_BACKEND=postgres` now routes the harassment runtime through Postgres-backed repositories for interaction events, classification records, classification jobs, classifier cache entries, per-server rate-limit buckets, and persisted relationship-edge projections.
+`HARASSMENT_STORAGE_BACKEND=postgres` routes the harassment runtime through Postgres-backed repositories for interaction events, classification records, classification jobs, classifier cache entries, per-server rate-limit buckets, and persisted relationship-edge projections. Enable the shared database capability with the `postgres` plugin:
+
+```bash
+PLUGINS=postgres,harassment
+HARASSMENT_STORAGE_BACKEND=postgres
+```
 
 To bootstrap the current Redis harassment state into Postgres before cutover, run:
 
 ```bash
+PLUGINS=postgres
 ruby scripts/bootstrap_harassment_postgres.rb
 ```
 
@@ -144,12 +158,14 @@ Classifier cache entries and per-server rate-limit buckets are operational state
 To rebuild relationship-edge projections from stored harassment interaction events and classification records, run:
 
 ```bash
+PLUGINS=postgres
 ruby scripts/rebuild_harassment_relationship_edges.rb
 ```
 
 You can scope the rebuild to a specific server:
 
 ```bash
+PLUGINS=postgres
 ruby scripts/rebuild_harassment_relationship_edges.rb 123456789012345678
 ```
 
@@ -158,12 +174,14 @@ When the harassment plugin boots against durable repositories, moderator-facing 
 To compare Redis and Postgres harassment counts, inspect Postgres relationship-edge totals, and run a small set of sampled row checks before cutover, run:
 
 ```bash
+PLUGINS=postgres
 ruby scripts/verify_harassment_postgres.rb
 ```
 
 To verify specific known message IDs as part of the cutover check, pass them as arguments:
 
 ```bash
+PLUGINS=postgres
 ruby scripts/verify_harassment_postgres.rb 123456789012345678 234567890123456789
 ```
 
