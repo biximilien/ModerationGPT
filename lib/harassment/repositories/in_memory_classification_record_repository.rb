@@ -32,7 +32,6 @@ module Harassment
       end
 
       private
-
     end
   end
 end

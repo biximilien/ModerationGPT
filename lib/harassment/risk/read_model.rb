@@ -49,7 +49,7 @@ module Harassment
 
     def recent_incidents(server_id, channel_id, limit: 10, user_id: nil, since: nil)
       IncidentCollection.new(@incidents_by_channel[channel_key(server_id, channel_id)])
-        .recent(server_id:, channel_id:, limit:, user_id:, since:)
+                        .recent(server_id:, channel_id:, limit:, user_id:, since:)
     end
 
     def get_pair_relationship(server_id, user_a, user_b, as_of: Time.now.utc)

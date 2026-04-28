@@ -66,16 +66,16 @@ describe Harassment::ContextAssembler do
       "654" => "target_1",
     )
     expect(context[:recent_channel_messages].map { |entry| entry[:content] }).to eq([
-      "calm down",
+                                                                                      "calm down",
       "what's your problem?",
-    ])
+                                                                                    ])
     expect(context[:recent_channel_messages].map { |entry| entry[:author_label] }).to eq([
-      "participant_3",
+                                                                                           "participant_3",
       "target_1",
-    ])
+                                                                                         ])
     expect(context[:recent_pair_interactions].map { |entry| entry[:content] }).to eq([
-      "what's your problem?",
+                                                                                       "what's your problem?",
       "back off",
-    ])
+                                                                                     ])
   end
 end

@@ -142,14 +142,14 @@ class FakePostgresConnection
 
   def list_classified_for_server(server_id, channel_id:, author_id:, since:, limit:)
     rows = @interaction_events
-      .select do |event|
-        event["guild_id"] == server_id.to_s &&
-          event["classification_status"] == Harassment::ClassificationStatus::CLASSIFIED &&
-          (channel_id.nil? || event["channel_id"] == channel_id.to_s) &&
-          (author_id.nil? || event["author_id"] == author_id.to_s) &&
-          (since.nil? || parse_utc(event["created_at"]) >= parse_utc(since))
-      end
-      .sort_by { |event| parse_utc(event["created_at"]) }
+           .select do |event|
+             event["guild_id"] == server_id.to_s &&
+               event["classification_status"] == Harassment::ClassificationStatus::CLASSIFIED &&
+               (channel_id.nil? || event["channel_id"] == channel_id.to_s) &&
+               (author_id.nil? || event["author_id"] == author_id.to_s) &&
+               (since.nil? || parse_utc(event["created_at"]) >= parse_utc(since))
+           end
+           .sort_by { |event| parse_utc(event["created_at"]) }
 
     limit ? rows.last(limit.to_i) : rows
   end
@@ -210,8 +210,8 @@ class FakePostgresConnection
     guild_id, message_id, classifier_version, model_version, prompt_version, classification, severity_score, confidence, classified_at = params
     return [] if @classification_records.any? do |record|
       record["guild_id"] == guild_id &&
-        record["message_id"] == message_id &&
-        record["classifier_version"] == classifier_version
+      record["message_id"] == message_id &&
+      record["classifier_version"] == classifier_version
     end
 
     row = {
@@ -253,8 +253,8 @@ class FakePostgresConnection
     guild_id, message_id, classifier_version, status, attempt_count, available_at, last_error_class, last_error_message, enqueued_at, updated_at = params
     return [] if @classification_jobs.any? do |job|
       job["guild_id"] == guild_id &&
-        job["message_id"] == message_id &&
-        job["classifier_version"] == classifier_version
+      job["message_id"] == message_id &&
+      job["classifier_version"] == classifier_version
     end
 
     row = {
@@ -437,4 +437,3 @@ class FakePostgresConnection
       .map { |guild_id, entries| { "guild_id" => guild_id, "count" => entries.length } }
   end
 end
-

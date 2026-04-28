@@ -137,7 +137,6 @@ module Harassment
           last_interaction_at: row.fetch("last_interaction_at"),
         )
       end
-
     end
   end
 end

@@ -11,7 +11,7 @@ module Harassment
 
     def recent_incidents(server_id, channel_id, limit: 10, user_id: nil, since: nil)
       IncidentCollection.new(classified_incidents(server_id, channel_id:, since:))
-        .recent(server_id:, channel_id:, limit:, user_id:, since:)
+                        .recent(server_id:, channel_id:, limit:, user_id:, since:)
     end
 
     def incidents_for_author(server_id, user_id)

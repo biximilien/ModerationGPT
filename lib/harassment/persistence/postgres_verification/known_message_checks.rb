@@ -27,7 +27,7 @@ module Harassment
 
       def verify_known_interaction_event(message_id)
         data = redis_rows_for(@redis, DataModel::Keys.harassment_interaction_events)
-          .find { |row| row.fetch("message_id").to_s == message_id.to_s }
+               .find { |row| row.fetch("message_id").to_s == message_id.to_s }
         return { found_in_redis: false, found_in_postgres: false, matches: false } unless data
 
         postgres_event = @interaction_event_repository.find(message_id, server_id: data.fetch("server_id"))
@@ -49,7 +49,7 @@ module Harassment
 
       def verify_known_classification_records(message_id)
         records = redis_rows_for(@redis, DataModel::Keys.harassment_classification_records)
-          .select { |data| data.fetch("message_id").to_s == message_id.to_s }
+                  .select { |data| data.fetch("message_id").to_s == message_id.to_s }
 
         build_known_collection_summary(records) do |data|
           postgres_record = @classification_record_repository.find(
@@ -82,7 +82,7 @@ module Harassment
 
       def verify_known_classification_jobs(message_id)
         jobs = redis_rows_for(@redis, DataModel::Keys.harassment_classification_jobs)
-          .select { |data| data.fetch("message_id").to_s == message_id.to_s }
+               .select { |data| data.fetch("message_id").to_s == message_id.to_s }
 
         build_known_collection_summary(jobs) do |data|
           postgres_job = @classification_job_repository.find(

@@ -125,7 +125,6 @@ module Harassment
           updated_at: row.fetch("updated_at"),
         )
       end
-
     end
   end
 end

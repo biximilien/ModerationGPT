@@ -67,6 +67,7 @@ module Harassment
       @retention_manager.redact_expired_content(as_of:)
       @classification_worker.process_due_jobs(as_of:, limit:)
     end
+
     private
 
     def wrap_classifier(classifier, ttl_seconds:)

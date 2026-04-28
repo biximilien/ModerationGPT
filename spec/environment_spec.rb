@@ -229,9 +229,9 @@ describe Environment do
       ENV["PLUGIN_REQUIRES"] = "moderation_gpt/plugins/audit_webhook, custom/plugin"
 
       expect(described_class.plugin_requires).to eq([
-        "moderation_gpt/plugins/audit_webhook",
+                                                      "moderation_gpt/plugins/audit_webhook",
         "custom/plugin",
-      ])
+                                                    ])
     end
   end
 

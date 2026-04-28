@@ -41,5 +41,4 @@ class WatchListStrategy < ModerationStrategy
 
     "A message from <@#{user_id}> was rewritten:\n#{rewritten}"
   end
-
 end

@@ -56,6 +56,5 @@ module Discord
       limit = match[:amount]&.to_i || DEFAULT_LIMIT
       [[limit, 1].max, MAX_LIMIT].min
     end
-
   end
 end

@@ -34,7 +34,6 @@ module Harassment
       def retryable_or_pending?(status)
         [ClassificationStatus::PENDING, ClassificationStatus::FAILED_RETRYABLE].include?(status)
       end
-
     end
   end
 end

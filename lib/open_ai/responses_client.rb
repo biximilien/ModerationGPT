@@ -11,10 +11,10 @@ module OpenAI
 
     def moderation_rewrite(text, user = nil, instructions:)
       response = @transport.query(ENDPOINT, {
-        model: Environment.openai_rewrite_model,
+                                    model: Environment.openai_rewrite_model,
         instructions: instructions,
         input: text,
-      }, user)
+                                  }, user)
 
       ResponseParser.text(response)
     end

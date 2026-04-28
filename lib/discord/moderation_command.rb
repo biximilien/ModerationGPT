@@ -109,6 +109,5 @@ module Discord
         event.respond(help_text)
       end
     end
-
   end
 end
