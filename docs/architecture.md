@@ -16,7 +16,8 @@ At startup, [bot.rb](../bot.rb) does six main things:
 The shared application object lives in [lib/application.rb](../lib/application.rb). It mixes together:
 
 - [Backend](../lib/backend.rb) for Redis-backed state
-- [OpenAI](../lib/open_ai.rb) for moderation and rewrite calls
+
+It also delegates AI calls to a replaceable provider. OpenAI is the default provider and can be configured explicitly through [OpenAIPlugin](../lib/plugins/open_ai_plugin.rb). Other AI backend plugins can replace the provider during `boot`.
 
 This keeps the rest of the bot working with a single `app` dependency.
 
@@ -62,7 +63,7 @@ This means the concrete strategies mostly answer two questions:
 
 ## OpenAI Integration
 
-[lib/open_ai.rb](../lib/open_ai.rb) wraps the two OpenAI calls used by the bot:
+[lib/open_ai.rb](../lib/open_ai.rb) implements the default AI provider and wraps the two OpenAI calls used by the bot:
 
 - `/v1/moderations` for message classification
 - `/v1/responses` for watchlist rewrites
@@ -70,6 +71,8 @@ This means the concrete strategies mostly answer two questions:
 The module returns a small `ModerationResult` value object for moderation calls and a plain rewritten string for rewrites.
 
 OpenAI requests are wrapped in `Telemetry.in_span(...)`, but telemetry exporting is still optional. When the telemetry plugin is disabled, the tracing path becomes a no-op and the rest of the bot continues to work normally.
+
+AI providers expose the same application-facing methods: `moderate_text`, `moderation_rewrite`, `query`, and `response_text`. The harassment classifier currently needs the lower-level `query` and `response_text` methods for structured classifier calls; moderation strategies use `moderate_text` and `moderation_rewrite`.
 
 ## Persistence Model
 
@@ -169,6 +172,7 @@ Current hook types include:
 Current built-in plugins:
 
 - [HarassmentPlugin](../lib/plugins/harassment_plugin.rb)
+- [OpenAIPlugin](../lib/plugins/open_ai_plugin.rb)
 - [PostgresPlugin](../lib/plugins/postgres_plugin.rb)
 - [TelemetryPlugin](../lib/plugins/telemetry_plugin.rb)
 - [PersonalityPlugin](../lib/plugins/personality_plugin.rb)

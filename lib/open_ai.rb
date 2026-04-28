@@ -1,4 +1,6 @@
 require_relative "../environment"
+require_relative "ai/moderation_result"
+require_relative "ai/provider"
 require_relative "telemetry"
 require_relative "open_ai/moderation_client"
 require_relative "open_ai/response_parser"
@@ -8,7 +10,7 @@ require_relative "open_ai/transport"
 module OpenAI
   DEFAULT_REWRITE_INSTRUCTIONS = "Rewrite the user's message in a direct, neutral tone. State the concern plainly, avoid emotional language, preserve the user's apparent intent, do not add new claims, and return only the rewritten message.".freeze
 
-  ModerationResult = Struct.new(:flagged, :categories, :category_scores, keyword_init: true)
+  ModerationResult = ModerationGPT::AI::ModerationResult
 
   def query(url, params, user = nil)
     openai_transport.query(url, params, user)
@@ -34,5 +36,9 @@ module OpenAI
 
   def openai_transport
     @openai_transport ||= Transport.new
+  end
+
+  class Provider < ModerationGPT::AI::Provider
+    include OpenAI
   end
 end

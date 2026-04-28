@@ -2,6 +2,7 @@ require_relative "../environment"
 require_relative "logging"
 require_relative "plugin"
 require_relative "plugins/harassment_plugin"
+require_relative "plugins/open_ai_plugin"
 require_relative "plugins/personality_plugin"
 require_relative "plugins/postgres_plugin"
 require_relative "plugins/telemetry_plugin"
@@ -75,6 +76,10 @@ module ModerationGPT
       flat_map_hook(:commands)
     end
 
+    def ai_provider
+      first_hook_result(:ai_provider)
+    end
+
     def find_plugin(plugin_class)
       @plugins.find { |plugin| plugin.is_a?(plugin_class) }
     end
@@ -115,6 +120,7 @@ module ModerationGPT
   end
 
   PluginRegistry.register("harassment") { Plugins::HarassmentPlugin.new }
+  PluginRegistry.register("openai") { Plugins::OpenAIPlugin.new }
   PluginRegistry.register("personality") { Plugins::PersonalityPlugin.new }
   PluginRegistry.register("postgres") { Plugins::PostgresPlugin.new }
   PluginRegistry.register("telemetry") { Plugins::TelemetryPlugin.new }

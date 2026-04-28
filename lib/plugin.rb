@@ -23,5 +23,9 @@ module ModerationGPT
     def commands
       []
     end
+
+    def ai_provider
+      nil
+    end
   end
 end

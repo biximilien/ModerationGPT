@@ -51,6 +51,15 @@ describe ModerationGPT::PluginRegistry do
       expect(registry.find_plugin(ModerationGPT::Plugins::PostgresPlugin)).to be_a(ModerationGPT::Plugins::PostgresPlugin)
     end
 
+    it "builds the built-in OpenAI plugin" do
+      ENV["PLUGINS"] = "openai"
+
+      registry = described_class.from_environment
+
+      expect(registry.find_plugin(ModerationGPT::Plugins::OpenAIPlugin)).to be_a(ModerationGPT::Plugins::OpenAIPlugin)
+      expect(registry.ai_provider).to be_a(OpenAI::Provider)
+    end
+
     it "raises for unknown plugins" do
       ENV["PLUGINS"] = "missing"
 
@@ -89,6 +98,7 @@ describe ModerationGPT::PluginRegistry do
         automod_outcome: true,
         rewrite_instructions: nil,
         moderation_strategies: [],
+        ai_provider: nil,
         commands: [:command],
       )
       registry = described_class.new([plugin])
@@ -113,6 +123,14 @@ describe ModerationGPT::PluginRegistry do
         strategy: "Strategy",
       )
       expect(registry.commands).to eq([:command])
+    end
+
+    it "returns the first plugin AI provider" do
+      provider = instance_double("AIProvider")
+      first = instance_double("Plugin", ai_provider: nil)
+      second = instance_double("Plugin", ai_provider: provider)
+
+      expect(described_class.new([first, second]).ai_provider).to eq(provider)
     end
 
     it "raises boot failures so required plugin configuration cannot be skipped" do

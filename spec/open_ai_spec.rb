@@ -68,4 +68,10 @@ describe OpenAI do
       expect(response_text(response)).to eq("Please reconsider this.")
     end
   end
+
+  describe OpenAI::Provider do
+    it "implements the generic AI provider contract" do
+      expect(described_class.new).to be_a(ModerationGPT::AI::Provider)
+    end
+  end
 end

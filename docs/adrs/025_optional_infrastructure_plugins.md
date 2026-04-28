@@ -3,7 +3,7 @@
 _Status_: Accepted
 
 _Context_:
-Some capabilities are useful to multiple plugins but should not become mandatory dependencies of the core application. Postgres, telemetry exporters, and future worker infrastructure are examples of shared infrastructure that may be absent in local or lightweight deployments.
+Some capabilities are useful to multiple plugins but should not become mandatory dependencies of the core application. Postgres, AI providers, telemetry exporters, and future worker infrastructure are examples of shared infrastructure that may be absent or replaced in different deployments.
 
 At the same time, domain plugins need a clear way to consume these capabilities without creating hidden globals, hard boot-time dependencies, or duplicated connection setup.
 
@@ -25,6 +25,7 @@ The shared application object may continue to own always-on core dependencies, s
 _Current application_:
 
 - `PostgresPlugin` owns `DATABASE_URL` and exposes the database connection.
+- `OpenAIPlugin` exposes the default AI provider for moderation, rewrites, and structured classifier calls.
 - `TelemetryPlugin` owns OpenTelemetry setup.
 - `HarassmentPlugin` obtains Postgres-backed repositories through plugin composition when `HARASSMENT_STORAGE_BACKEND=postgres`.
 - The base application still owns Redis-backed moderation state and OpenAI helper methods.

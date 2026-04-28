@@ -24,4 +24,20 @@ describe ModerationGPT::Application do
   it "exposes OpenAI methods" do
     expect(described_class.new).to respond_to(:moderate_text)
   end
+
+  it "delegates AI calls to the configured provider" do
+    provider = instance_double(
+      "AIProvider",
+      moderate_text: :moderation,
+      moderation_rewrite: "Please stop.",
+      query: { "ok" => true },
+      response_text: "text",
+    )
+    app = described_class.new(ai_provider: provider)
+
+    expect(app.moderate_text("bad")).to eq(:moderation)
+    expect(app.moderation_rewrite("bad", instructions: "Use this voice.")).to eq("Please stop.")
+    expect(app.query("https://example.test", {})).to eq("ok" => true)
+    expect(app.response_text("output_text" => "text")).to eq("text")
+  end
 end

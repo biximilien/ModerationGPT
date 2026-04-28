@@ -1,6 +1,6 @@
 # ModerationGPT
 
-ModerationGPT is a Discord moderation bot for text channels. It uses OpenAI's moderation endpoint to classify messages, Redis to store per-server watchlists and karma, and the OpenAI Responses API to rewrite flagged messages from watched users in a more constructive tone. Optional plugins add passive harassment analysis, Postgres-backed durable harassment state, OpenTelemetry, and rewrite personalities.
+ModerationGPT is a Discord moderation bot for text channels. By default it uses OpenAI's moderation endpoint to classify messages, Redis to store per-server watchlists and karma, and the OpenAI Responses API to rewrite flagged messages from watched users in a more constructive tone. Optional plugins add passive harassment analysis, Postgres-backed durable harassment state, OpenTelemetry, rewrite personalities, and replaceable AI providers.
 
 ## How It Works
 
@@ -138,6 +138,7 @@ PLUGINS=telemetry
 Built-in plugins:
 
 - `harassment`
+- `openai`
 - `postgres`
 - `telemetry`
 - `personality`
@@ -145,6 +146,8 @@ Built-in plugins:
 Plugin `boot` is a configuration boundary: if an enabled plugin cannot initialize required infrastructure, startup fails instead of continuing with a partially configured bot. Runtime hooks such as `message`, moderation observations, strategy contribution, and command contribution remain isolated so one plugin hook failure does not stop unrelated processing.
 
 Optional infrastructure is exposed through plugins rather than hidden globals. For example, the `postgres` plugin owns `DATABASE_URL` and exposes the database connection to other plugins through the plugin registry.
+
+The shared application delegates AI calls through a replaceable provider. OpenAI is the default provider, and enabling `PLUGINS=openai` configures it explicitly through the plugin system. External AI backend plugins can provide the same provider methods (`moderate_text`, `moderation_rewrite`, `query`, and `response_text`) and assign that provider during `boot`.
 
 When the `harassment` plugin is enabled, the bot passively captures interaction events, enqueues harassment classification work, and records classified incidents in a harassment read model without applying automated enforcement.
 
