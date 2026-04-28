@@ -10,9 +10,9 @@ describe Harassment::CachedClassifier do
     )
   end
 
-  let(:delegate) {
+  let(:delegate) do
     instance_double("Classifier", cache_identity: { model_version: "gpt-4o", prompt_version: "harassment-prompt-v1" })
-  }
+  end
   let(:cache_repository) { Harassment::Repositories::InMemoryClassificationCacheRepository.new }
   let(:event) do
     Harassment::InteractionEvent.build(

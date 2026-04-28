@@ -32,9 +32,13 @@ module Harassment
         return empty_incidents_message(user_id, window) if report.incidents.empty?
 
         lines = report.incidents.map do |incident|
-          targets = incident.target_user_ids.empty? ? "none" : incident.target_user_ids.map { |target_user_id|
-            "<@#{target_user_id}>"
-          }.join(", ")
+          targets = if incident.target_user_ids.empty?
+                      "none"
+                    else
+                      incident.target_user_ids.map do |target_user_id|
+                        "<@#{target_user_id}>"
+                      end.join(", ")
+                    end
           [
             "- <@#{incident.author_id}> -> #{targets}",
             incident.intent,

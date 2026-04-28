@@ -27,21 +27,7 @@ module Harassment
       incident = Incident.from_event_and_record(event:, record:)
       @incidents_by_channel[channel_key(incident.server_id, incident.channel_id)] << incident
 
-      incident.target_user_ids.each do |target_user_id|
-        edge =
-          @edge_repository.find(
-            server_id: incident.server_id,
-            source_user_id: incident.author_id,
-            target_user_id: target_user_id,
-            score_version: @score_version
-          ) || RelationshipEdge.build(
-            server_id: incident.server_id,
-            source_user_id: incident.author_id,
-            target_user_id: target_user_id,
-            score_version: @score_version
-          )
-        @edge_repository.save(update_edge(edge, incident))
-      end
+      update_relationship_edges(incident)
 
       @processed_classifications[processed_key] = incident
       incident
@@ -95,6 +81,30 @@ module Harassment
         end
 
       "#{message_id}:#{normalized_version}"
+    end
+
+    def update_relationship_edges(incident)
+      incident.target_user_ids.each do |target_user_id|
+        @edge_repository.save(update_edge(edge_for(incident, target_user_id), incident))
+      end
+    end
+
+    def edge_for(incident, target_user_id)
+      @edge_repository.find(
+        server_id: incident.server_id,
+        source_user_id: incident.author_id,
+        target_user_id: target_user_id,
+        score_version: @score_version
+      ) || build_edge(incident, target_user_id)
+    end
+
+    def build_edge(incident, target_user_id)
+      RelationshipEdge.build(
+        server_id: incident.server_id,
+        source_user_id: incident.author_id,
+        target_user_id: target_user_id,
+        score_version: @score_version
+      )
     end
 
     def update_edge(edge, incident)

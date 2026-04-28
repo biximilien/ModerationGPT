@@ -76,7 +76,7 @@ describe ModerationGPT::Plugins::HarassmentPlugin do
     app = instance_double("Application", redis: nil)
     postgres_plugin = instance_double(ModerationGPT::Plugins::PostgresPlugin, database_connection: fake_connection)
     plugin_registry = instance_double("PluginRegistry", find_plugin: postgres_plugin)
-    original_backend = ENV["HARASSMENT_STORAGE_BACKEND"]
+    original_backend = ENV.fetch("HARASSMENT_STORAGE_BACKEND", nil)
     ENV["HARASSMENT_STORAGE_BACKEND"] = "postgres"
 
     plugin.boot(app: app, plugin_registry: plugin_registry)
@@ -103,7 +103,7 @@ describe ModerationGPT::Plugins::HarassmentPlugin do
     app = instance_double("Application", redis: nil)
     postgres_plugin = instance_double(ModerationGPT::Plugins::PostgresPlugin, database_connection: fake_connection)
     plugin_registry = instance_double("PluginRegistry", find_plugin: postgres_plugin)
-    original_backend = ENV["HARASSMENT_STORAGE_BACKEND"]
+    original_backend = ENV.fetch("HARASSMENT_STORAGE_BACKEND", nil)
     ENV["HARASSMENT_STORAGE_BACKEND"] = "postgres"
 
     plugin.boot(app: app, plugin_registry: plugin_registry)

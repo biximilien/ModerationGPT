@@ -53,9 +53,9 @@ module Harassment
         {
           timestamp: context_event.timestamp.iso8601,
           author_label: participant_label(context_event.author_id, participant_labels),
-          target_labels: context_event.target_user_ids.map { |target_user_id|
+          target_labels: context_event.target_user_ids.map do |target_user_id|
             participant_label(target_user_id, participant_labels)
-          },
+          end,
           content: context_event.raw_content
         }
       end

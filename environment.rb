@@ -22,26 +22,26 @@ module Environment
 
   def self.validate!
     required = REQUIRED_VARIABLES + [ai_api_key_variable]
-    missing = required.select { |name| missing?(ENV[name]) }
+    missing = required.select { |name| missing?(ENV.fetch(name, nil)) }
     return if missing.empty?
 
     raise "Missing required environment variables: #{missing.join(", ")}"
   end
 
   def self.openai_api_key
-    ENV["OPENAI_API_KEY"]
+    ENV.fetch("OPENAI_API_KEY", nil)
   end
 
   def self.discord_bot_token
-    ENV["DISCORD_BOT_TOKEN"]
+    ENV.fetch("DISCORD_BOT_TOKEN", nil)
   end
 
   def self.redis_url
-    ENV["REDIS_URL"]
+    ENV.fetch("REDIS_URL", nil)
   end
 
   def self.database_url
-    ENV["DATABASE_URL"]
+    ENV.fetch("DATABASE_URL", nil)
   end
 
   def self.openai_moderation_model
@@ -53,7 +53,7 @@ module Environment
   end
 
   def self.google_ai_api_key
-    ENV["GOOGLE_AI_API_KEY"]
+    ENV.fetch("GOOGLE_AI_API_KEY", nil)
   end
 
   def self.google_ai_model

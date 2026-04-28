@@ -25,10 +25,10 @@ describe Harassment::Repositories::PostgresInteractionEventRepository do
   it "rejects duplicate interaction events" do
     repository.save(event)
 
-    expect {
+    expect do
       repository.save(event)
-    }.to raise_error(ArgumentError,
-                     "interaction event already exists for server_id=456 message_id=123")
+    end.to raise_error(ArgumentError,
+                       "interaction event already exists for server_id=456 message_id=123")
   end
 
   it "scopes lookup and status updates by server" do

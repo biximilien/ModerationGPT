@@ -46,15 +46,10 @@ module Harassment
 
       def list_classified_for_server(server_id, channel_id: nil, author_id: nil, since: nil, limit: nil)
         events = all_events.select do |event|
-          event.server_id == server_id.to_s &&
-            event.classification_status == ClassificationStatus::CLASSIFIED &&
-            (channel_id.nil? || event.channel_id == channel_id.to_s) &&
-            (author_id.nil? || event.author_id == author_id.to_s) &&
-            (since.nil? || event.timestamp >= since.utc)
+          classified_event_matches?(event, server_id:, channel_id:, author_id:, since:)
         end
 
-        sorted = events.sort_by(&:timestamp)
-        limit ? sorted.last(Integer(limit)) : sorted
+        limit_events(events, limit:)
       end
 
       def list_with_expired_content(as_of: Time.now.utc)
@@ -117,6 +112,23 @@ module Harassment
       def interaction_involves_participants?(event, participant_ids)
         event_participants = [event.author_id, *event.target_user_ids].to_set
         !!event_participants.intersect?(participant_ids)
+      end
+
+      def classified_event_matches?(event, server_id:, channel_id:, author_id:, since:)
+        event.server_id == server_id.to_s &&
+          event.classification_status == ClassificationStatus::CLASSIFIED &&
+          optional_match?(event.channel_id, channel_id) &&
+          optional_match?(event.author_id, author_id) &&
+          (since.nil? || event.timestamp >= since.utc)
+      end
+
+      def optional_match?(actual, expected)
+        expected.nil? || actual == expected.to_s
+      end
+
+      def limit_events(events, limit:)
+        sorted = events.sort_by(&:timestamp)
+        limit ? sorted.last(Integer(limit)) : sorted
       end
 
       def normalize_status(status)

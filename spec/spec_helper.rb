@@ -8,7 +8,7 @@ require_relative "../environment"
 require_relative "../lib/logging"
 require_relative "support/discord_fixtures"
 
-$logger = Logging.build_logger($stdout, level: Logger::WARN)
+Logging.logger = Logging.build_logger($stdout, level: Logger::WARN)
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|

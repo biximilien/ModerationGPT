@@ -6,6 +6,10 @@ require_relative "../environment"
 module Logging
   module_function
 
+  class << self
+    attr_accessor :logger
+  end
+
   def build_logger(io = $stdout, level: Logger::INFO, format: Environment.log_format)
     logger = Logger.new(io)
     logger.level = level
@@ -31,10 +35,10 @@ module Logging
   end
 
   def log(level, event, **fields)
-    return unless $logger
+    return unless logger
 
     payload = { event: event }.merge(compact_fields(fields))
-    $logger.public_send(level, payload)
+    logger.public_send(level, payload)
   end
 
   def compact_fields(fields)

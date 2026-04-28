@@ -8,10 +8,10 @@ describe ModerationGPT::AI::Provider do
   end
 
   it "requires concrete providers to implement rewrites" do
-    expect {
+    expect do
       provider.moderation_rewrite("text",
                                   instructions: "Be clear.")
-    }.to raise_error(NotImplementedError, /must implement #moderation_rewrite/)
+    end.to raise_error(NotImplementedError, /must implement #moderation_rewrite/)
   end
 
   it "requires concrete providers to implement structured generation" do

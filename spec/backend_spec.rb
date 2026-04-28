@@ -123,14 +123,14 @@ describe Backend do
     end
 
     it "rejects non-integer score or delta values" do
-      expect {
+      expect do
         record_user_karma_event(server_id, user_id, score: "abc",
                                                     source: "event")
-      }.to raise_error(ArgumentError, "score must be an integer")
-      expect {
+      end.to raise_error(ArgumentError, "score must be an integer")
+      expect do
         record_user_karma_event(server_id, user_id, score: -5, source: "event",
                                                     delta: "abc")
-      }.to raise_error(ArgumentError, "delta must be an integer")
+      end.to raise_error(ArgumentError, "delta must be an integer")
     end
   end
 
@@ -159,7 +159,7 @@ describe Backend do
   describe "#add_server" do
     it "adds a server" do
       add_server(server_id)
-      expect(get_servers).to include(server_id)
+      expect(servers).to include(server_id)
     end
   end
 
@@ -167,7 +167,7 @@ describe Backend do
     it "removes a server" do
       add_server(server_id)
       remove_server(server_id)
-      expect(get_servers).not_to include(server_id)
+      expect(servers).not_to include(server_id)
     end
 
     it "purges the server's moderation data" do
@@ -192,16 +192,16 @@ describe Backend do
 
       remove_server(server_id)
 
-      expect(get_servers).to include(other_server_id)
+      expect(servers).to include(other_server_id)
       expect(get_user_karma(other_server_id, user_id)).to eq(3)
       expect(get_user_karma_history(other_server_id, user_id).first).to include(score: 3)
     end
   end
 
-  describe "#get_servers" do
+  describe "#servers" do
     it "returns the servers" do
       add_server(server_id)
-      expect(get_servers).to eq([server_id])
+      expect(servers).to eq([server_id])
     end
   end
 end

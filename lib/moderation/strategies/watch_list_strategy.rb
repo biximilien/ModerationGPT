@@ -2,7 +2,7 @@ require_relative "../strategy"
 require_relative "../review_action"
 
 class WatchListStrategy < ModerationStrategy
-  def condition(event)
+  def condition?(event)
     return false unless watched_user?(event)
 
     flagged?(event, log_label: "Watch list moderation")

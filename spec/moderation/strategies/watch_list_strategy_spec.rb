@@ -15,9 +15,9 @@ describe WatchListStrategy do
   let(:channel) { instance_double("Channel", id: 789) }
   let(:message) { instance_double("Message", id: 111, content: "bad message", delete: true) }
   let(:user) { instance_double("User", id: 456) }
-  let(:event) {
+  let(:event) do
     instance_double("Event", server: server, channel: channel, message: message, user: user, respond: true)
-  }
+  end
   let(:bot) { instance_double("Bot") }
   let(:automod_policy) { instance_double("AutomodPolicy", apply: Moderation::AutomodOutcome::TIMEOUT_APPLIED) }
   let(:plugin_registry) do
@@ -38,7 +38,7 @@ describe WatchListStrategy do
   it "ignores users outside the watch list" do
     allow(bot).to receive(:get_watch_list_users).with(123).and_return([])
 
-    expect(described_class.new(bot).condition(event)).to be(false)
+    expect(described_class.new(bot).condition?(event)).to be(false)
   end
 
   it "matches flagged messages from watched users" do
@@ -46,7 +46,7 @@ describe WatchListStrategy do
     allow(bot).to receive(:get_watch_list_users).with(123).and_return([456])
     allow(bot).to receive(:moderate_text).with("bad message", user).and_return(result)
 
-    expect(described_class.new(bot, plugin_registry: plugin_registry).condition(event)).to be(true)
+    expect(described_class.new(bot, plugin_registry: plugin_registry).condition?(event)).to be(true)
     expect(plugin_registry).to have_received(:moderation_result).with(
       event: event,
       result: result,
@@ -102,7 +102,7 @@ describe WatchListStrategy do
     allow(bot).to receive(:record_moderation_review)
     strategy = described_class.new(bot, automod_policy: automod_policy, plugin_registry: plugin_registry)
 
-    strategy.condition(event)
+    strategy.condition?(event)
     strategy.execute(event)
 
     expect(message).not_to have_received(:delete)
@@ -127,7 +127,7 @@ describe WatchListStrategy do
     allow(bot).to receive(:record_moderation_review)
     strategy = described_class.new(bot, automod_policy: automod_policy, plugin_registry: plugin_registry)
 
-    strategy.condition(event)
+    strategy.condition?(event)
     strategy.execute(event)
 
     expect(bot).not_to have_received(:moderation_rewrite)

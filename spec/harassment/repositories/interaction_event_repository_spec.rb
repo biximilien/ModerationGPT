@@ -28,31 +28,31 @@ describe Harassment::Repositories::InteractionEventRepository do
   end
 
   it "requires subclasses to implement #list_by_classification_status" do
-    expect {
+    expect do
       repository.list_by_classification_status(Harassment::ClassificationStatus::PENDING)
-    }.to raise_error(
+    end.to raise_error(
       NotImplementedError, /must implement #list_by_classification_status/
     )
   end
 
   it "requires subclasses to implement #list_classified_for_server" do
-    expect {
+    expect do
       repository.list_classified_for_server("456")
-    }.to raise_error(NotImplementedError,
-                     /must implement #list_classified_for_server/)
+    end.to raise_error(NotImplementedError,
+                       /must implement #list_classified_for_server/)
   end
 
   it "requires subclasses to implement #list_with_expired_content" do
-    expect {
+    expect do
       repository.list_with_expired_content
-    }.to raise_error(NotImplementedError, /must implement #list_with_expired_content/)
+    end.to raise_error(NotImplementedError, /must implement #list_with_expired_content/)
   end
 
   it "requires subclasses to implement #redact_content" do
-    expect {
+    expect do
       repository.redact_content("123",
                                 server_id: "456")
-    }.to raise_error(NotImplementedError, /must implement #redact_content/)
+    end.to raise_error(NotImplementedError, /must implement #redact_content/)
   end
 
   it "requires subclasses to implement #recent_in_channel" do

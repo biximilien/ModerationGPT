@@ -147,10 +147,10 @@ describe ModerationGPT::PluginRegistry do
     it "raises boot failures so required plugin configuration cannot be skipped" do
       broken = instance_double("Plugin")
       allow(broken).to receive(:boot).and_raise(StandardError, "boom")
-      allow($logger).to receive(:error)
+      allow(Logging.logger).to receive(:error)
 
       expect { described_class.new([broken]).boot(app: :app) }.to raise_error(StandardError, "boom")
-      expect($logger).not_to have_received(:error)
+      expect(Logging.logger).not_to have_received(:error)
     end
 
     it "returns the first plugin rewrite instructions" do
@@ -168,12 +168,12 @@ describe ModerationGPT::PluginRegistry do
       broken = instance_double("Plugin")
       healthy = instance_double("Plugin", rewrite_instructions: "Fallback instructions.")
       allow(broken).to receive(:rewrite_instructions).and_raise(StandardError, "boom")
-      allow($logger).to receive(:error)
+      allow(Logging.logger).to receive(:error)
 
       result = described_class.new([broken, healthy]).rewrite_instructions(event: :event)
 
       expect(result).to eq("Fallback instructions.")
-      expect($logger).to have_received(:error).with(
+      expect(Logging.logger).to have_received(:error).with(
         event: "plugin_hook_failed",
         hook: :rewrite_instructions,
         error_class: "StandardError",
@@ -196,12 +196,12 @@ describe ModerationGPT::PluginRegistry do
       broken = instance_double("Plugin")
       healthy = instance_double("Plugin", moderation_strategies: [:healthy])
       allow(broken).to receive(:moderation_strategies).and_raise(StandardError, "boom")
-      allow($logger).to receive(:error)
+      allow(Logging.logger).to receive(:error)
 
       result = described_class.new([broken, healthy]).moderation_strategies(app: :app)
 
       expect(result).to eq([:healthy])
-      expect($logger).to have_received(:error).with(
+      expect(Logging.logger).to have_received(:error).with(
         event: "plugin_hook_failed",
         hook: :moderation_strategies,
         error_class: "StandardError",
@@ -213,11 +213,11 @@ describe ModerationGPT::PluginRegistry do
       broken = instance_double("Plugin", message: nil)
       healthy = instance_double("Plugin", message: true)
       allow(broken).to receive(:message).and_raise(StandardError, "boom")
-      allow($logger).to receive(:error)
+      allow(Logging.logger).to receive(:error)
 
       described_class.new([broken, healthy]).message(event: :message)
 
-      expect($logger).to have_received(:error).with(
+      expect(Logging.logger).to have_received(:error).with(
         event: "plugin_hook_failed",
         hook: :message,
         error_class: "StandardError",

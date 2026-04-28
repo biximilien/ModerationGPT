@@ -11,7 +11,7 @@ module Backend
       purge_server_data(server_id)
     end
 
-    def get_servers
+    def servers
       @redis.smembers(DataModel::Keys.servers).map(&:to_i)
     end
 

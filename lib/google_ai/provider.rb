@@ -25,9 +25,9 @@ module GoogleAI
           type: "object",
           additionalProperties: false,
           required: %w[harassment hate threat sexual violence self_harm],
-          properties: %w[harassment hate threat sexual violence self_harm].to_h { |name|
+          properties: %w[harassment hate threat sexual violence self_harm].to_h do |name|
             [name, { type: "number", minimum: 0.0, maximum: 1.0 }]
-          }
+          end
         }
       }
     }.freeze

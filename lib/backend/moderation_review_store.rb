@@ -53,7 +53,6 @@ module Backend
 
     def clear_moderation_reviews(server_id)
       @redis.del(DataModel::Keys.moderation_review(server_id))
-      true
     end
 
     private

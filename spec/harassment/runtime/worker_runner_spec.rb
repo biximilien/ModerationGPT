@@ -29,11 +29,11 @@ describe Harassment::WorkerRunner do
     runtime = instance_double("Runtime")
     allow(runtime).to receive(:process_due_classifications).and_raise(StandardError, "boom")
     runner = described_class.new(runtime: runtime)
-    allow($logger).to receive(:error)
+    allow(Logging.logger).to receive(:error)
 
     runner.send(:process_once)
 
-    expect($logger).to have_received(:error).with(
+    expect(Logging.logger).to have_received(:error).with(
       event: "harassment_worker_failed",
       error_class: "StandardError",
       error_message: "boom"

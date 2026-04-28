@@ -31,30 +31,30 @@ module Harassment
         remainder = content[INCIDENTS_PREFIX.length..]&.strip
         return {} if remainder.nil? || remainder.empty?
 
-        tokens = remainder.split(/\s+/)
-        user_id = nil
-        window = nil
-        limit = nil
+        parse_incidents_tokens(remainder.split(/\s+/))
+      end
 
-        tokens.each do |token|
-          if (mention_match = /\A<@!?(?<user_id>\d+)>\z/.match(token))
-            return nil if user_id
-
-            user_id = mention_match[:user_id]
-          elsif WINDOW_ALIASES.key?(token.downcase)
-            return nil if window
-
-            window = token.downcase
-          elsif /\A\d+\z/.match?(token)
-            return nil if limit
-
-            limit = token
-          else
-            return nil
-          end
+      def parse_incidents_tokens(tokens)
+        tokens.each_with_object({ user_id: nil, window: nil, limit: nil }) do |token, parsed|
+          return nil unless apply_incidents_token(token, parsed)
         end
+      end
 
-        { user_id:, window:, limit: }
+      def apply_incidents_token(token, parsed)
+        mention_match = /\A<@!?(?<user_id>\d+)>\z/.match(token)
+        return assign_incidents_value(parsed, :user_id, mention_match[:user_id]) if mention_match
+
+        normalized_token = token.downcase
+        return assign_incidents_value(parsed, :window, normalized_token) if WINDOW_ALIASES.key?(normalized_token)
+        return assign_incidents_value(parsed, :limit, token) if /\A\d+\z/.match?(token)
+
+        false
+      end
+
+      def assign_incidents_value(parsed, key, value)
+        return false if parsed[key]
+
+        parsed[key] = value
       end
     end
   end

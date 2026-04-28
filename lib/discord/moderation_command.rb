@@ -41,13 +41,12 @@ module Discord
 
     def handle(event)
       match = @parser.parse(event.message.content)
-      return false unless matches?(event)
+      return unless matches?(event)
 
       Logging.info("moderation_command_received", user_hash: Telemetry::Anonymizer.hash(event.user.id))
-      return true unless administrator?(event)
+      return unless administrator?(event)
 
       respond_to_command(event, match)
-      true
     end
 
     private
@@ -60,13 +59,13 @@ module Discord
 
     def respond_to_command(event, match)
       unless match
-        return if handle_plugin_command(event)
+        return if plugin_command_handled?(event)
 
         event.respond(USAGE)
         return
       end
 
-      return if @parser.plugin_command_root?(match) && handle_plugin_command(event)
+      return if @parser.plugin_command_root?(match) && plugin_command_handled?(event)
 
       case match[:command]
       when "help", nil then respond_to_help_command(event, match)
@@ -77,7 +76,7 @@ module Discord
       end
     end
 
-    def handle_plugin_command(event)
+    def plugin_command_handled?(event)
       command = @plugin_commands.find { |plugin_command| plugin_command.matches?(event) }
       return false unless command
 

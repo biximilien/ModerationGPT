@@ -15,7 +15,7 @@ module Moderation
     private
 
     def execute_strategy?(strategy, event)
-      return false unless strategy.condition(event)
+      return false unless strategy.condition?(event)
 
       strategy.execute(event)
       true

@@ -19,9 +19,8 @@ module Harassment
       server_id:,
       channel_id:,
       author_id:,
-      target_user_ids: [],
+      raw_content:, target_user_ids: [],
       timestamp: Time.now.utc,
-      raw_content:,
       classification_status: ClassificationStatus::PENDING,
       content_retention_expires_at: nil,
       content_redacted_at: nil

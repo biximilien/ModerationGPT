@@ -7,11 +7,11 @@ describe Moderation::AutomodPolicy do
 
   it "logs threshold crossings for log_only policy" do
     policy = described_class.new(action: "log_only")
-    allow($logger).to receive(:warn)
+    allow(Logging.logger).to receive(:warn)
 
     result = policy.apply(event, -5)
 
-    expect($logger).to have_received(:warn).with(
+    expect(Logging.logger).to have_received(:warn).with(
       event: "automod_threshold_reached",
       user_hash: Telemetry::Anonymizer.hash(456),
       karma_score: -5,
@@ -34,13 +34,13 @@ describe Moderation::AutomodPolicy do
     member = instance_double("Member", timeout_for: true)
     allow(member).to receive(:permission?) { |permission| permission == :moderate_members }
     allow(event).to receive(:member).and_return(member)
-    allow($logger).to receive(:warn)
+    allow(Logging.logger).to receive(:warn)
 
     result = described_class.new(action: "timeout", timeout_seconds: 120).apply(event, -5)
 
     expect(result).to eq(Moderation::AutomodOutcome::SKIPPED_ELEVATED_MEMBER)
     expect(member).not_to have_received(:timeout_for)
-    expect($logger).to have_received(:warn).with(
+    expect(Logging.logger).to have_received(:warn).with(
       event: "automod_skipped_elevated_member",
       user_hash: Telemetry::Anonymizer.hash(456),
       karma_score: -5,
@@ -71,12 +71,12 @@ describe Moderation::AutomodPolicy do
   end
 
   it "reports timeout unavailable when no timeout path exists" do
-    allow($logger).to receive(:warn)
+    allow(Logging.logger).to receive(:warn)
 
     result = described_class.new(action: "timeout", timeout_seconds: 120).apply(event, -5)
 
     expect(result).to eq(Moderation::AutomodOutcome::TIMEOUT_UNAVAILABLE)
-    expect($logger).to have_received(:warn).with(
+    expect(Logging.logger).to have_received(:warn).with(
       event: "automod_action_unavailable",
       user_hash: Telemetry::Anonymizer.hash(456),
       karma_score: -5,
@@ -104,12 +104,12 @@ describe Moderation::AutomodPolicy do
   end
 
   it "reports kick unavailable when no kick path exists" do
-    allow($logger).to receive(:warn)
+    allow(Logging.logger).to receive(:warn)
 
     result = described_class.new(action: "kick").apply(event, -5)
 
     expect(result).to eq(Moderation::AutomodOutcome::KICK_UNAVAILABLE)
-    expect($logger).to have_received(:warn).with(
+    expect(Logging.logger).to have_received(:warn).with(
       event: "automod_action_unavailable",
       user_hash: Telemetry::Anonymizer.hash(456),
       karma_score: -5,
@@ -127,12 +127,12 @@ describe Moderation::AutomodPolicy do
   end
 
   it "reports ban unavailable when no ban path exists" do
-    allow($logger).to receive(:warn)
+    allow(Logging.logger).to receive(:warn)
 
     result = described_class.new(action: "ban").apply(event, -5)
 
     expect(result).to eq(Moderation::AutomodOutcome::BAN_UNAVAILABLE)
-    expect($logger).to have_received(:warn).with(
+    expect(Logging.logger).to have_received(:warn).with(
       event: "automod_action_unavailable",
       user_hash: Telemetry::Anonymizer.hash(456),
       karma_score: -5,

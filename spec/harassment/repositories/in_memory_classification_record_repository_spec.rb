@@ -42,10 +42,10 @@ describe Harassment::Repositories::InMemoryClassificationRecordRepository do
   it "rejects duplicate records for the same message and classifier version" do
     repository.save(first_record)
 
-    expect {
+    expect do
       repository.save(first_record)
-    }.to raise_error(ArgumentError,
-                     "classification record already exists for 456:123:harassment-v1")
+    end.to raise_error(ArgumentError,
+                       "classification record already exists for 456:123:harassment-v1")
   end
 
   it "returns all records for a message ordered by classification time" do

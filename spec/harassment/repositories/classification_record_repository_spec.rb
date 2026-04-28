@@ -27,16 +27,16 @@ describe Harassment::Repositories::ClassificationRecordRepository do
   end
 
   it "requires subclasses to implement #all_for_message" do
-    expect {
+    expect do
       repository.all_for_message(server_id: "456",
                                  message_id: "123")
-    }.to raise_error(NotImplementedError, /must implement #all_for_message/)
+    end.to raise_error(NotImplementedError, /must implement #all_for_message/)
   end
 
   it "requires subclasses to implement #latest_for_message" do
-    expect {
+    expect do
       repository.latest_for_message(server_id: "456",
                                     message_id: "123")
-    }.to raise_error(NotImplementedError, /must implement #latest_for_message/)
+    end.to raise_error(NotImplementedError, /must implement #latest_for_message/)
   end
 end

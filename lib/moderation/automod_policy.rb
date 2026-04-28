@@ -43,14 +43,14 @@ module Moderation
       target = moderation_target(event)
       reason = moderation_reason(score)
 
-      applied_or_unavailable(user_hash, score, "timeout", AutomodOutcome::TIMEOUT_APPLIED,
-                             AutomodOutcome::TIMEOUT_UNAVAILABLE) do
+      action_outcome(user_hash, score, "timeout", AutomodOutcome::TIMEOUT_APPLIED,
+                     AutomodOutcome::TIMEOUT_UNAVAILABLE) do
         if target.respond_to?(:timeout_for)
           target.timeout_for(@timeout_seconds, reason)
         elsif target.respond_to?(:timeout)
           target.timeout(@timeout_seconds, reason)
         else
-          timeout_via_api(event, reason)
+          api_timeout_applied?(event, reason)
         end
       end
     end
@@ -59,8 +59,8 @@ module Moderation
       target = moderation_target(event)
       reason = moderation_reason(score)
 
-      applied_or_unavailable(user_hash, score, "kick", AutomodOutcome::KICK_APPLIED,
-                             AutomodOutcome::KICK_UNAVAILABLE) do
+      action_outcome(user_hash, score, "kick", AutomodOutcome::KICK_APPLIED,
+                     AutomodOutcome::KICK_UNAVAILABLE) do
         if target.respond_to?(:kick)
           target.kick(reason)
           true
@@ -77,7 +77,7 @@ module Moderation
       target = moderation_target(event)
       reason = moderation_reason(score)
 
-      applied_or_unavailable(user_hash, score, "ban", AutomodOutcome::BAN_APPLIED, AutomodOutcome::BAN_UNAVAILABLE) do
+      action_outcome(user_hash, score, "ban", AutomodOutcome::BAN_APPLIED, AutomodOutcome::BAN_UNAVAILABLE) do
         if target.respond_to?(:ban)
           target.ban(reason)
           true
@@ -110,14 +110,14 @@ module Moderation
       "Automated moderation: karma #{score}"
     end
 
-    def applied_or_unavailable(user_hash, score, action_name, applied_outcome, unavailable_outcome)
+    def action_outcome(user_hash, score, action_name, applied_outcome, unavailable_outcome)
       return applied_outcome if yield
 
       Logging.warn("automod_action_unavailable", user_hash:, karma_score: score, action: action_name)
       unavailable_outcome
     end
 
-    def timeout_via_api(event, reason)
+    def api_timeout_applied?(event, reason)
       token = event.server.instance_variable_get(:@bot)&.token
       return false unless token
 

@@ -13,7 +13,7 @@ module Harassment
     attr_reader :classification_jobs, :classification_pipeline, :classification_records, :interaction_events
 
     def initialize(
-      redis: nil,
+      classifier_version:, classifier:, redis: nil,
       connection: nil,
       storage_backend: nil,
       interaction_events: nil,
@@ -21,28 +21,60 @@ module Harassment
       classification_jobs: nil,
       classification_cache: nil,
       server_rate_limits: nil,
-      classifier_version:,
-      classifier:,
       classifier_cache_ttl_seconds: Environment.harassment_classifier_cache_ttl_seconds,
       classifier_rate_limit_per_minute: Environment.harassment_classifier_rate_limit_per_minute,
       on_classification: nil
     )
       core_factory = RepositoryFactory.new(backend: storage_backend, redis:, connection:)
-      @interaction_events = interaction_events || core_factory.interaction_events
-      @classification_records = classification_records || core_factory.classification_records
-      @classification_jobs = classification_jobs || core_factory.classification_jobs
-      @classification_cache = classification_cache || core_factory.classification_cache
-      @server_rate_limits = server_rate_limits || core_factory.server_rate_limits
-      @classifier_version = classifier_version.is_a?(ClassifierVersion) ? classifier_version : ClassifierVersion.build(
-        classifier_version
+      assign_repositories(
+        core_factory,
+        interaction_events:,
+        classification_records:,
+        classification_jobs:,
+        classification_cache:,
+        server_rate_limits:
       )
+      @classifier_version = normalize_classifier_version(classifier_version)
       @classifier = wrap_classifier(classifier, ttl_seconds: classifier_cache_ttl_seconds)
       @rate_limiter = build_rate_limiter(limit_per_minute: classifier_rate_limit_per_minute)
-      @classification_pipeline = ClassificationPipeline.new(
+      @classification_pipeline = build_classification_pipeline
+      build_runtime_services(on_classification:)
+    end
+
+    def ingest_message(event)
+      @message_ingestor.ingest(event)
+    end
+
+    def process_due_classifications(as_of: Time.now.utc, limit: nil)
+      @retention_manager.redact_expired_content(as_of:)
+      @classification_worker.process_due_jobs(as_of:, limit:)
+    end
+
+    private
+
+    def assign_repositories(factory, repositories)
+      @interaction_events = repositories[:interaction_events] || factory.interaction_events
+      @classification_records = repositories[:classification_records] || factory.classification_records
+      @classification_jobs = repositories[:classification_jobs] || factory.classification_jobs
+      @classification_cache = repositories[:classification_cache] || factory.classification_cache
+      @server_rate_limits = repositories[:server_rate_limits] || factory.server_rate_limits
+    end
+
+    def normalize_classifier_version(classifier_version)
+      return classifier_version if classifier_version.is_a?(ClassifierVersion)
+
+      ClassifierVersion.build(classifier_version)
+    end
+
+    def build_classification_pipeline
+      ClassificationPipeline.new(
         interaction_events: @interaction_events,
         classification_records: @classification_records,
         classification_jobs: @classification_jobs
       )
+    end
+
+    def build_runtime_services(on_classification:)
       @message_ingestor = MessageIngestor.new(
         interaction_events: @interaction_events,
         classification_pipeline: @classification_pipeline,
@@ -60,17 +92,6 @@ module Harassment
         on_success: on_classification
       )
     end
-
-    def ingest_message(event)
-      @message_ingestor.ingest(event)
-    end
-
-    def process_due_classifications(as_of: Time.now.utc, limit: nil)
-      @retention_manager.redact_expired_content(as_of:)
-      @classification_worker.process_due_jobs(as_of:, limit:)
-    end
-
-    private
 
     def wrap_classifier(classifier, ttl_seconds:)
       return classifier unless Integer(ttl_seconds).positive?

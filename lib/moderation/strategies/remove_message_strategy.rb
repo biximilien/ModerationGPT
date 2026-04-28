@@ -2,7 +2,7 @@ require_relative "../strategy"
 require_relative "../review_action"
 
 class RemoveMessageStrategy < ModerationStrategy
-  def condition(event)
+  def condition?(event)
     flagged?(event, log_label: "Moderation")
   end
 

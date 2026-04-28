@@ -8,7 +8,7 @@ ruby "3.3.11"
 gem "discordrb"
 
 # load environment variables from .env file
-gem 'dotenv'
+gem "dotenv"
 
 # redis is used as backend
 gem "redis"
@@ -26,8 +26,8 @@ end
 
 # optional opentelemetry
 group :telemetry, optional: true do
-  gem 'opentelemetry-exporter-otlp'
-  gem 'opentelemetry-instrumentation-net_http'
-  gem 'opentelemetry-instrumentation-redis'
-  gem 'opentelemetry-sdk'
+  gem "opentelemetry-exporter-otlp"
+  gem "opentelemetry-instrumentation-net_http"
+  gem "opentelemetry-instrumentation-redis"
+  gem "opentelemetry-sdk"
 end

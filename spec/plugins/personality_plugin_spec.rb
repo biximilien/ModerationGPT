@@ -66,12 +66,12 @@ describe ModerationGPT::Plugins::PersonalityPlugin do
 
   it "falls back to objective instructions for unknown personalities" do
     ENV["PERSONALITY"] = "wizard"
-    allow($logger).to receive(:warn)
+    allow(Logging.logger).to receive(:warn)
 
     instructions = described_class.new.rewrite_instructions
 
     expect(instructions).to include("direct, neutral tone")
-    expect($logger).to have_received(:warn).with(
+    expect(Logging.logger).to have_received(:warn).with(
       event: "unknown_moderation_personality",
       configured_personality: "wizard",
       fallback_personality: "objective"

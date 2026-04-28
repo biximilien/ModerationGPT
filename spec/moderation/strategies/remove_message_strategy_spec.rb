@@ -37,7 +37,7 @@ describe RemoveMessageStrategy do
     result = OpenAI::ModerationResult.new(flagged: true, categories: {}, category_scores: {})
     allow(bot).to receive(:moderate_text).with("bad message", user).and_return(result)
 
-    expect(described_class.new(bot, plugin_registry: plugin_registry).condition(event)).to be(true)
+    expect(described_class.new(bot, plugin_registry: plugin_registry).condition?(event)).to be(true)
     expect(plugin_registry).to have_received(:moderation_result).with(
       event: event,
       result: result,
@@ -69,7 +69,7 @@ describe RemoveMessageStrategy do
     allow(bot).to receive(:record_moderation_review)
     strategy = described_class.new(bot, automod_policy: automod_policy, plugin_registry: plugin_registry)
 
-    strategy.condition(event)
+    strategy.condition?(event)
     strategy.execute(event)
 
     expect(bot).to have_received(:record_moderation_review).with(
@@ -95,7 +95,7 @@ describe RemoveMessageStrategy do
     allow(bot).to receive(:record_moderation_review)
     strategy = described_class.new(bot, automod_policy: automod_policy, plugin_registry: plugin_registry)
 
-    strategy.condition(event)
+    strategy.condition?(event)
     strategy.execute(event)
 
     expect(message).not_to have_received(:delete)
@@ -113,7 +113,7 @@ describe RemoveMessageStrategy do
     allow(bot).to receive(:record_moderation_review)
     strategy = described_class.new(bot, automod_policy: automod_policy, plugin_registry: plugin_registry)
 
-    strategy.condition(event)
+    strategy.condition?(event)
     strategy.execute(event)
 
     expect(bot).to have_received(:record_moderation_review).with(hash_including(original_content: "bad message"))

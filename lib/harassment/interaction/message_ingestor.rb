@@ -11,30 +11,19 @@ module Harassment
       @interaction_events = interaction_events
       @classification_pipeline = classification_pipeline
       @retention_policy = retention_policy
-      @classifier_version = classifier_version.is_a?(ClassifierVersion) ? classifier_version : ClassifierVersion.build(
-        classifier_version
-      )
+      @classifier_version = if classifier_version.is_a?(ClassifierVersion)
+                              classifier_version
+                            else
+                              ClassifierVersion.build(
+                                classifier_version
+                              )
+                            end
     end
 
     def ingest(event)
-      interaction_event = InteractionEvent.build(
-        message_id: event.message.id,
-        server_id: event.server.id,
-        channel_id: event.channel.id,
-        author_id: event.user.id,
-        target_user_ids: target_user_ids(event),
-        timestamp: event.message.timestamp,
-        raw_content: event.message.content,
-        content_retention_expires_at: @retention_policy.retention_expires_at(event.message.timestamp)
-      )
-
+      interaction_event = build_interaction_event(event)
       @interaction_events.save(interaction_event)
-      @classification_pipeline.enqueue(
-        message_id: interaction_event.message_id,
-        server_id: interaction_event.server_id,
-        classifier_version: @classifier_version,
-        enqueued_at: interaction_event.timestamp
-      )
+      enqueue_classification(interaction_event)
 
       interaction_event
     rescue ArgumentError => e
@@ -44,6 +33,28 @@ module Harassment
     end
 
     private
+
+    def build_interaction_event(event)
+      InteractionEvent.build(
+        message_id: event.message.id,
+        server_id: event.server.id,
+        channel_id: event.channel.id,
+        author_id: event.user.id,
+        target_user_ids: target_user_ids(event),
+        timestamp: event.message.timestamp,
+        raw_content: event.message.content,
+        content_retention_expires_at: @retention_policy.retention_expires_at(event.message.timestamp)
+      )
+    end
+
+    def enqueue_classification(interaction_event)
+      @classification_pipeline.enqueue(
+        message_id: interaction_event.message_id,
+        server_id: interaction_event.server_id,
+        classifier_version: @classifier_version,
+        enqueued_at: interaction_event.timestamp
+      )
+    end
 
     def target_user_ids(event)
       Array(event.message.mentions).map(&:id)

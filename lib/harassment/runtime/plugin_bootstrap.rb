@@ -10,9 +10,7 @@ module Harassment
     def initialize(
       app:,
       plugin_registry:,
-      storage_backend: Environment.harassment_storage_backend,
-      score_version:,
-      current_read_model:
+      score_version:, current_read_model:, storage_backend: Environment.harassment_storage_backend
     )
       @app = app
       @plugin_registry = plugin_registry
