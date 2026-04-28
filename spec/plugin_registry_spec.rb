@@ -181,7 +181,7 @@ describe ModerationGPT::PluginRegistry do
 
     it "aggregates plugin-provided moderation strategies" do
       first = instance_double("Plugin", moderation_strategies: [:first])
-      second = instance_double("Plugin", moderation_strategies: [:second, :third])
+      second = instance_double("Plugin", moderation_strategies: %i[second third])
 
       result = described_class.new([first, second]).moderation_strategies(app: :app, plugin_registry: :plugins)
 

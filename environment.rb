@@ -7,25 +7,25 @@ module Environment
     DISCORD_BOT_TOKEN
     REDIS_URL
   ].freeze
-  DEFAULT_OPENAI_MODERATION_MODEL = "omni-moderation-latest"
-  DEFAULT_OPENAI_REWRITE_MODEL = "gpt-4.1-mini"
-  DEFAULT_GOOGLE_AI_MODEL = "gemini-2.5-flash"
+  DEFAULT_OPENAI_MODERATION_MODEL = "omni-moderation-latest".freeze
+  DEFAULT_OPENAI_REWRITE_MODEL = "gpt-4.1-mini".freeze
+  DEFAULT_GOOGLE_AI_MODEL = "gemini-2.5-flash".freeze
   DEFAULT_KARMA_AUTOMOD_THRESHOLD = -5
-  DEFAULT_TELEMETRY_HASH_SALT = "development-telemetry-salt"
-  DEFAULT_KARMA_AUTOMOD_ACTION = "timeout"
+  DEFAULT_TELEMETRY_HASH_SALT = "development-telemetry-salt".freeze
+  DEFAULT_KARMA_AUTOMOD_ACTION = "timeout".freeze
   DEFAULT_KARMA_TIMEOUT_SECONDS = 3_600
-  DEFAULT_PERSONALITY = "objective"
-  DEFAULT_LOG_FORMAT = "json"
+  DEFAULT_PERSONALITY = "objective".freeze
+  DEFAULT_LOG_FORMAT = "json".freeze
   DEFAULT_HARASSMENT_CLASSIFIER_CACHE_TTL_SECONDS = 3_600
   DEFAULT_HARASSMENT_CLASSIFIER_RATE_LIMIT_PER_MINUTE = 30
-  DEFAULT_HARASSMENT_STORAGE_BACKEND = "redis"
+  DEFAULT_HARASSMENT_STORAGE_BACKEND = "redis".freeze
 
   def self.validate!
     required = REQUIRED_VARIABLES + [ai_api_key_variable]
     missing = required.select { |name| missing?(ENV[name]) }
     return if missing.empty?
 
-    raise "Missing required environment variables: #{missing.join(', ')}"
+    raise "Missing required environment variables: #{missing.join(", ")}"
   end
 
   def self.openai_api_key

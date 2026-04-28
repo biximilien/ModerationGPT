@@ -1,6 +1,6 @@
 module Backend
   module RedisScripts
-    INCREMENT_KARMA_WITH_AUDIT = <<~LUA
+    INCREMENT_KARMA_WITH_AUDIT = <<~LUA.freeze
       local event = {
         created_at = ARGV[6],
         delta = tonumber(ARGV[2]),
@@ -22,7 +22,7 @@ module Backend
       return event.score
     LUA
 
-    SET_KARMA_WITH_AUDIT = <<~LUA
+    SET_KARMA_WITH_AUDIT = <<~LUA.freeze
       local previous = tonumber(redis.call("HGET", KEYS[1], ARGV[1]) or "0")
       local score = tonumber(ARGV[2])
       local event = {
@@ -47,7 +47,7 @@ module Backend
       return score
     LUA
 
-    RECORD_KARMA_EVENT = <<~LUA
+    RECORD_KARMA_EVENT = <<~LUA.freeze
       local event = {
         created_at = ARGV[4],
         delta = tonumber(ARGV[2]),

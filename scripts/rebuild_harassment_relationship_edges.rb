@@ -28,7 +28,7 @@ summary = rebuilder.run
 
 puts "Harassment relationship-edge rebuild complete"
 puts "- score_version=#{Harassment::ScoreDefinition::VERSION}"
-puts "- server_scope=#{server_id || 'all'}"
+puts "- server_scope=#{server_id || "all"}"
 summary.each do |name, count|
   puts "- #{name}=#{count}"
 end

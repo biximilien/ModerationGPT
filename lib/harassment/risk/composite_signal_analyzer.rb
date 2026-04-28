@@ -90,7 +90,7 @@ module Harassment
 
     def incidents_in_window(incidents, as_of:, window_seconds:)
       window_start = as_of.utc - window_seconds
-      incidents.select { |incident| incident.classified_at >= window_start && incident.classified_at <= as_of.utc }
+      incidents.select { |incident| incident.classified_at.between?(window_start, as_of.utc) }
     end
 
     def weighted_score(signals)

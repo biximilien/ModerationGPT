@@ -8,7 +8,7 @@ require_relative "lib/telemetry"
 require_relative "lib/logging"
 require_relative "lib/runtime_builder"
 
-$logger = Logging.build_logger(STDOUT)
+$logger = Logging.build_logger($stdout)
 
 Environment.validate!
 bot = Discordrb::Bot.new token: Environment.discord_bot_token, intents: :all

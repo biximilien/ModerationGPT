@@ -3,11 +3,11 @@ module Harassment
     class CommandPresenter
       def risk(report, user_id:)
         signal_lines = report.signals.sort_by { |name, _| name.to_s }.map do |name, value|
-          "- #{humanize_signal(name)}: #{format('%.2f', value)}"
+          "- #{humanize_signal(name)}: #{format("%.2f", value)}"
         end
         [
           "Harassment risk for <@#{user_id}>",
-          "Score: #{format('%.2f', report.risk_score)}",
+          "Score: #{format("%.2f", report.risk_score)}",
           "Score version: #{report.score_version}",
           "Relationships: #{report.relationship_count}",
           "Signals:",
@@ -21,7 +21,7 @@ module Harassment
         edge = report.relationship_edge
         [
           "Harassment relationship <@#{source_user_id}> -> <@#{target_user_id}>",
-          "Hostility: #{format('%.2f', edge.hostility_score)}",
+          "Hostility: #{format("%.2f", edge.hostility_score)}",
           "Score version: #{report.score_version}",
           "Interactions: #{edge.interaction_count}",
           "Last seen: #{edge.last_interaction_at.iso8601}"
@@ -33,7 +33,7 @@ module Harassment
 
         lines = report.incidents.map do |incident|
           targets = incident.target_user_ids.empty? ? "none" : incident.target_user_ids.map { |target_user_id| "<@#{target_user_id}>" }.join(", ")
-          "- <@#{incident.author_id}> -> #{targets} | #{incident.intent} | severity #{format('%.2f', incident.severity_score)} | confidence #{format('%.2f', incident.confidence)} | #{incident.classified_at.iso8601}"
+          "- <@#{incident.author_id}> -> #{targets} | #{incident.intent} | severity #{format("%.2f", incident.severity_score)} | confidence #{format("%.2f", incident.confidence)} | #{incident.classified_at.iso8601}"
         end
         "#{incidents_header(user_id, window)}\n#{lines.join("\n")}"
       end

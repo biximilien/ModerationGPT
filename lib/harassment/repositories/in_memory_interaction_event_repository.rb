@@ -89,7 +89,7 @@ module Harassment
 
       def interaction_involves_participants?(event, participant_ids)
         event_participants = [event.author_id, *event.target_user_ids].to_set
-        !(event_participants & participant_ids).empty?
+        !!event_participants.intersect?(participant_ids)
       end
 
       def normalize_status(status)

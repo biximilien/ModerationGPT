@@ -203,7 +203,7 @@ class FakePostgresConnection
 
   def interaction_involves_participants?(event, participant_ids)
     participants = [event["author_id"], *JSON.parse(event["target_user_ids"])]
-    !(participants & participant_ids).empty?
+    !!participants.intersect?(participant_ids)
   end
 
   def insert_classification_record(params)

@@ -85,7 +85,7 @@ module Harassment
 
     def build_repository(kind)
       repository_class = REPOSITORIES.fetch(kind).fetch(@backend) do
-        raise NotImplementedError, "unsupported harassment #{kind.to_s.tr('_', '-')} backend: #{@backend}"
+        raise NotImplementedError, "unsupported harassment #{kind.to_s.tr("_", "-")} backend: #{@backend}"
       end
       if @backend == "postgres"
         repository_class.new(connection: connection!)

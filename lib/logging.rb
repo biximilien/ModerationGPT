@@ -6,7 +6,7 @@ require_relative "../environment"
 module Logging
   module_function
 
-  def build_logger(io = STDOUT, level: Logger::INFO, format: Environment.log_format)
+  def build_logger(io = $stdout, level: Logger::INFO, format: Environment.log_format)
     logger = Logger.new(io)
     logger.level = level
     logger.formatter = formatter_for(format)

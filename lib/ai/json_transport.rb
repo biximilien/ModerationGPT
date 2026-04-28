@@ -16,7 +16,7 @@ module ModerationGPT
 
           response = post_json(url, payload, span)
           parsed = JSON.parse(response.body)
-          raise "#{@provider_name} API error: #{parsed['error']}" if parsed.include?("error")
+          raise "#{@provider_name} API error: #{parsed["error"]}" if parsed.include?("error")
           raise "#{@provider_name} API error: HTTP #{response.code}" unless response.is_a?(Net::HTTPSuccess)
 
           parsed
