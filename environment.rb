@@ -105,6 +105,14 @@ module Environment
     ENV.fetch("MODERATION_SHADOW_MODE", "false").casecmp("true").zero?
   end
 
+  def self.moderation_shadow_rewrite?
+    ENV.fetch("MODERATION_SHADOW_REWRITE", "true").casecmp("true").zero?
+  end
+
+  def self.moderation_review_store_content?
+    ENV.fetch("MODERATION_REVIEW_STORE_CONTENT", "false").casecmp("true").zero?
+  end
+
   def self.harassment_classifier_model
     return ENV["HARASSMENT_CLASSIFIER_MODEL"] unless missing?(ENV["HARASSMENT_CLASSIFIER_MODEL"])
 

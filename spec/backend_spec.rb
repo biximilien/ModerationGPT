@@ -186,6 +186,12 @@ describe Backend do
       expect(get_moderation_reviews(server_id, 5, user_id: user_id).map { |entry| entry[:user_id] }).to eq(["456"])
     end
 
+    it "finds a moderation review by message id" do
+      record_moderation_review(server_id: server_id, channel_id: 1, message_id: 1234, user_id: user_id, strategy: "A", action: "removed", shadow_mode: false, flagged: true)
+
+      expect(find_moderation_review(server_id, 1234)).to include(message_id: "1234")
+    end
+
     it "clears moderation reviews when removing a server" do
       record_moderation_review(server_id: server_id, channel_id: 1, message_id: 1, user_id: user_id, strategy: "A", action: "removed", shadow_mode: false, flagged: true)
       add_server(server_id)

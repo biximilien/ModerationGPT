@@ -14,6 +14,7 @@ module DataModel
     :categories,
     :category_scores,
     :rewrite,
+    :original_content,
     :automod_outcome,
     keyword_init: true,
   ) do
@@ -31,6 +32,7 @@ module DataModel
         categories: categories,
         category_scores: category_scores,
         rewrite: rewrite,
+        original_content: original_content,
         automod_outcome: automod_outcome,
       }.compact
     end

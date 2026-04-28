@@ -8,7 +8,7 @@ class WatchListStrategy < ModerationStrategy
   end
 
   def execute(event)
-    edited = moderation_rewrite(event)
+    edited = shadow_mode? && !shadow_rewrite? ? nil : moderation_rewrite(event)
     reason = "Moderation (rewriting due to negative sentiment)"
     if shadow_mode?
       record_review(event, action: "would_rewrite", rewrite: edited)

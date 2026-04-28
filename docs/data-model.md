@@ -142,11 +142,12 @@ Common sources:
     "harassment": 0.91
   },
   "rewrite": "Please keep this respectful.",
+  "original_content": "go away",
   "automod_outcome": "automod_timeout_applied"
 }
 ```
 
-`rewrite` and `automod_outcome` are optional. Shadow-mode entries use `would_remove` or `would_rewrite` actions and do not mutate messages, karma, or automod state.
+`rewrite`, `original_content`, and `automod_outcome` are optional. `original_content` is only stored when `MODERATION_REVIEW_STORE_CONTENT=true`. Shadow-mode entries use `would_remove` or `would_rewrite` actions and do not mutate messages, karma, or automod state.
 
 ## Harassment InteractionEvent
 

@@ -71,12 +71,23 @@ class ModerationStrategy
       categories: result&.categories || {},
       category_scores: result&.category_scores || {},
       rewrite: rewrite,
+      original_content: review_original_content(event),
       automod_outcome: automod_outcome,
     )
   end
 
   def shadow_mode?
     Environment.moderation_shadow_mode?
+  end
+
+  def shadow_rewrite?
+    Environment.moderation_shadow_rewrite?
+  end
+
+  def review_original_content(event)
+    return nil unless Environment.moderation_review_store_content?
+
+    event.message.content
   end
 
   def cached_moderation_result(event)

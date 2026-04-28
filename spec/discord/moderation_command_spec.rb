@@ -27,6 +27,15 @@ describe Discord::ModerationCommand do
         },
       ],
       clear_moderation_reviews: true,
+      find_moderation_review: {
+        created_at: "2026-04-19T12:00:00Z",
+        message_id: "111",
+        user_id: "456",
+        strategy: "RemoveMessageStrategy",
+        action: "removed",
+        shadow_mode: false,
+        original_content: "Original message",
+      },
     )
   end
   let(:server) { instance_double("Server", id: 123, members: members) }
@@ -366,6 +375,33 @@ describe Discord::ModerationCommand do
       end
     end
 
+    context "when review rewrite text is long" do
+      let(:content) { "!moderation review recent 1" }
+
+      before do
+        allow(store).to receive(:get_moderation_reviews).and_return([
+          {
+            created_at: "2026-04-19T12:00:00Z",
+            message_id: "111",
+            user_id: "456",
+            strategy: "WatchListStrategy",
+            action: "would_rewrite",
+            shadow_mode: true,
+            rewrite: "a" * 140,
+          },
+        ])
+      end
+
+      it "truncates the rewrite preview" do
+        command.handle(event)
+
+        expect(event).to have_received(:respond).with(
+          "Moderation reviews:\n" \
+          "- 2026-04-19T12:00:00Z shadow would_rewrite <@456> msg=111 via WatchListStrategy rewrite=#{"#{'a' * 120}...".inspect}",
+        )
+      end
+    end
+
     context "when checking moderation reviews for a user" do
       let(:content) { "!moderation review <@456>" }
 
@@ -388,6 +424,42 @@ describe Discord::ModerationCommand do
 
         expect(store).to have_received(:clear_moderation_reviews).with(123)
         expect(event).to have_received(:respond).with("Cleared moderation review queue")
+      end
+    end
+
+    context "when clearing moderation reviews with extra arguments" do
+      let(:content) { "!moderation review clear <@456>" }
+
+      it "responds with usage" do
+        command.handle(event)
+
+        expect(store).not_to have_received(:clear_moderation_reviews)
+        expect(event).to have_received(:respond).with(described_class::USAGE)
+      end
+    end
+
+    context "when restoring a review with stored content" do
+      let(:content) { "!moderation review restore 111" }
+
+      it "reposts the stored original content" do
+        command.handle(event)
+
+        expect(store).to have_received(:find_moderation_review).with(123, "111")
+        expect(event).to have_received(:respond).with("Restored message from <@456>:\nOriginal message")
+      end
+    end
+
+    context "when restoring a review without stored content" do
+      let(:content) { "!moderation review restore 111" }
+
+      before do
+        allow(store).to receive(:find_moderation_review).and_return({ message_id: "111", user_id: "456" })
+      end
+
+      it "reports that content is unavailable" do
+        command.handle(event)
+
+        expect(event).to have_received(:respond).with("Original content was not stored for message 111")
       end
     end
 

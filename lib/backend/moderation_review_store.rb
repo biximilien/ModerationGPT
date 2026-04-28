@@ -6,7 +6,7 @@ module Backend
   module ModerationReviewStore
     MODERATION_REVIEW_LIMIT = 100
 
-    def record_moderation_review(server_id:, channel_id:, message_id:, user_id:, strategy:, action:, shadow_mode:, flagged:, categories: {}, category_scores: {}, rewrite: nil, automod_outcome: nil, created_at: Time.now.utc)
+    def record_moderation_review(server_id:, channel_id:, message_id:, user_id:, strategy:, action:, shadow_mode:, flagged:, categories: {}, category_scores: {}, rewrite: nil, original_content: nil, automod_outcome: nil, created_at: Time.now.utc)
       entry = DataModel::ModerationReviewEntry.new(
         created_at: created_at.utc.iso8601,
         server_id: server_id.to_s,
@@ -20,6 +20,7 @@ module Backend
         categories: categories,
         category_scores: category_scores,
         rewrite: rewrite,
+        original_content: original_content,
         automod_outcome: automod_outcome,
       )
 
@@ -35,6 +36,12 @@ module Backend
       end
       entries = entries.select { |entry| entry[:user_id] == user_id.to_s } if user_id
       entries.first(review_limit)
+    end
+
+    def find_moderation_review(server_id, message_id)
+      get_moderation_reviews(server_id, MODERATION_REVIEW_LIMIT).find do |entry|
+        entry[:message_id] == message_id.to_s
+      end
     end
 
     def clear_moderation_reviews(server_id)

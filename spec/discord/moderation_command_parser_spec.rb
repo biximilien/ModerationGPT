@@ -24,4 +24,12 @@ describe Discord::ModerationCommandParser do
     expect(match[:subcommand]).to eq("recent")
     expect(match[:amount]).to eq("3")
   end
+
+  it "parses moderation review restore commands" do
+    match = parser.parse("!moderation review restore 123456")
+
+    expect(match[:command]).to eq("review")
+    expect(match[:subcommand]).to eq("restore")
+    expect(match[:amount]).to eq("123456")
+  end
 end

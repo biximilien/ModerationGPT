@@ -103,6 +103,20 @@ describe RemoveMessageStrategy do
     expect(bot).to have_received(:record_moderation_review).with(hash_including(action: "would_remove", shadow_mode: true))
   end
 
+  it "stores original content in review entries only when explicitly enabled" do
+    ENV["MODERATION_REVIEW_STORE_CONTENT"] = "true"
+    result = OpenAI::ModerationResult.new(flagged: true, categories: {}, category_scores: {})
+    allow(bot).to receive(:moderate_text).with("bad message", user).and_return(result)
+    allow(bot).to receive(:decrement_user_karma).with(123, 456).and_return(-1)
+    allow(bot).to receive(:record_moderation_review)
+    strategy = described_class.new(bot, automod_policy: automod_policy, plugin_registry: plugin_registry)
+
+    strategy.condition(event)
+    strategy.execute(event)
+
+    expect(bot).to have_received(:record_moderation_review).with(hash_including(original_content: "bad message"))
+  end
+
   it "applies automated moderation policy when the user reaches the threshold" do
     allow(bot).to receive(:get_user_karma).with(123, 456).and_return(-4)
     allow(bot).to receive(:decrement_user_karma).with(123, 456).and_return(-5)
@@ -247,6 +261,23 @@ describe WatchListStrategy do
     expect(event).not_to have_received(:respond)
     expect(bot).not_to have_received(:decrement_user_karma)
     expect(bot).to have_received(:record_moderation_review).with(hash_including(action: "would_rewrite", rewrite: "Please be kinder.", shadow_mode: true))
+  end
+
+  it "can skip rewrite generation in shadow mode" do
+    ENV["MODERATION_SHADOW_MODE"] = "true"
+    ENV["MODERATION_SHADOW_REWRITE"] = "false"
+    result = OpenAI::ModerationResult.new(flagged: true, categories: {}, category_scores: {})
+    allow(bot).to receive(:get_watch_list_users).with(123).and_return([456])
+    allow(bot).to receive(:moderate_text).with("bad message", user).and_return(result)
+    allow(bot).to receive(:moderation_rewrite)
+    allow(bot).to receive(:record_moderation_review)
+    strategy = described_class.new(bot, automod_policy: automod_policy, plugin_registry: plugin_registry)
+
+    strategy.condition(event)
+    strategy.execute(event)
+
+    expect(bot).not_to have_received(:moderation_rewrite)
+    expect(bot).to have_received(:record_moderation_review).with(hash_including(action: "would_rewrite", rewrite: nil, shadow_mode: true))
   end
 end
 

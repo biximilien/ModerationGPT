@@ -324,4 +324,32 @@ describe Environment do
       expect(described_class.moderation_shadow_mode?).to eq(true)
     end
   end
+
+  describe ".moderation_shadow_rewrite?" do
+    it "is true by default" do
+      ENV.delete("MODERATION_SHADOW_REWRITE")
+
+      expect(described_class.moderation_shadow_rewrite?).to eq(true)
+    end
+
+    it "is false when configured" do
+      ENV["MODERATION_SHADOW_REWRITE"] = "false"
+
+      expect(described_class.moderation_shadow_rewrite?).to eq(false)
+    end
+  end
+
+  describe ".moderation_review_store_content?" do
+    it "is false by default" do
+      ENV.delete("MODERATION_REVIEW_STORE_CONTENT")
+
+      expect(described_class.moderation_review_store_content?).to eq(false)
+    end
+
+    it "is true when configured" do
+      ENV["MODERATION_REVIEW_STORE_CONTENT"] = "true"
+
+      expect(described_class.moderation_review_store_content?).to eq(true)
+    end
+  end
 end
