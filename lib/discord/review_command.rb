@@ -1,12 +1,14 @@
+require_relative "review_presenter"
+
 module Discord
   class ReviewCommand
     DEFAULT_LIMIT = 5
     MAX_LIMIT = 10
-    PREVIEW_LIMIT = 120
 
-    def initialize(store:, usage:)
+    def initialize(store:, usage:, presenter: ReviewPresenter.new)
       @store = store
       @usage = usage
+      @presenter = presenter
     end
 
     def handle(event, match)
@@ -26,7 +28,7 @@ module Discord
         review_limit(match),
         user_id: match[:user_id],
       )
-      event.respond(review_response(entries, user_id: match[:user_id]))
+      event.respond(@presenter.list(entries, user_id: match[:user_id]))
     end
 
     def clear_reviews(event, match)
@@ -45,7 +47,7 @@ module Discord
       content = entry[:original_content].to_s.strip
       return event.respond("Original content was not stored for message #{match[:amount]}") if content.empty?
 
-      event.respond("Restored message from <@#{entry[:user_id]}>:\n#{content}")
+      event.respond(@presenter.restored(entry))
     end
 
     def review_limit(match)
@@ -53,26 +55,5 @@ module Discord
       [[limit, 1].max, MAX_LIMIT].min
     end
 
-    def review_response(entries, user_id:)
-      subject = user_id ? " for <@#{user_id}>" : ""
-      return "No moderation reviews#{subject}" if entries.empty?
-
-      lines = entries.map { |entry| review_line(entry) }
-      "Moderation reviews#{subject}:\n#{lines.join("\n")}"
-    end
-
-    def review_line(entry)
-      mode = entry[:shadow_mode] ? "shadow" : "live"
-      rewrite = entry[:rewrite] ? " rewrite=#{preview(entry[:rewrite]).inspect}" : ""
-      automod = entry[:automod_outcome] ? " automod=#{entry[:automod_outcome]}" : ""
-      "- #{entry[:created_at]} #{mode} #{entry[:action]} <@#{entry[:user_id]}> msg=#{entry[:message_id]} via #{entry[:strategy]}#{automod}#{rewrite}"
-    end
-
-    def preview(value)
-      text = value.to_s.gsub(/\s+/, " ").strip
-      return text if text.length <= PREVIEW_LIMIT
-
-      "#{text[0, PREVIEW_LIMIT]}..."
-    end
   end
 end

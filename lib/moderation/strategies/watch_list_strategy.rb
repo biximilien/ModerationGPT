@@ -1,4 +1,5 @@
 require_relative "../strategy"
+require_relative "../review_action"
 
 class WatchListStrategy < ModerationStrategy
   def condition(event)
@@ -11,14 +12,14 @@ class WatchListStrategy < ModerationStrategy
     edited = shadow_mode? && !shadow_rewrite? ? nil : moderation_rewrite(event)
     reason = "Moderation (rewriting due to negative sentiment)"
     if shadow_mode?
-      record_review(event, action: "would_rewrite", rewrite: edited)
+      record_review(event, action: Moderation::ReviewAction::WOULD_REWRITE, rewrite: edited)
       return
     end
 
     event.message.delete(reason)
     outcome = record_infraction(event)
     event.respond(response_message(event.user.id, edited))
-    record_review(event, action: "rewritten", rewrite: edited, automod_outcome: outcome_if_automod(outcome))
+    record_review(event, action: Moderation::ReviewAction::REWRITTEN, rewrite: edited, automod_outcome: outcome_if_automod(outcome))
   end
 
   private
@@ -41,7 +42,4 @@ class WatchListStrategy < ModerationStrategy
     "A message from <@#{user_id}> was rewritten:\n#{rewritten}"
   end
 
-  def outcome_if_automod(value)
-    value.is_a?(String) ? value : nil
-  end
 end

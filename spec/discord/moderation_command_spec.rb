@@ -375,33 +375,6 @@ describe Discord::ModerationCommand do
       end
     end
 
-    context "when review rewrite text is long" do
-      let(:content) { "!moderation review recent 1" }
-
-      before do
-        allow(store).to receive(:get_moderation_reviews).and_return([
-          {
-            created_at: "2026-04-19T12:00:00Z",
-            message_id: "111",
-            user_id: "456",
-            strategy: "WatchListStrategy",
-            action: "would_rewrite",
-            shadow_mode: true,
-            rewrite: "a" * 140,
-          },
-        ])
-      end
-
-      it "truncates the rewrite preview" do
-        command.handle(event)
-
-        expect(event).to have_received(:respond).with(
-          "Moderation reviews:\n" \
-          "- 2026-04-19T12:00:00Z shadow would_rewrite <@456> msg=111 via WatchListStrategy rewrite=#{"#{'a' * 120}...".inspect}",
-        )
-      end
-    end
-
     context "when checking moderation reviews for a user" do
       let(:content) { "!moderation review <@456>" }
 

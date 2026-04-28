@@ -1,5 +1,6 @@
 require_relative "../../environment"
 require_relative "automod_policy"
+require_relative "review_action"
 require_relative "../logging"
 require_relative "../telemetry/anonymizer"
 
@@ -82,6 +83,10 @@ class ModerationStrategy
 
   def shadow_rewrite?
     Environment.moderation_shadow_rewrite?
+  end
+
+  def outcome_if_automod(value)
+    value.is_a?(String) ? value : nil
   end
 
   def review_original_content(event)
