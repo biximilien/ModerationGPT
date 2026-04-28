@@ -52,14 +52,12 @@ module Harassment
     def import_hash(key)
       summary = { imported: 0, skipped: 0 }
       @redis.hgetall(key).each_value do |payload|
-
         yield payload
         summary[:imported] += 1
       rescue ArgumentError => e
         raise unless e.message =~ /already exists/
 
         summary[:skipped] += 1
-
       end
       summary
     end

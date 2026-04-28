@@ -109,10 +109,10 @@ module Harassment
         end
       end
 
-      def build_known_collection_summary(rows, &block)
+      def build_known_collection_summary(rows, &)
         return { found_in_redis: false, found_in_postgres: false, matches: false, entries: [] } if rows.empty?
 
-        entries = rows.map(&block)
+        entries = rows.map(&)
         {
           found_in_redis: true,
           found_in_postgres: entries.any? { |entry| entry[:found_in_postgres] },

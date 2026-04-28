@@ -56,9 +56,7 @@ module Backend
     def normalize_hash(value)
       return {} unless value
 
-      value.to_h.transform_keys do |key|
-        key.to_s
-      end
+      value.to_h.transform_keys(&:to_s)
     end
   end
 end

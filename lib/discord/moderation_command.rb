@@ -66,9 +66,7 @@ module Discord
         return
       end
 
-      if @parser.plugin_command_root?(match) && handle_plugin_command(event)
-        return
-      end
+      return if @parser.plugin_command_root?(match) && handle_plugin_command(event)
 
       case match[:command]
       when "help", nil then respond_to_help_command(event, match)
