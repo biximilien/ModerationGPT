@@ -3,7 +3,7 @@
 _Status_: Accepted
 _Context_: LLMs are probabilistic and non-deterministic. Using them directly for moderation decisions introduces instability and explainability issues.
 
-_Decision_: Use OpenAI GPT-4o strictly as a classifier producing structured output. All scoring and enforcement logic will be deterministic and implemented in application code.
+_Decision_: Use the configured AI provider strictly as a classifier producing structured output. OpenAI GPT-4o is the default classifier model, while optional provider plugins may supply another structured-output-capable model such as Gemini. All scoring and enforcement logic will be deterministic and implemented in application code.
 
 _Output Schema (authoritative)_:
 

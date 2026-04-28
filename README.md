@@ -39,7 +39,7 @@ Each moderated infraction decreases the user's per-server karma score and record
 - Bundler 2.4.5 or newer
 - Redis
 - Discord bot token
-- OpenAI API key
+- OpenAI API key, or a Google AI API key when using the `google_ai` provider plugin
 
 This repository is intended to work on Linux, macOS, and Windows. The examples below use a POSIX-style shell for brevity; when using PowerShell or `cmd.exe`, keep the same values but use your shell's syntax for file copying and environment variable editing.
 
@@ -49,11 +49,13 @@ Create a `.env` file in the project root. The simplest approach is to copy `.env
 
 ```bash
 OPENAI_API_KEY=my_openai_secret
+GOOGLE_AI_API_KEY=my_google_ai_secret
 DISCORD_BOT_TOKEN=my_discord_secret
 REDIS_URL=redis://localhost:6379/0
 DATABASE_URL=postgres://postgres:postgres@localhost:5432/moderationgpt
 OPENAI_MODERATION_MODEL=omni-moderation-latest
 OPENAI_REWRITE_MODEL=gpt-4.1-mini
+GOOGLE_AI_MODEL=gemini-2.5-flash
 HARASSMENT_CLASSIFIER_MODEL=gpt-4o-2024-08-06
 HARASSMENT_CLASSIFIER_CACHE_TTL_SECONDS=3600
 HARASSMENT_CLASSIFIER_RATE_LIMIT_PER_MINUTE=30
@@ -69,7 +71,7 @@ PLUGINS=
 PERSONALITY=objective
 ```
 
-`DATABASE_URL`, `OPENAI_MODERATION_MODEL`, `OPENAI_REWRITE_MODEL`, `HARASSMENT_CLASSIFIER_MODEL`, `HARASSMENT_CLASSIFIER_CACHE_TTL_SECONDS`, `HARASSMENT_CLASSIFIER_RATE_LIMIT_PER_MINUTE`, `HARASSMENT_STORAGE_BACKEND`, `KARMA_AUTOMOD_THRESHOLD`, `KARMA_AUTOMOD_ACTION`, `KARMA_TIMEOUT_SECONDS`, `LOG_INVITE_URL`, and `LOG_FORMAT` are optional. `DATABASE_URL` is only used when the `postgres` plugin is enabled. `TELEMETRY_HASH_SALT` is used to anonymize Discord identifiers in logs and traces; set it to a stable random secret for your deployment.
+`DATABASE_URL`, `OPENAI_MODERATION_MODEL`, `OPENAI_REWRITE_MODEL`, `GOOGLE_AI_MODEL`, `HARASSMENT_CLASSIFIER_MODEL`, `HARASSMENT_CLASSIFIER_CACHE_TTL_SECONDS`, `HARASSMENT_CLASSIFIER_RATE_LIMIT_PER_MINUTE`, `HARASSMENT_STORAGE_BACKEND`, `KARMA_AUTOMOD_THRESHOLD`, `KARMA_AUTOMOD_ACTION`, `KARMA_TIMEOUT_SECONDS`, `LOG_INVITE_URL`, and `LOG_FORMAT` are optional. `DATABASE_URL` is only used when the `postgres` plugin is enabled. `TELEMETRY_HASH_SALT` is used to anonymize Discord identifiers in logs and traces; set it to a stable random secret for your deployment.
 
 ## Local Development
 
@@ -107,7 +109,7 @@ Run tests:
 bundle exec rspec
 ```
 
-The default specs stub OpenAI and Redis, so they do not require external API calls.
+The default specs stub AI providers and Redis, so they do not require external API calls.
 
 The Redis data model is documented in `docs/data-model.md`.
 The application structure is documented in `docs/architecture.md`.
@@ -138,6 +140,7 @@ PLUGINS=telemetry
 Built-in plugins:
 
 - `harassment`
+- `google_ai`
 - `openai`
 - `postgres`
 - `telemetry`
@@ -147,7 +150,15 @@ Plugin `boot` is a configuration boundary: if an enabled plugin cannot initializ
 
 Optional infrastructure is exposed through plugins rather than hidden globals. For example, the `postgres` plugin owns `DATABASE_URL` and exposes the database connection to other plugins through the plugin registry.
 
-The shared application delegates AI calls through a replaceable provider. OpenAI is the default provider, and enabling `PLUGINS=openai` configures it explicitly through the plugin system. External AI backend plugins can provide the same provider methods (`moderate_text`, `moderation_rewrite`, `query`, and `response_text`) and assign that provider during `boot`.
+The shared application delegates AI calls through a replaceable provider. OpenAI is the default provider, and enabling `PLUGINS=openai` configures it explicitly through the plugin system. Enable `PLUGINS=google_ai` and set `GOOGLE_AI_API_KEY` to use Gemini through Google AI instead:
+
+```bash
+PLUGINS=google_ai
+GOOGLE_AI_API_KEY=my_google_ai_secret
+GOOGLE_AI_MODEL=gemini-2.5-flash
+```
+
+External AI backend plugins can provide the same provider methods (`moderate_text`, `moderation_rewrite`, `query`, and `response_text`) and assign that provider during `boot`.
 
 When the `harassment` plugin is enabled, the bot passively captures interaction events, enqueues harassment classification work, and records classified incidents in a harassment read model without applying automated enforcement.
 
@@ -223,7 +234,7 @@ ruby scripts/verify_harassment_postgres.rb 123456789012345678 234567890123456789
 
 The cutover sequence is documented in `docs/harassment-postgres-cutover.md`.
 
-Classifier context is assembled transiently from retained interaction events and sent to OpenAI with pseudonymous participant labels rather than raw Discord IDs.
+Classifier context is assembled transiently from retained interaction events and sent to the configured AI provider with pseudonymous participant labels rather than raw Discord IDs. `HARASSMENT_CLASSIFIER_MODEL` defaults to `GOOGLE_AI_MODEL` when `google_ai` is the configured provider, otherwise it defaults to the OpenAI classifier model.
 
 Harassment classifications are cached by server, classifier version, prompt/schema identity, and normalized message/context input for `HARASSMENT_CLASSIFIER_CACHE_TTL_SECONDS`. Outbound harassment classification calls are also paced per server with `HARASSMENT_CLASSIFIER_RATE_LIMIT_PER_MINUTE`; deferred jobs are rescheduled without consuming retry attempts.
 

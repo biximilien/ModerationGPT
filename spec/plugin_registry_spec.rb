@@ -60,6 +60,15 @@ describe ModerationGPT::PluginRegistry do
       expect(registry.ai_provider).to be_a(OpenAI::Provider)
     end
 
+    it "builds the built-in Google AI plugin" do
+      ENV["PLUGINS"] = "google_ai"
+
+      registry = described_class.from_environment
+
+      expect(registry.find_plugin(ModerationGPT::Plugins::GoogleAIPlugin)).to be_a(ModerationGPT::Plugins::GoogleAIPlugin)
+      expect(registry.ai_provider).to be_a(GoogleAI::Provider)
+    end
+
     it "raises for unknown plugins" do
       ENV["PLUGINS"] = "missing"
 

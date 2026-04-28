@@ -17,6 +17,7 @@ describe Environment do
 
     it "raises with missing required variables" do
       ENV.delete("OPENAI_API_KEY")
+      ENV.delete("PLUGINS")
       ENV["DISCORD_BOT_TOKEN"] = "discord"
       ENV["REDIS_URL"] = "redis://localhost:6379/0"
 
@@ -24,6 +25,29 @@ describe Environment do
         RuntimeError,
         "Missing required environment variables: OPENAI_API_KEY",
       )
+    end
+
+    it "requires the Google AI key when Google AI is the configured provider" do
+      ENV.delete("OPENAI_API_KEY")
+      ENV.delete("GOOGLE_AI_API_KEY")
+      ENV["PLUGINS"] = "google_ai"
+      ENV["DISCORD_BOT_TOKEN"] = "discord"
+      ENV["REDIS_URL"] = "redis://localhost:6379/0"
+
+      expect { described_class.validate! }.to raise_error(
+        RuntimeError,
+        "Missing required environment variables: GOOGLE_AI_API_KEY",
+      )
+    end
+
+    it "passes without an OpenAI key when Google AI has the required key" do
+      ENV.delete("OPENAI_API_KEY")
+      ENV["GOOGLE_AI_API_KEY"] = "google"
+      ENV["PLUGINS"] = "google_ai"
+      ENV["DISCORD_BOT_TOKEN"] = "discord"
+      ENV["REDIS_URL"] = "redis://localhost:6379/0"
+
+      expect { described_class.validate! }.not_to raise_error
     end
   end
 
@@ -43,9 +67,32 @@ describe Environment do
     end
   end
 
+  describe ".google_ai_api_key" do
+    it "returns the configured Google AI API key" do
+      ENV["GOOGLE_AI_API_KEY"] = "google-key"
+
+      expect(described_class.google_ai_api_key).to eq("google-key")
+    end
+  end
+
+  describe ".google_ai_model" do
+    it "returns the default Google AI model" do
+      ENV.delete("GOOGLE_AI_MODEL")
+
+      expect(described_class.google_ai_model).to eq("gemini-2.5-flash")
+    end
+
+    it "returns the configured Google AI model" do
+      ENV["GOOGLE_AI_MODEL"] = "gemini-test"
+
+      expect(described_class.google_ai_model).to eq("gemini-test")
+    end
+  end
+
   describe ".harassment_classifier_model" do
     it "returns the default model" do
       ENV.delete("HARASSMENT_CLASSIFIER_MODEL")
+      ENV.delete("PLUGINS")
 
       expect(described_class.harassment_classifier_model).to eq("gpt-4o-2024-08-06")
     end
@@ -54,6 +101,14 @@ describe Environment do
       ENV["HARASSMENT_CLASSIFIER_MODEL"] = "gpt-4o-mini"
 
       expect(described_class.harassment_classifier_model).to eq("gpt-4o-mini")
+    end
+
+    it "defaults to the Google AI model when Google AI is the configured provider" do
+      ENV.delete("HARASSMENT_CLASSIFIER_MODEL")
+      ENV["GOOGLE_AI_MODEL"] = "gemini-test"
+      ENV["PLUGINS"] = "google_ai"
+
+      expect(described_class.harassment_classifier_model).to eq("gemini-test")
     end
   end
 

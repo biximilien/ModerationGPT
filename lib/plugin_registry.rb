@@ -1,6 +1,7 @@
 require_relative "../environment"
 require_relative "logging"
 require_relative "plugin"
+require_relative "plugins/google_ai_plugin"
 require_relative "plugins/harassment_plugin"
 require_relative "plugins/open_ai_plugin"
 require_relative "plugins/personality_plugin"
@@ -119,6 +120,7 @@ module ModerationGPT
     end
   end
 
+  PluginRegistry.register("google_ai") { Plugins::GoogleAIPlugin.new }
   PluginRegistry.register("harassment") { Plugins::HarassmentPlugin.new }
   PluginRegistry.register("openai") { Plugins::OpenAIPlugin.new }
   PluginRegistry.register("personality") { Plugins::PersonalityPlugin.new }

@@ -17,7 +17,7 @@ The shared application object lives in [lib/application.rb](../lib/application.r
 
 - [Backend](../lib/backend.rb) for Redis-backed state
 
-It also delegates AI calls to a replaceable provider. OpenAI is the default provider and can be configured explicitly through [OpenAIPlugin](../lib/plugins/open_ai_plugin.rb). Other AI backend plugins can replace the provider during `boot`.
+It also delegates AI calls to a replaceable provider. OpenAI is the default provider and can be configured explicitly through [OpenAIPlugin](../lib/plugins/open_ai_plugin.rb). [GoogleAIPlugin](../lib/plugins/google_ai_plugin.rb) can replace it with a Gemini-backed provider during `boot`, and external AI backend plugins can follow the same provider interface.
 
 This keeps the rest of the bot working with a single `app` dependency.
 
@@ -50,7 +50,7 @@ Built-in strategy order is:
 
 The base strategy is responsible for shared behavior:
 
-- fetching and caching OpenAI moderation results on the Discord event
+- fetching and caching AI moderation results on the Discord event
 - recording plugin hook notifications for moderation outcomes
 - decrementing user karma for infractions
 - checking whether an automod threshold was crossed
@@ -61,16 +61,18 @@ This means the concrete strategies mostly answer two questions:
 - should this strategy handle the event?
 - what should happen when it does?
 
-## OpenAI Integration
+## AI Provider Integration
 
 [lib/open_ai.rb](../lib/open_ai.rb) implements the default AI provider and wraps the two OpenAI calls used by the bot:
 
 - `/v1/moderations` for message classification
 - `/v1/responses` for watchlist rewrites
 
-The module returns a small `ModerationResult` value object for moderation calls and a plain rewritten string for rewrites.
+[lib/google_ai.rb](../lib/google_ai.rb) implements the optional Google AI provider. It uses Gemini `generateContent` for moderation, watchlist rewrites, and structured harassment classifier calls.
 
-OpenAI requests are wrapped in `Telemetry.in_span(...)`, but telemetry exporting is still optional. When the telemetry plugin is disabled, the tracing path becomes a no-op and the rest of the bot continues to work normally.
+Providers return a small `ModerationResult` value object for moderation calls and a plain rewritten string for rewrites.
+
+AI provider requests are wrapped in `Telemetry.in_span(...)`, but telemetry exporting is still optional. When the telemetry plugin is disabled, the tracing path becomes a no-op and the rest of the bot continues to work normally.
 
 AI providers expose the same application-facing methods: `moderate_text`, `moderation_rewrite`, `query`, and `response_text`. The harassment classifier currently needs the lower-level `query` and `response_text` methods for structured classifier calls; moderation strategies use `moderate_text` and `moderation_rewrite`.
 
@@ -113,7 +115,7 @@ Plugin-owned pieces:
 The harassment domain is grouped by responsibility under [lib/harassment](../lib/harassment):
 
 - `classification/` for classification jobs, records, pipeline, worker, status, and classification service
-- `classifier/` for classifier identity and OpenAI/cached classifier implementations
+- `classifier/` for classifier identity and provider-backed/cached classifier implementations
 - `incident/` for incident values, collections, queries, and incident reports
 - `interaction/` for captured Discord interaction events, context assembly, ingestion, and retention
 - `relationship/` for relationship edges, rebuilds, and pair reports
@@ -172,6 +174,7 @@ Current hook types include:
 Current built-in plugins:
 
 - [HarassmentPlugin](../lib/plugins/harassment_plugin.rb)
+- [GoogleAIPlugin](../lib/plugins/google_ai_plugin.rb)
 - [OpenAIPlugin](../lib/plugins/open_ai_plugin.rb)
 - [PostgresPlugin](../lib/plugins/postgres_plugin.rb)
 - [TelemetryPlugin](../lib/plugins/telemetry_plugin.rb)

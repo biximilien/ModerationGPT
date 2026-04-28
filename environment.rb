@@ -3,13 +3,17 @@ Dotenv.load
 
 module Environment
   REQUIRED_VARIABLES = %w[
-    OPENAI_API_KEY
     DISCORD_BOT_TOKEN
     REDIS_URL
   ].freeze
+  AI_PROVIDER_API_KEYS = {
+    "openai" => "OPENAI_API_KEY",
+    "google_ai" => "GOOGLE_AI_API_KEY",
+  }.freeze
 
   DEFAULT_OPENAI_MODERATION_MODEL = "omni-moderation-latest"
   DEFAULT_OPENAI_REWRITE_MODEL = "gpt-4.1-mini"
+  DEFAULT_GOOGLE_AI_MODEL = "gemini-2.5-flash"
   DEFAULT_KARMA_AUTOMOD_THRESHOLD = -5
   DEFAULT_TELEMETRY_HASH_SALT = "development-telemetry-salt"
   DEFAULT_KARMA_AUTOMOD_ACTION = "timeout"
@@ -22,7 +26,8 @@ module Environment
   DEFAULT_HARASSMENT_STORAGE_BACKEND = "redis"
 
   def self.validate!
-    missing = REQUIRED_VARIABLES.select { |name| missing?(ENV[name]) }
+    required = REQUIRED_VARIABLES + [ai_api_key_variable]
+    missing = required.select { |name| missing?(ENV[name]) }
     return if missing.empty?
 
     raise "Missing required environment variables: #{missing.join(', ')}"
@@ -50,6 +55,14 @@ module Environment
 
   def self.openai_rewrite_model
     ENV.fetch("OPENAI_REWRITE_MODEL", DEFAULT_OPENAI_REWRITE_MODEL)
+  end
+
+  def self.google_ai_api_key
+    ENV["GOOGLE_AI_API_KEY"]
+  end
+
+  def self.google_ai_model
+    ENV.fetch("GOOGLE_AI_MODEL", DEFAULT_GOOGLE_AI_MODEL)
   end
 
   def self.karma_automod_threshold
@@ -94,7 +107,10 @@ module Environment
   end
 
   def self.harassment_classifier_model
-    ENV.fetch("HARASSMENT_CLASSIFIER_MODEL", DEFAULT_HARASSMENT_CLASSIFIER_MODEL)
+    return ENV["HARASSMENT_CLASSIFIER_MODEL"] unless missing?(ENV["HARASSMENT_CLASSIFIER_MODEL"])
+    return google_ai_model if effective_ai_provider == "google_ai"
+
+    DEFAULT_HARASSMENT_CLASSIFIER_MODEL
   end
 
   def self.harassment_classifier_cache_ttl_seconds
@@ -114,5 +130,17 @@ module Environment
     value.nil? || value.strip.empty?
   end
 
-  private_class_method :missing?
+  def self.effective_ai_provider
+    enabled_plugins.reverse_each do |plugin|
+      return plugin if AI_PROVIDER_API_KEYS.key?(plugin)
+    end
+
+    "openai"
+  end
+
+  def self.ai_api_key_variable
+    AI_PROVIDER_API_KEYS.fetch(effective_ai_provider)
+  end
+
+  private_class_method :missing?, :effective_ai_provider, :ai_api_key_variable
 end
