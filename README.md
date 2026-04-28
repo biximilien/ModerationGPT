@@ -9,6 +9,8 @@ Core moderation:
 - Deletes AI-flagged messages.
 - Rewrites flagged messages from watched users in a more constructive tone.
 - Tracks per-server watchlists, karma scores, and capped karma audit history in Redis.
+- Records a capped per-server moderation review queue for recent live and shadow-mode actions.
+- Supports shadow mode with `MODERATION_SHADOW_MODE=true` to review would-be actions without deleting messages, reposting rewrites, changing karma, or applying automod.
 - Applies optional automod actions when karma crosses `KARMA_AUTOMOD_THRESHOLD`: `log_only`, `timeout`, `kick`, or `ban`.
 - Skips punitive automod actions for members with elevated moderation permissions.
 
@@ -51,6 +53,10 @@ Administrators can manage moderation state with:
 !moderation karma reset @user
 !moderation karma add @user 1
 !moderation karma remove @user 1
+!moderation review recent
+!moderation review recent 10
+!moderation review @user
+!moderation review clear
 !moderation harassment risk @user
 !moderation harassment pair @user_a @user_b
 !moderation harassment incidents 3
@@ -60,6 +66,8 @@ Administrators can manage moderation state with:
 ```
 
 Each moderated infraction decreases the user's per-server karma score and records a capped audit history for that user. When a score crosses `KARMA_AUTOMOD_THRESHOLD`, the bot applies `KARMA_AUTOMOD_ACTION` and records the outcome in karma history; users who are already below the threshold do not receive repeated automated actions for every additional infraction. Supported actions are `log_only`, `timeout`, `kick`, and `ban`; the default is `timeout`. Timeout requires the Discord moderate-members permission, which is included in the generated invite URL. If you configure `kick` or `ban`, grant the bot the matching Discord permission in that server. The bot skips punitive automated actions for members with elevated moderation permissions.
+
+Set `MODERATION_SHADOW_MODE=true` to classify messages and record the review queue without deleting messages, reposting rewrites, changing karma, or applying automod. Moderators can inspect the queue with `!moderation review recent [limit]`, filter with `!moderation review @user [limit]`, and clear it with `!moderation review clear`.
 
 ## Requirements
 
@@ -88,6 +96,7 @@ HARASSMENT_CLASSIFIER_MODEL=gpt-4o-2024-08-06
 HARASSMENT_CLASSIFIER_CACHE_TTL_SECONDS=3600
 HARASSMENT_CLASSIFIER_RATE_LIMIT_PER_MINUTE=30
 HARASSMENT_STORAGE_BACKEND=redis
+MODERATION_SHADOW_MODE=false
 KARMA_AUTOMOD_THRESHOLD=-5
 KARMA_AUTOMOD_ACTION=timeout
 KARMA_TIMEOUT_SECONDS=3600
@@ -99,7 +108,7 @@ PLUGINS=
 PERSONALITY=objective
 ```
 
-`DATABASE_URL`, `OPENAI_MODERATION_MODEL`, `OPENAI_REWRITE_MODEL`, `GOOGLE_AI_MODEL`, `HARASSMENT_CLASSIFIER_MODEL`, `HARASSMENT_CLASSIFIER_CACHE_TTL_SECONDS`, `HARASSMENT_CLASSIFIER_RATE_LIMIT_PER_MINUTE`, `HARASSMENT_STORAGE_BACKEND`, `KARMA_AUTOMOD_THRESHOLD`, `KARMA_AUTOMOD_ACTION`, `KARMA_TIMEOUT_SECONDS`, `LOG_INVITE_URL`, and `LOG_FORMAT` are optional. `DATABASE_URL` is only used when the `postgres` plugin is enabled. `TELEMETRY_HASH_SALT` is used to anonymize Discord identifiers in logs and traces; set it to a stable random secret for your deployment.
+`DATABASE_URL`, `OPENAI_MODERATION_MODEL`, `OPENAI_REWRITE_MODEL`, `GOOGLE_AI_MODEL`, `HARASSMENT_CLASSIFIER_MODEL`, `HARASSMENT_CLASSIFIER_CACHE_TTL_SECONDS`, `HARASSMENT_CLASSIFIER_RATE_LIMIT_PER_MINUTE`, `HARASSMENT_STORAGE_BACKEND`, `MODERATION_SHADOW_MODE`, `KARMA_AUTOMOD_THRESHOLD`, `KARMA_AUTOMOD_ACTION`, `KARMA_TIMEOUT_SECONDS`, `LOG_INVITE_URL`, and `LOG_FORMAT` are optional. `DATABASE_URL` is only used when the `postgres` plugin is enabled. `TELEMETRY_HASH_SALT` is used to anonymize Discord identifiers in logs and traces; set it to a stable random secret for your deployment.
 
 ## Local Development
 

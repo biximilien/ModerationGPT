@@ -16,4 +16,8 @@ describe DataModel::Keys do
   it "defines the karma history key" do
     expect(described_class.karma_history(123, 456)).to eq("server_123_user_456_karma_history")
   end
+
+  it "defines the moderation review key" do
+    expect(described_class.moderation_review(123)).to eq("server_123_moderation_review")
+  end
 end

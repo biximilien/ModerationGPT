@@ -38,6 +38,8 @@ class ModerationStrategy
   end
 
   def record_infraction(event)
+    return nil if shadow_mode?
+
     previous_score = @bot.get_user_karma(event.server.id, event.user.id)
     score = @bot.decrement_user_karma(event.server.id, event.user.id)
     user_hash = Telemetry::Anonymizer.hash(event.user.id)
@@ -47,9 +49,40 @@ class ModerationStrategy
     if crossed_automod_threshold?(previous_score, score)
       automod_outcome = @automod_policy.apply(event, score)
       record_automod_outcome(event, score, automod_outcome)
+      return automod_outcome
     end
 
     score
+  end
+
+  def record_review(event, action:, rewrite: nil, automod_outcome: nil)
+    return unless @bot.respond_to?(:record_moderation_review)
+
+    result = cached_moderation_result(event)
+    @bot.record_moderation_review(
+      server_id: event.server.id,
+      channel_id: event.channel.id,
+      message_id: event.message.id,
+      user_id: event.user.id,
+      strategy: self.class.name,
+      action: action,
+      shadow_mode: shadow_mode?,
+      flagged: result&.flagged,
+      categories: result&.categories || {},
+      category_scores: result&.category_scores || {},
+      rewrite: rewrite,
+      automod_outcome: automod_outcome,
+    )
+  end
+
+  def shadow_mode?
+    Environment.moderation_shadow_mode?
+  end
+
+  def cached_moderation_result(event)
+    return nil unless event.instance_variable_defined?(MODERATION_RESULT_CACHE_KEY)
+
+    event.instance_variable_get(MODERATION_RESULT_CACHE_KEY)
   end
 
   def crossed_automod_threshold?(previous_score, score)

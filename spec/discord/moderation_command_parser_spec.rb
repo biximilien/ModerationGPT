@@ -16,4 +16,12 @@ describe Discord::ModerationCommandParser do
     expect(match[:user_id]).to eq("456")
     expect(match[:amount]).to eq("2")
   end
+
+  it "parses moderation review commands" do
+    match = parser.parse("!moderation review recent 3")
+
+    expect(match[:command]).to eq("review")
+    expect(match[:subcommand]).to eq("recent")
+    expect(match[:amount]).to eq("3")
+  end
 end

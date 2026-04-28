@@ -16,6 +16,17 @@ describe Discord::ModerationCommand do
       set_user_karma: -7,
       increment_user_karma: -2,
       decrement_user_karma: -2,
+      get_moderation_reviews: [
+        {
+          created_at: "2026-04-19T12:00:00Z",
+          message_id: "111",
+          user_id: "456",
+          strategy: "RemoveMessageStrategy",
+          action: "removed",
+          shadow_mode: false,
+        },
+      ],
+      clear_moderation_reviews: true,
     )
   end
   let(:server) { instance_double("Server", id: 123, members: members) }
@@ -338,6 +349,45 @@ describe Discord::ModerationCommand do
         command.handle(event)
 
         expect(event).to have_received(:respond).with(described_class::USAGE)
+      end
+    end
+
+    context "when checking recent moderation reviews" do
+      let(:content) { "!moderation review recent 1" }
+
+      it "responds with recent review entries" do
+        command.handle(event)
+
+        expect(store).to have_received(:get_moderation_reviews).with(123, 1, user_id: nil)
+        expect(event).to have_received(:respond).with(
+          "Moderation reviews:\n" \
+          "- 2026-04-19T12:00:00Z live removed <@456> msg=111 via RemoveMessageStrategy",
+        )
+      end
+    end
+
+    context "when checking moderation reviews for a user" do
+      let(:content) { "!moderation review <@456>" }
+
+      it "filters reviews by user" do
+        command.handle(event)
+
+        expect(store).to have_received(:get_moderation_reviews).with(123, 5, user_id: "456")
+        expect(event).to have_received(:respond).with(
+          "Moderation reviews for <@456>:\n" \
+          "- 2026-04-19T12:00:00Z live removed <@456> msg=111 via RemoveMessageStrategy",
+        )
+      end
+    end
+
+    context "when clearing moderation reviews" do
+      let(:content) { "!moderation review clear" }
+
+      it "clears the queue" do
+        command.handle(event)
+
+        expect(store).to have_received(:clear_moderation_reviews).with(123)
+        expect(event).to have_received(:respond).with("Cleared moderation review queue")
       end
     end
 

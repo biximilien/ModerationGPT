@@ -101,6 +101,10 @@ module Environment
     %w[json plain].include?(candidate) ? candidate : DEFAULT_LOG_FORMAT
   end
 
+  def self.moderation_shadow_mode?
+    ENV.fetch("MODERATION_SHADOW_MODE", "false").casecmp("true").zero?
+  end
+
   def self.harassment_classifier_model
     return ENV["HARASSMENT_CLASSIFIER_MODEL"] unless missing?(ENV["HARASSMENT_CLASSIFIER_MODEL"])
 

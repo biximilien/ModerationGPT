@@ -51,6 +51,7 @@ Built-in strategy order is:
 The base strategy is responsible for shared behavior:
 
 - fetching and caching AI moderation results on the Discord event
+- recording live and shadow-mode moderation review entries
 - recording plugin hook notifications for moderation outcomes
 - decrementing user karma for infractions
 - checking whether an automod threshold was crossed

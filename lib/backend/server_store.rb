@@ -20,6 +20,7 @@ module Backend
     def purge_server_data(server_id)
       delete_key(DataModel::Keys.watchlist(server_id))
       delete_key(DataModel::Keys.karma(server_id))
+      delete_key(DataModel::Keys.moderation_review(server_id))
 
       @redis.scan_each(match: DataModel::Keys.karma_history_pattern(server_id)) do |key|
         delete_key(key)

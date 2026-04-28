@@ -10,9 +10,15 @@ class WatchListStrategy < ModerationStrategy
   def execute(event)
     edited = moderation_rewrite(event)
     reason = "Moderation (rewriting due to negative sentiment)"
+    if shadow_mode?
+      record_review(event, action: "would_rewrite", rewrite: edited)
+      return
+    end
+
     event.message.delete(reason)
-    record_infraction(event)
+    outcome = record_infraction(event)
     event.respond(response_message(event.user.id, edited))
+    record_review(event, action: "rewritten", rewrite: edited, automod_outcome: outcome_if_automod(outcome))
   end
 
   private
@@ -33,5 +39,9 @@ class WatchListStrategy < ModerationStrategy
     return "A message from <@#{user_id}> was removed." if rewritten.empty?
 
     "A message from <@#{user_id}> was rewritten:\n#{rewritten}"
+  end
+
+  def outcome_if_automod(value)
+    value.is_a?(String) ? value : nil
   end
 end

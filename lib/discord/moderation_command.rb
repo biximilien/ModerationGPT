@@ -2,6 +2,7 @@ require_relative "../telemetry/anonymizer"
 require_relative "../logging"
 require_relative "karma_command"
 require_relative "moderation_command_parser"
+require_relative "review_command"
 require_relative "watchlist_command"
 
 module Discord
@@ -18,6 +19,9 @@ module Discord
       "!moderation karma reset @user",
       "!moderation karma add @user amount",
       "!moderation karma remove @user amount",
+      "!moderation review recent [limit]",
+      "!moderation review @user [limit]",
+      "!moderation review clear",
     ].freeze
     HELP_TEXT = BASE_HELP_LINES.join("\n").freeze
 
@@ -27,6 +31,7 @@ module Discord
       @parser = parser
       @watchlist_command = WatchlistCommand.new(store:, usage: USAGE)
       @karma_command = KarmaCommand.new(store:, usage: USAGE)
+      @review_command = ReviewCommand.new(store:, usage: USAGE)
     end
 
     def matches?(event)
@@ -68,6 +73,7 @@ module Discord
       when "help", nil then respond_to_help_command(event, match)
       when "watchlist" then @watchlist_command.handle(event, match)
       when "karma" then @karma_command.handle(event, match)
+      when "review" then @review_command.handle(event, match)
       else event.respond(USAGE)
       end
     end

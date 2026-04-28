@@ -7,7 +7,19 @@ class RemoveMessageStrategy < ModerationStrategy
 
   def execute(event)
     reason = "Moderation (removing message)"
+    if shadow_mode?
+      record_review(event, action: "would_remove")
+      return
+    end
+
     event.message.delete(reason)
-    record_infraction(event)
+    outcome = record_infraction(event)
+    record_review(event, action: "removed", automod_outcome: outcome_if_automod(outcome))
+  end
+
+  private
+
+  def outcome_if_automod(value)
+    value.is_a?(String) ? value : nil
   end
 end

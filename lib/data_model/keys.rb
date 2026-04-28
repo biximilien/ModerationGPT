@@ -22,6 +22,10 @@ module DataModel
       "server_#{server_id}_user_*_karma_history"
     end
 
+    def moderation_review(server_id)
+      "server_#{server_id}_moderation_review"
+    end
+
     def harassment_interaction_events
       "harassment_interaction_events"
     end

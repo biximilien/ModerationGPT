@@ -1,7 +1,7 @@
 module Discord
   class ModerationCommandParser
     TRIGGER_PATTERN = /\A!moderation\b/i.freeze
-    COMMAND_PATTERN = /\A!moderation(?:\s+(?<command>help|watchlist|karma))?(?:\s+(?<subcommand>add|remove|reset|history|set))?(?:\s+<@!?(?<user_id>\d+)>)?(?:\s+(?<amount>-?\d+))?\s*\z/i.freeze
+    COMMAND_PATTERN = /\A!moderation(?:\s+(?<command>help|watchlist|karma|review))?(?:\s+(?<subcommand>add|remove|reset|history|set|recent|clear))?(?:\s+<@!?(?<user_id>\d+)>)?(?:\s+(?<amount>-?\d+))?\s*\z/i.freeze
 
     def trigger?(content)
       TRIGGER_PATTERN.match?(content)

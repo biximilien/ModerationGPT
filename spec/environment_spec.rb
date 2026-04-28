@@ -310,4 +310,18 @@ describe Environment do
       expect(described_class.log_format).to eq("json")
     end
   end
+
+  describe ".moderation_shadow_mode?" do
+    it "is false by default" do
+      ENV.delete("MODERATION_SHADOW_MODE")
+
+      expect(described_class.moderation_shadow_mode?).to eq(false)
+    end
+
+    it "is true when configured" do
+      ENV["MODERATION_SHADOW_MODE"] = "true"
+
+      expect(described_class.moderation_shadow_mode?).to eq(true)
+    end
+  end
 end

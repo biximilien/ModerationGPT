@@ -31,6 +31,14 @@ ModerationGPT stores its original moderation state in Redis. Redis keys are defi
 - Retention: latest 50 entries
 - Purpose: stores score changes and automod outcomes for one user in one server
 
+### `server_{server_id}_moderation_review`
+
+- Type: Redis list
+- Values: JSON moderation review records
+- Order: newest first
+- Retention: latest 100 entries
+- Purpose: stores recent live and shadow-mode moderation decisions for moderator review
+
 ### `harassment_interaction_events`
 
 - Type: Redis hash
@@ -113,6 +121,32 @@ Common sources:
 - `automod_ban_applied`
 - `automod_ban_unavailable`
 - `automod_skipped_elevated_member`
+
+## ModerationReviewEntry
+
+```json
+{
+  "created_at": "2026-04-20T12:00:00Z",
+  "server_id": "42",
+  "channel_id": "77",
+  "message_id": "1234567890",
+  "user_id": "100",
+  "strategy": "RemoveMessageStrategy",
+  "action": "would_remove",
+  "shadow_mode": true,
+  "flagged": true,
+  "categories": {
+    "harassment": true
+  },
+  "category_scores": {
+    "harassment": 0.91
+  },
+  "rewrite": "Please keep this respectful.",
+  "automod_outcome": "automod_timeout_applied"
+}
+```
+
+`rewrite` and `automod_outcome` are optional. Shadow-mode entries use `would_remove` or `would_rewrite` actions and do not mutate messages, karma, or automod state.
 
 ## Harassment InteractionEvent
 
