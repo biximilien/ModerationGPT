@@ -24,7 +24,7 @@ describe WatchListStrategy do
       moderation_result: true,
       infraction: true,
       automod_outcome: true,
-      rewrite_instructions: nil,
+      rewrite_instructions: nil
     )
   end
 
@@ -49,7 +49,7 @@ describe WatchListStrategy do
       event: event,
       result: result,
       app: bot,
-      strategy: "WatchListStrategy",
+      strategy: "WatchListStrategy"
     )
   end
 
@@ -74,7 +74,7 @@ describe WatchListStrategy do
     expect(plugin_registry).to have_received(:rewrite_instructions).with(
       event: event,
       app: bot,
-      strategy: "WatchListStrategy",
+      strategy: "WatchListStrategy"
     )
     expect(event).to have_received(:respond).with("A message from <@456> was rewritten:\nAvast, be kinder.")
   end

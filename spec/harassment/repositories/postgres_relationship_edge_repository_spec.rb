@@ -13,7 +13,7 @@ describe Harassment::Repositories::PostgresRelationshipEdgeRepository do
       score_version: "harassment-score-v1",
       hostility_score: 0.4,
       interaction_count: 1,
-      last_interaction_at: Time.utc(2026, 4, 25, 16, 0, 0),
+      last_interaction_at: Time.utc(2026, 4, 25, 16, 0, 0)
     )
   end
 
@@ -25,8 +25,8 @@ describe Harassment::Repositories::PostgresRelationshipEdgeRepository do
         server_id: "456",
         source_user_id: "321",
         target_user_id: "654",
-        score_version: "harassment-score-v1",
-      ),
+        score_version: "harassment-score-v1"
+      )
     ).to eq(edge)
   end
 
@@ -39,7 +39,7 @@ describe Harassment::Repositories::PostgresRelationshipEdgeRepository do
       score_version: "harassment-score-v1",
       hostility_score: 0.6,
       interaction_count: 2,
-      last_interaction_at: Time.utc(2026, 4, 25, 17, 0, 0),
+      last_interaction_at: Time.utc(2026, 4, 25, 17, 0, 0)
     )
 
     repository.save(updated)
@@ -49,8 +49,8 @@ describe Harassment::Repositories::PostgresRelationshipEdgeRepository do
         server_id: "456",
         source_user_id: "321",
         target_user_id: "654",
-        score_version: "harassment-score-v1",
-      ),
+        score_version: "harassment-score-v1"
+      )
     ).to eq(updated)
   end
 
@@ -64,8 +64,8 @@ describe Harassment::Repositories::PostgresRelationshipEdgeRepository do
         score_version: "harassment-score-v1",
         hostility_score: 0.2,
         interaction_count: 1,
-        last_interaction_at: Time.utc(2026, 4, 25, 16, 5, 0),
-      ),
+        last_interaction_at: Time.utc(2026, 4, 25, 16, 5, 0)
+      )
     )
 
     expect(repository.outgoing(server_id: "456", source_user_id: "321", score_version: "harassment-score-v1")).to eq([edge])
@@ -82,8 +82,8 @@ describe Harassment::Repositories::PostgresRelationshipEdgeRepository do
         server_id: "456",
         source_user_id: "321",
         target_user_id: "654",
-        score_version: "harassment-score-v1",
-      ),
+        score_version: "harassment-score-v1"
+      )
     ).to be_nil
   end
 end

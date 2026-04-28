@@ -19,7 +19,7 @@ module Harassment
         instructions: @instructions,
         prompt: classifier_input(event, context: context),
         schema_name: @schema_name,
-        schema: @response_schema,
+        schema: @response_schema
       )
 
       payload = parse_response_payload(response)
@@ -34,7 +34,7 @@ module Harassment
         classification: classification,
         severity_score: severity_score,
         confidence: confidence,
-        classified_at: classified_at,
+        classified_at: classified_at
       )
     end
 
@@ -42,7 +42,7 @@ module Harassment
       super.merge(
         model_version: @model,
         prompt_version: @prompt_version,
-        schema_name: @schema_name,
+        schema_name: @schema_name
       )
     end
 
@@ -56,10 +56,10 @@ module Harassment
           timestamp: event.timestamp.iso8601,
           content: event.raw_content,
           author_label: participant_labels.fetch(event.author_id, "author"),
-          target_labels: event.target_user_ids.map { |target_user_id| participant_labels.fetch(target_user_id, "target") },
+          target_labels: event.target_user_ids.map { |target_user_id| participant_labels.fetch(target_user_id, "target") }
         },
         recent_channel_messages: Array((context || {})[:recent_channel_messages]),
-        recent_pair_interactions: Array((context || {})[:recent_pair_interactions]),
+        recent_pair_interactions: Array((context || {})[:recent_pair_interactions])
       }.to_json
     end
 
@@ -78,13 +78,13 @@ module Harassment
       classification = {
         intent: payload.fetch(:intent),
         target_type: payload.fetch(:target_type),
-        toxicity_dimensions: output_hash(payload.fetch(:toxicity_dimensions), "toxicity_dimensions"),
+        toxicity_dimensions: output_hash(payload.fetch(:toxicity_dimensions), "toxicity_dimensions")
       }
 
       [
         classification,
         bounded_output_float(payload.fetch(:severity_score), "severity_score"),
-        bounded_output_float(payload.fetch(:confidence), "confidence"),
+        bounded_output_float(payload.fetch(:confidence), "confidence")
       ]
     rescue KeyError => e
       raise ClassifierOutputError, "Structured harassment classifier output failed validation: missing #{e.key}"

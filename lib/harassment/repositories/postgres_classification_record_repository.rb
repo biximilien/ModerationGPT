@@ -31,8 +31,8 @@ module Harassment
               ON CONFLICT (guild_id, message_id, classifier_version) DO NOTHING
               RETURNING *
             SQL
-            serialize_record(record),
-          ),
+            serialize_record(record)
+          )
         )
         unless row
           raise ArgumentError, "classification record already exists for #{record.server_id}:#{record.message_id}:#{record.classifier_version.value}"
@@ -52,8 +52,8 @@ module Harassment
                 AND classifier_version = $3
               LIMIT 1
             SQL
-            [server_id.to_s, message_id.to_s, normalize_classifier_version(classifier_version)],
-          ),
+            [server_id.to_s, message_id.to_s, normalize_classifier_version(classifier_version)]
+          )
         )
         row ? deserialize_record(row) : nil
       end
@@ -68,8 +68,8 @@ module Harassment
                 AND message_id = $2
               ORDER BY classified_at ASC
             SQL
-            [server_id.to_s, message_id.to_s],
-          ),
+            [server_id.to_s, message_id.to_s]
+          )
         ).map { |row| deserialize_record(row) }
       end
 
@@ -84,8 +84,8 @@ module Harassment
               ORDER BY classified_at DESC
               LIMIT 1
             SQL
-            [server_id.to_s, message_id.to_s],
-          ),
+            [server_id.to_s, message_id.to_s]
+          )
         )
         row ? deserialize_record(row) : nil
       end
@@ -102,7 +102,7 @@ module Harassment
           JSON.generate(record.classification),
           record.severity_score,
           record.confidence,
-          record.classified_at.iso8601(9),
+          record.classified_at.iso8601(9)
         ]
       end
 
@@ -116,7 +116,7 @@ module Harassment
           classification: parse_classification(row.fetch("classification")),
           severity_score: row.fetch("severity_score"),
           confidence: row.fetch("confidence"),
-          classified_at: row.fetch("classified_at"),
+          classified_at: row.fetch("classified_at")
         )
       end
 

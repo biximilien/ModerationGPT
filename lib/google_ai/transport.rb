@@ -10,8 +10,8 @@ module GoogleAI
         provider_name: "Google AI",
         headers: {
           "Content-Type" => "application/json",
-          "x-goog-api-key" => api_key,
-        },
+          "x-goog-api-key" => api_key
+        }
       )
     end
 

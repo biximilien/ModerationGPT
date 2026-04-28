@@ -56,7 +56,7 @@ describe Backend do
       decrement_user_karma(server_id, user_id, 2, reason: "moderation_flag")
 
       expect(get_user_karma_history(server_id, user_id)).to include(
-        hash_including(delta: -2, score: -2, source: "automated_infraction", reason: "moderation_flag"),
+        hash_including(delta: -2, score: -2, source: "automated_infraction", reason: "moderation_flag")
       )
     end
 
@@ -76,7 +76,7 @@ describe Backend do
       increment_user_karma(server_id, user_id, 2, actor_id: 99)
 
       expect(get_user_karma_history(server_id, user_id)).to include(
-        hash_including(delta: 2, score: 2, source: "manual_adjustment", actor_id: 99),
+        hash_including(delta: 2, score: 2, source: "manual_adjustment", actor_id: 99)
       )
     end
 
@@ -100,7 +100,7 @@ describe Backend do
         delta: -3,
         score: 0,
         source: "manual_reset",
-        actor_id: 99,
+        actor_id: 99
       )
     end
 
@@ -118,7 +118,7 @@ describe Backend do
       expect(get_user_karma_history(server_id, user_id).first).to include(
         delta: 0,
         score: -5,
-        source: "automod_timeout_applied",
+        source: "automod_timeout_applied"
       )
     end
 

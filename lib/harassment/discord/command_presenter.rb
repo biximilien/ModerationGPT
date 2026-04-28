@@ -11,7 +11,7 @@ module Harassment
           "Score version: #{report.score_version}",
           "Relationships: #{report.relationship_count}",
           "Signals:",
-          *signal_lines,
+          *signal_lines
         ].join("\n")
       end
 
@@ -24,7 +24,7 @@ module Harassment
           "Hostility: #{format('%.2f', edge.hostility_score)}",
           "Score version: #{report.score_version}",
           "Interactions: #{edge.interaction_count}",
-          "Last seen: #{edge.last_interaction_at.iso8601}",
+          "Last seen: #{edge.last_interaction_at.iso8601}"
         ].join("\n")
       end
 

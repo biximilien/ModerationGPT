@@ -8,7 +8,7 @@ describe Harassment::Repositories::InMemoryClassificationJobRepository do
       server_id: 456,
       message_id: 123,
       classifier_version: "harassment-v1",
-      available_at: Time.utc(2026, 4, 25, 15, 0, 0),
+      available_at: Time.utc(2026, 4, 25, 15, 0, 0)
     )
   end
 
@@ -18,7 +18,7 @@ describe Harassment::Repositories::InMemoryClassificationJobRepository do
       message_id: 124,
       classifier_version: "harassment-v1",
       status: Harassment::ClassificationStatus::FAILED_RETRYABLE,
-      available_at: Time.utc(2026, 4, 25, 15, 5, 0),
+      available_at: Time.utc(2026, 4, 25, 15, 5, 0)
     )
   end
 
@@ -45,16 +45,16 @@ describe Harassment::Repositories::InMemoryClassificationJobRepository do
         server_id: 456,
         message_id: 125,
         classifier_version: "harassment-v1",
-        status: Harassment::ClassificationStatus::CLASSIFIED,
-      ),
+        status: Harassment::ClassificationStatus::CLASSIFIED
+      )
     )
     repository.enqueue_unique(
       Harassment::ClassificationJob.build(
         server_id: 456,
         message_id: 126,
         classifier_version: "harassment-v1",
-        status: Harassment::ClassificationStatus::FAILED_TERMINAL,
-      ),
+        status: Harassment::ClassificationStatus::FAILED_TERMINAL
+      )
     )
 
     expect(repository.due_jobs).to eq([])

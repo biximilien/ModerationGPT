@@ -8,7 +8,7 @@ describe Harassment::Incident do
       channel_id: 789,
       author_id: 321,
       target_user_ids: [654],
-      raw_content: "hello there",
+      raw_content: "hello there"
     )
     record = Harassment::ClassificationRecord.build(
       server_id: 456,
@@ -18,7 +18,7 @@ describe Harassment::Incident do
       prompt_version: "harassment-prompt-v1",
       classification: { intent: "aggressive", target_type: "individual" },
       severity_score: 0.8,
-      confidence: 0.9,
+      confidence: 0.9
     )
 
     incident = described_class.from_event_and_record(event:, record:)

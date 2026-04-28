@@ -127,7 +127,7 @@ module Moderation
         { communication_disabled_until: (Time.now.utc + @timeout_seconds).iso8601 }.to_json,
         Authorization: token,
         content_type: :json,
-        "X-Audit-Log-Reason": reason,
+        "X-Audit-Log-Reason": reason
       )
       true
     end

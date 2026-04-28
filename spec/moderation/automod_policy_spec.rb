@@ -15,7 +15,7 @@ describe Moderation::AutomodPolicy do
       event: "automod_threshold_reached",
       user_hash: Telemetry::Anonymizer.hash(456),
       karma_score: -5,
-      action: "log_only",
+      action: "log_only"
     )
     expect(result).to eq(Moderation::AutomodOutcome::LOG_ONLY)
   end
@@ -44,7 +44,7 @@ describe Moderation::AutomodPolicy do
       event: "automod_skipped_elevated_member",
       user_hash: Telemetry::Anonymizer.hash(456),
       karma_score: -5,
-      action: "timeout",
+      action: "timeout"
     )
   end
 
@@ -65,7 +65,7 @@ describe Moderation::AutomodPolicy do
       kind_of(String),
       Authorization: "discord-token",
       content_type: :json,
-      "X-Audit-Log-Reason": "Automated moderation: karma -5",
+      "X-Audit-Log-Reason": "Automated moderation: karma -5"
     )
     expect(result).to eq(Moderation::AutomodOutcome::TIMEOUT_APPLIED)
   end
@@ -80,7 +80,7 @@ describe Moderation::AutomodPolicy do
       event: "automod_action_unavailable",
       user_hash: Telemetry::Anonymizer.hash(456),
       karma_score: -5,
-      action: "timeout",
+      action: "timeout"
     )
   end
 
@@ -113,7 +113,7 @@ describe Moderation::AutomodPolicy do
       event: "automod_action_unavailable",
       user_hash: Telemetry::Anonymizer.hash(456),
       karma_score: -5,
-      action: "kick",
+      action: "kick"
     )
   end
 
@@ -136,7 +136,7 @@ describe Moderation::AutomodPolicy do
       event: "automod_action_unavailable",
       user_hash: Telemetry::Anonymizer.hash(456),
       karma_score: -5,
-      action: "ban",
+      action: "ban"
     )
   end
 end

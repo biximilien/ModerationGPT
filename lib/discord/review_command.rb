@@ -28,7 +28,7 @@ module Discord
       entries = @store.get_moderation_reviews(
         event.server.id,
         review_limit(match),
-        user_id: match[:user_id],
+        user_id: match[:user_id]
       )
       event.respond(@presenter.list(entries, user_id: match[:user_id]))
     end

@@ -18,7 +18,7 @@ module Harassment
       summary = {
         rebuilt: 0,
         skipped_missing_record: 0,
-        skipped_server_scope: 0,
+        skipped_server_scope: 0
       }
 
       classified_events.each do |event|

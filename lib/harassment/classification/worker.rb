@@ -53,7 +53,7 @@ module Harassment
         event: event,
         classifier_version: job.classifier_version,
         context: classification_context(event),
-        classified_at: as_of,
+        classified_at: as_of
       )
       record = @classification_pipeline.record_success(record)
       @on_success&.call(event:, record:)
@@ -73,7 +73,7 @@ module Harassment
         server_id: job.server_id,
         message_id: job.message_id,
         classifier_version: job.classifier_version,
-        available_at: retry_at,
+        available_at: retry_at
       )
       retry_at
     end
@@ -86,14 +86,14 @@ module Harassment
           message_id: job.message_id,
           classifier_version: job.classifier_version,
           error: error,
-          retry_at: retry_at,
+          retry_at: retry_at
         )
       else
         @classification_pipeline.record_terminal_failure(
           server_id: job.server_id,
           message_id: job.message_id,
           classifier_version: job.classifier_version,
-          error: error,
+          error: error
         )
       end
     end

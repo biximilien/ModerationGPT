@@ -13,7 +13,7 @@ module OpenAI
       response = @transport.query(ENDPOINT, {
                                     model: Environment.openai_rewrite_model,
                                     instructions: instructions,
-                                    input: text,
+                                    input: text
                                   }, user)
 
       ResponseParser.text(response)

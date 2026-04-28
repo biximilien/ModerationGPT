@@ -36,7 +36,7 @@ describe Harassment::WorkerRunner do
     expect($logger).to have_received(:error).with(
       event: "harassment_worker_failed",
       error_class: "StandardError",
-      error_message: "boom",
+      error_message: "boom"
     )
   end
 end

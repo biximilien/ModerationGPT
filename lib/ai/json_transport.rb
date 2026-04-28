@@ -57,7 +57,7 @@ module ModerationGPT
           "net.peer.name" => uri.host,
           "net.peer.port" => uri.port,
           "discord.user.hash" => anonymized_user_hash(user),
-          "discord.user.bot_account" => user&.bot_account,
+          "discord.user.bot_account" => user&.bot_account
         }
       end
 

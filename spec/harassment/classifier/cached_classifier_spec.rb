@@ -6,7 +6,7 @@ describe Harassment::CachedClassifier do
     described_class.new(
       delegate: delegate,
       cache_repository: cache_repository,
-      ttl_seconds: 3_600,
+      ttl_seconds: 3_600
     )
   end
 
@@ -19,14 +19,14 @@ describe Harassment::CachedClassifier do
       channel_id: 789,
       author_id: 321,
       target_user_ids: [654],
-      raw_content: "leave them alone",
+      raw_content: "leave them alone"
     )
   end
   let(:context) do
     {
       participant_labels: { "321" => "author", "654" => "target_1" },
       recent_channel_messages: [{ author_label: "target_1", content: "please stop" }],
-      recent_pair_interactions: [],
+      recent_pair_interactions: []
     }
   end
   let(:record) do
@@ -39,7 +39,7 @@ describe Harassment::CachedClassifier do
       classification: { intent: "aggressive", target_type: "individual", toxicity_dimensions: {} },
       severity_score: 0.8,
       confidence: 0.9,
-      classified_at: Time.utc(2026, 4, 25, 18, 0, 0),
+      classified_at: Time.utc(2026, 4, 25, 18, 0, 0)
     )
   end
 
@@ -51,14 +51,14 @@ describe Harassment::CachedClassifier do
       event: event,
       classifier_version: "harassment-v1",
       context: context,
-      classified_at: Time.utc(2026, 4, 25, 18, 0, 0),
+      classified_at: Time.utc(2026, 4, 25, 18, 0, 0)
     )
     second_event = event.with(message_id: "124")
     second = classifier.classify(
       event: second_event,
       classifier_version: "harassment-v1",
       context: context,
-      classified_at: Time.utc(2026, 4, 25, 18, 1, 0),
+      classified_at: Time.utc(2026, 4, 25, 18, 1, 0)
     )
 
     expect(first).to eq(record)
@@ -73,13 +73,13 @@ describe Harassment::CachedClassifier do
       event: event,
       classifier_version: "harassment-v1",
       context: context,
-      classified_at: Time.utc(2026, 4, 25, 18, 0, 0),
+      classified_at: Time.utc(2026, 4, 25, 18, 0, 0)
     )
     classifier.classify(
       event: event.with(server_id: "999"),
       classifier_version: "harassment-v1",
       context: context,
-      classified_at: Time.utc(2026, 4, 25, 18, 1, 0),
+      classified_at: Time.utc(2026, 4, 25, 18, 1, 0)
     )
 
     expect(delegate).to have_received(:classify).twice

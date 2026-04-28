@@ -9,7 +9,7 @@ module Harassment
     :hostility_score,
     :positive_score,
     :interaction_count,
-    :last_interaction_at,
+    :last_interaction_at
   ) do
     def self.build(
       server_id:,
@@ -29,7 +29,7 @@ module Harassment
         hostility_score: non_negative_float!(hostility_score, "hostility_score"),
         positive_score: non_negative_float!(positive_score, "positive_score"),
         interaction_count: non_negative_integer!(interaction_count, "interaction_count"),
-        last_interaction_at: optional_time(last_interaction_at, "last_interaction_at"),
+        last_interaction_at: optional_time(last_interaction_at, "last_interaction_at")
       )
     end
 
@@ -42,7 +42,7 @@ module Harassment
         hostility_score: decay_policy.decay(hostility_score, from: last_interaction_at, to: as_of),
         positive_score: decay_policy.decay(positive_score, from: last_interaction_at, to: as_of),
         interaction_count: interaction_count,
-        last_interaction_at: last_interaction_at,
+        last_interaction_at: last_interaction_at
       )
     end
 

@@ -53,7 +53,7 @@ module Harassment
           classifier_version: job.classifier_version.value,
           available_at: job.available_at.iso8601(9),
           enqueued_at: job.enqueued_at.iso8601(9),
-          updated_at: job.updated_at.iso8601(9),
+          updated_at: job.updated_at.iso8601(9)
         )
       end
 

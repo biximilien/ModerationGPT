@@ -8,7 +8,7 @@ describe ModerationGPT::RuntimeBuilder do
       boot: nil,
       commands: [],
       find_plugin: nil,
-      moderation_strategies: [],
+      moderation_strategies: []
     )
   end
   let(:bot) { instance_double("DiscordBot") }

@@ -9,7 +9,7 @@ describe Harassment::Runtime do
       connection: connection,
       classifier_version: "harassment-v1",
       classifier: classifier,
-      on_classification: ->(event:, record:) { recorded << [event, record] },
+      on_classification: ->(event:, record:) { recorded << [event, record] }
     )
   end
 
@@ -24,7 +24,7 @@ describe Harassment::Runtime do
       id: 123,
       content: "hello there",
       timestamp: Time.utc(2026, 4, 25, 16, 0, 0),
-      mentions: [mentioned_user],
+      mentions: [mentioned_user]
     )
   end
   let(:server) { instance_double("Server", id: 456) }
@@ -48,12 +48,12 @@ describe Harassment::Runtime do
           threat: false,
           profanity: false,
           exclusion: true,
-          harassment: true,
-        },
+          harassment: true
+        }
       },
       severity_score: 0.8,
       confidence: 0.5,
-      classified_at: Time.utc(2026, 4, 25, 16, 1, 0),
+      classified_at: Time.utc(2026, 4, 25, 16, 1, 0)
     )
   end
 
@@ -102,7 +102,7 @@ describe Harassment::Runtime do
         storage_backend: "postgres",
         classifier_version: "harassment-v1",
         classifier: classifier,
-        on_classification: ->(event:, record:) { recorded << [event, record] },
+        on_classification: ->(event:, record:) { recorded << [event, record] }
       )
     end
 

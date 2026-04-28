@@ -15,7 +15,7 @@ describe Harassment::IncidentCollection do
       target_type: "individual",
       severity_score: 0.8,
       confidence: 0.5,
-      classified_at: Time.utc(2026, 4, 25, 16, 0, 0),
+      classified_at: Time.utc(2026, 4, 25, 16, 0, 0)
     )
   end
 
@@ -30,7 +30,7 @@ describe Harassment::IncidentCollection do
       target_type: "individual",
       severity_score: 0.5,
       confidence: 0.6,
-      classified_at: Time.utc(2026, 4, 25, 16, 5, 0),
+      classified_at: Time.utc(2026, 4, 25, 16, 5, 0)
     )
   end
 
@@ -38,7 +38,7 @@ describe Harassment::IncidentCollection do
     older_incident.with(
       message_id: "125",
       channel_id: "790",
-      classified_at: Time.utc(2026, 4, 25, 16, 10, 0),
+      classified_at: Time.utc(2026, 4, 25, 16, 10, 0)
     )
   end
 
@@ -54,7 +54,7 @@ describe Harassment::IncidentCollection do
       server_id: "456",
       channel_id: "789",
       user_id: "321",
-      since: Time.utc(2026, 4, 25, 16, 1, 0),
+      since: Time.utc(2026, 4, 25, 16, 1, 0)
     )
 
     expect(incidents.map(&:message_id)).to eq(["124"])

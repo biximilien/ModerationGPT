@@ -13,7 +13,7 @@ module Harassment
     :target_type,
     :severity_score,
     :confidence,
-    :classified_at,
+    :classified_at
   ) do
     def self.from_event_and_record(event:, record:)
       new(
@@ -26,7 +26,7 @@ module Harassment
         target_type: record.classification[:target_type],
         severity_score: record.severity_score,
         confidence: record.confidence,
-        classified_at: record.classified_at,
+        classified_at: record.classified_at
       )
     end
   end

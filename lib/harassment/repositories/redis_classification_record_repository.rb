@@ -45,7 +45,7 @@ module Harassment
       def serialize_record(record)
         record.to_h.merge(
           classifier_version: record.classifier_version.value,
-          classified_at: record.classified_at.iso8601(9),
+          classified_at: record.classified_at.iso8601(9)
         )
       end
 

@@ -22,7 +22,7 @@ module ModerationGPT
           app: app,
           plugin_registry: plugin_registry,
           score_version: Harassment::ScoreDefinition::VERSION,
-          current_read_model: @classification_service.read_model,
+          current_read_model: @classification_service.read_model
         ).build
         configure_runtime(**configured)
       end

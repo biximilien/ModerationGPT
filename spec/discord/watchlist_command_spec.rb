@@ -8,7 +8,7 @@ describe Discord::WatchlistCommand do
       "Store",
       get_watch_list_users: [456],
       add_user_to_watch_list: true,
-      remove_user_from_watch_list: true,
+      remove_user_from_watch_list: true
     )
   end
   let(:server) { instance_double("Server", id: 123) }

@@ -31,7 +31,7 @@ describe ModerationGPT::Application do
       moderate_text: :moderation,
       moderation_rewrite: "Please stop.",
       query: { "ok" => true },
-      response_text: "text",
+      response_text: "text"
     )
     app = described_class.new(ai_provider: provider)
 

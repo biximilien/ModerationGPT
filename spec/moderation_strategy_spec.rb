@@ -15,7 +15,7 @@ describe "moderation strategy result caching" do
       moderation_result: true,
       infraction: true,
       automod_outcome: true,
-      rewrite_instructions: nil,
+      rewrite_instructions: nil
     )
   end
 

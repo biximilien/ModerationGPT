@@ -26,17 +26,17 @@ module Harassment
       factory = RepositoryFactory.new(
         backend: storage_backend,
         redis: @app.redis,
-        connection: @storage_config.database_connection,
+        connection: @storage_config.database_connection
       )
       read_model = build_read_model(factory)
       incident_query = IncidentQuery.new(
         interaction_events: factory.interaction_events,
-        classification_records: factory.classification_records,
+        classification_records: factory.classification_records
       )
 
       {
         read_model: read_model,
-        query_service: QueryService.new(read_model:, incident_query:),
+        query_service: QueryService.new(read_model:, incident_query:)
       }
     end
 
@@ -47,7 +47,7 @@ module Harassment
 
       ReadModel.new(
         score_version: @score_version,
-        edge_repository: factory.relationship_edges,
+        edge_repository: factory.relationship_edges
       )
     end
 

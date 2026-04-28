@@ -5,12 +5,12 @@ module ModerationGPT
       PROVIDERS = {
         "openai" => {
           api_key_variable: "OPENAI_API_KEY",
-          classifier_model: "gpt-4o-2024-08-06",
+          classifier_model: "gpt-4o-2024-08-06"
         },
         "google_ai" => {
           api_key_variable: "GOOGLE_AI_API_KEY",
-          classifier_model: -> { Environment.google_ai_model },
-        },
+          classifier_model: -> { Environment.google_ai_model }
+        }
       }.freeze
 
       def initialize(enabled_plugins:)

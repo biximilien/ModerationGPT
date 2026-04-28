@@ -11,7 +11,7 @@ module Harassment
     :classification,
     :severity_score,
     :confidence,
-    :classified_at,
+    :classified_at
   ) do
     def self.build(
       server_id:,
@@ -33,7 +33,7 @@ module Harassment
         classification: hash!(classification, "classification"),
         severity_score: bounded_float!(severity_score, "severity_score"),
         confidence: bounded_float!(confidence, "confidence"),
-        classified_at: time!(classified_at, "classified_at"),
+        classified_at: time!(classified_at, "classified_at")
       )
     end
 

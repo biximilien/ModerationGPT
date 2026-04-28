@@ -8,7 +8,7 @@ module Harassment
       persistence: 0.2,
       burst_intensity: 0.2,
       target_concentration: 0.15,
-      average_severity: 0.15,
+      average_severity: 0.15
     }.freeze
 
     def initialize(read_model:, incident_query: read_model)
@@ -26,14 +26,14 @@ module Harassment
         persistence: persistence_score(incidents:, as_of:),
         burst_intensity: burst_intensity_score(incidents:, as_of:),
         target_concentration: target_concentration_score(incidents:),
-        average_severity: average_severity_score(incidents:),
+        average_severity: average_severity_score(incidents:)
       }
 
       {
         score_version: outgoing_edges.first&.score_version || incoming_edges.first&.score_version || read_model_score_version,
         signals: signals,
         harassment_score: weighted_score(signals),
-        relationship_count: outgoing_edges.length,
+        relationship_count: outgoing_edges.length
       }
     end
 
@@ -95,7 +95,7 @@ module Harassment
 
     def weighted_score(signals)
       clamp01(
-        signals.sum { |signal, value| WEIGHTS.fetch(signal) * value },
+        signals.sum { |signal, value| WEIGHTS.fetch(signal) * value }
       )
     end
 

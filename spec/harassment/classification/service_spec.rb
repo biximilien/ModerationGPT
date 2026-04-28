@@ -10,7 +10,7 @@ describe Harassment::ClassificationService do
       channel_id: 789,
       author_id: 321,
       target_user_ids: [654],
-      raw_content: "hello there",
+      raw_content: "hello there"
     )
   end
   let(:record) do
@@ -23,7 +23,7 @@ describe Harassment::ClassificationService do
       classification: { intent: "aggressive", target_type: "individual" },
       severity_score: 0.8,
       confidence: 0.5,
-      classified_at: Time.utc(2026, 4, 25, 16, 0, 0),
+      classified_at: Time.utc(2026, 4, 25, 16, 0, 0)
     )
   end
 

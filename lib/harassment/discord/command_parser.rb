@@ -4,7 +4,7 @@ module Harassment
       WINDOW_ALIASES = {
         "1h" => 60 * 60,
         "24h" => 24 * 60 * 60,
-        "7d" => 7 * 24 * 60 * 60,
+        "7d" => 7 * 24 * 60 * 60
       }.freeze
       INCIDENTS_PREFIX = "!moderation harassment incidents".freeze
       RISK_PATTERN = /\A!moderation harassment risk <@!?(?<user_id>\d+)>\s*\z/i

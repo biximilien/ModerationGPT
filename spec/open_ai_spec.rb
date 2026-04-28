@@ -22,9 +22,9 @@ describe OpenAI do
           {
             "flagged" => true,
             "categories" => { "harassment" => true },
-            "category_scores" => { "harassment" => 0.98 },
-          },
-        ],
+            "category_scores" => { "harassment" => 0.98 }
+          }
+        ]
       )
 
       result = moderate_text("you are awful")
@@ -50,7 +50,7 @@ describe OpenAI do
       expect(self).to have_received(:query).with(
         "https://api.openai.com/v1/responses",
         hash_including(instructions: "Use this voice."),
-        nil,
+        nil
       )
     end
 
@@ -59,10 +59,10 @@ describe OpenAI do
         "output" => [
           {
             "content" => [
-              { "type" => "output_text", "text" => "Please reconsider this." },
-            ],
-          },
-        ],
+              { "type" => "output_text", "text" => "Please reconsider this." }
+            ]
+          }
+        ]
       }
 
       expect(response_text(response)).to eq("Please reconsider this.")
@@ -78,7 +78,7 @@ describe OpenAI do
         schema: { type: "object" },
         model: "gpt-test",
         instructions: "Return JSON.",
-        schema_name: "test_schema",
+        schema_name: "test_schema"
       )
 
       expect(self).to have_received(:query).with(
@@ -92,11 +92,11 @@ describe OpenAI do
               type: "json_schema",
               name: "test_schema",
               strict: true,
-              schema: { type: "object" },
-            },
-          },
+              schema: { type: "object" }
+            }
+          }
         ),
-        nil,
+        nil
       )
     end
   end

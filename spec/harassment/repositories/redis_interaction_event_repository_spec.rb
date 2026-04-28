@@ -12,7 +12,7 @@ describe Harassment::Repositories::RedisInteractionEventRepository do
       channel_id: 789,
       author_id: 321,
       timestamp: Time.utc(2026, 4, 25, 12, 0, 0),
-      raw_content: "hello there",
+      raw_content: "hello there"
     )
   end
 
@@ -34,7 +34,7 @@ describe Harassment::Repositories::RedisInteractionEventRepository do
       server_id: 999,
       channel_id: 789,
       author_id: 321,
-      raw_content: "other server",
+      raw_content: "other server"
     )
     repository.save(event)
     repository.save(other_server_event)
@@ -65,20 +65,20 @@ describe Harassment::Repositories::RedisInteractionEventRepository do
         target_user_ids: [321],
         timestamp: Time.utc(2026, 4, 25, 12, 5, 0),
         raw_content: "later message",
-        content_retention_expires_at: Time.utc(2026, 4, 26, 12, 0, 0),
-      ),
+        content_retention_expires_at: Time.utc(2026, 4, 26, 12, 0, 0)
+      )
     )
 
     expect(
-      repository.recent_in_channel(server_id: "456", channel_id: "789", before: Time.utc(2026, 4, 25, 12, 6, 0), limit: 5).map(&:message_id),
+      repository.recent_in_channel(server_id: "456", channel_id: "789", before: Time.utc(2026, 4, 25, 12, 6, 0), limit: 5).map(&:message_id)
     ).to eq(%w[123 124])
     expect(
       repository.recent_between_participants(
         server_id: "456",
         participant_ids: %w[321 654],
         before: Time.utc(2026, 4, 25, 12, 6, 0),
-        limit: 5,
-      ).map(&:message_id),
+        limit: 5
+      ).map(&:message_id)
     ).to eq(%w[123 124])
     expect(repository.list_by_classification_status(Harassment::ClassificationStatus::PENDING).map(&:message_id)).to eq(%w[123 124])
     expect(repository.list_with_expired_content(as_of: Time.utc(2026, 4, 27, 12, 0, 0)).map(&:message_id)).to eq(["124"])

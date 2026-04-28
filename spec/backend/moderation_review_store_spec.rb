@@ -22,7 +22,7 @@ describe Backend::ModerationReviewStore do
       action: "removed",
       shadow_mode: false,
       flagged: true,
-      categories: { "harassment" => true },
+      categories: { "harassment" => true }
     )
 
     expect(get_moderation_reviews(server_id)).to include(
@@ -36,8 +36,8 @@ describe Backend::ModerationReviewStore do
         action: "removed",
         shadow_mode: false,
         flagged: true,
-        categories: { harassment: true },
-      ),
+        categories: { harassment: true }
+      )
     )
   end
 

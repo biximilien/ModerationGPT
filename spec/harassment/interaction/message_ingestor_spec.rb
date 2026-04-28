@@ -8,7 +8,7 @@ describe Harassment::MessageIngestor do
     described_class.new(
       interaction_events: interaction_events,
       classification_pipeline: classification_pipeline,
-      classifier_version: "harassment-v1",
+      classifier_version: "harassment-v1"
     )
   end
 
@@ -19,7 +19,7 @@ describe Harassment::MessageIngestor do
     Harassment::ClassificationPipeline.new(
       interaction_events: interaction_events,
       classification_records: classification_records,
-      classification_jobs: classification_jobs,
+      classification_jobs: classification_jobs
     )
   end
 
@@ -31,7 +31,7 @@ describe Harassment::MessageIngestor do
       id: 123,
       content: "hello there",
       timestamp: Time.utc(2026, 4, 25, 17, 0, 0),
-      mentions: [mentioned_user],
+      mentions: [mentioned_user]
     )
   end
   let(:server) { instance_double("Server", id: 456) }

@@ -24,7 +24,7 @@ describe RemoveMessageStrategy do
       moderation_result: true,
       infraction: true,
       automod_outcome: true,
-      rewrite_instructions: nil,
+      rewrite_instructions: nil
     )
   end
 
@@ -42,7 +42,7 @@ describe RemoveMessageStrategy do
       event: event,
       result: result,
       app: bot,
-      strategy: "RemoveMessageStrategy",
+      strategy: "RemoveMessageStrategy"
     )
   end
 
@@ -57,7 +57,7 @@ describe RemoveMessageStrategy do
       event: event,
       score: -1,
       app: bot,
-      strategy: "RemoveMessageStrategy",
+      strategy: "RemoveMessageStrategy"
     )
   end
 
@@ -81,8 +81,8 @@ describe RemoveMessageStrategy do
         action: Moderation::ReviewAction::REMOVED,
         shadow_mode: false,
         flagged: true,
-        categories: { "harassment" => true },
-      ),
+        categories: { "harassment" => true }
+      )
     )
   end
 
@@ -135,14 +135,14 @@ describe RemoveMessageStrategy do
       123,
       456,
       score: -5,
-      source: Moderation::AutomodOutcome::TIMEOUT_APPLIED,
+      source: Moderation::AutomodOutcome::TIMEOUT_APPLIED
     )
     expect(plugin_registry).to have_received(:automod_outcome).with(
       event: event,
       score: -5,
       outcome: Moderation::AutomodOutcome::TIMEOUT_APPLIED,
       app: bot,
-      strategy: "RemoveMessageStrategy",
+      strategy: "RemoveMessageStrategy"
     )
   end
 

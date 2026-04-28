@@ -16,29 +16,29 @@ module Harassment
       properties: {
         intent: {
           type: "string",
-          enum: INTENTS,
+          enum: INTENTS
         },
         target_type: {
           type: "string",
-          enum: TARGET_TYPES,
+          enum: TARGET_TYPES
         },
         toxicity_dimensions: {
           type: "object",
           additionalProperties: false,
           required: TOXICITY_DIMENSIONS,
-          properties: TOXICITY_DIMENSIONS.to_h { |dimension| [dimension, { type: "boolean" }] },
+          properties: TOXICITY_DIMENSIONS.to_h { |dimension| [dimension, { type: "boolean" }] }
         },
         severity_score: {
           type: "number",
           minimum: 0.0,
-          maximum: 1.0,
+          maximum: 1.0
         },
         confidence: {
           type: "number",
           minimum: 0.0,
-          maximum: 1.0,
-        },
-      },
+          maximum: 1.0
+        }
+      }
     }.freeze
     INSTRUCTIONS = <<~TEXT.freeze
       Classify a Discord moderation event for harassment analysis.
@@ -68,7 +68,7 @@ module Harassment
         instructions: INSTRUCTIONS,
         schema_name: SCHEMA_NAME,
         response_schema: RESPONSE_SCHEMA,
-        prompt_version: prompt_version,
+        prompt_version: prompt_version
       )
     end
   end

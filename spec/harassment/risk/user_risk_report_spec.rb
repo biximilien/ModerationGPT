@@ -8,7 +8,7 @@ describe Harassment::UserRiskReport do
       score_version: "harassment-score-v1",
       risk_score: 0.4,
       relationship_count: 2,
-      signals: { asymmetry: 0.3 },
+      signals: { asymmetry: 0.3 }
     )
 
     expect(report.server_id).to eq("456")

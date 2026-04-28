@@ -17,7 +17,7 @@ module Harassment
         {
           interaction_events: spot_check_interaction_events(limit:),
           classification_records: spot_check_classification_records(limit:),
-          classification_jobs: spot_check_classification_jobs(limit:),
+          classification_jobs: spot_check_classification_jobs(limit:)
         }
       end
 
@@ -28,25 +28,25 @@ module Harassment
         build_spot_check_summary(source_events) do |data|
           postgres_event = @interaction_event_repository.find(
             data.fetch("message_id"),
-            server_id: data.fetch("server_id"),
+            server_id: data.fetch("server_id")
           )
           next [false, { message_id: data.fetch("message_id").to_s, reason: "missing" }] unless postgres_event
 
           expected = {
             server_id: data.fetch("server_id").to_s,
             classification_status: data.fetch("classification_status").to_s,
-            raw_content: data.fetch("raw_content").to_s,
+            raw_content: data.fetch("raw_content").to_s
           }
           actual = {
             server_id: postgres_event.server_id,
             classification_status: postgres_event.classification_status,
-            raw_content: postgres_event.raw_content,
+            raw_content: postgres_event.raw_content
           }
 
           compare_record(
             identifier: { message_id: data.fetch("message_id").to_s },
             expected:,
-            actual:,
+            actual:
           )
         end
       end
@@ -57,12 +57,12 @@ module Harassment
           postgres_record = @classification_record_repository.find(
             server_id: data.fetch("server_id"),
             message_id: data.fetch("message_id"),
-            classifier_version: data.fetch("classifier_version"),
+            classifier_version: data.fetch("classifier_version")
           )
           identifier = {
             server_id: data.fetch("server_id").to_s,
             message_id: data.fetch("message_id").to_s,
-            classifier_version: data.fetch("classifier_version").to_s,
+            classifier_version: data.fetch("classifier_version").to_s
           }
           next [false, identifier.merge(reason: "missing")] unless postgres_record
 
@@ -70,13 +70,13 @@ module Harassment
             model_version: data.fetch("model_version").to_s,
             prompt_version: data.fetch("prompt_version").to_s,
             severity_score: data.fetch("severity_score").to_f,
-            confidence: data.fetch("confidence").to_f,
+            confidence: data.fetch("confidence").to_f
           }
           actual = {
             model_version: postgres_record.model_version,
             prompt_version: postgres_record.prompt_version,
             severity_score: postgres_record.severity_score,
-            confidence: postgres_record.confidence,
+            confidence: postgres_record.confidence
           }
 
           compare_record(identifier:, expected:, actual:)
@@ -89,22 +89,22 @@ module Harassment
           postgres_job = @classification_job_repository.find(
             server_id: data.fetch("server_id"),
             message_id: data.fetch("message_id"),
-            classifier_version: data.fetch("classifier_version"),
+            classifier_version: data.fetch("classifier_version")
           )
           identifier = {
             server_id: data.fetch("server_id").to_s,
             message_id: data.fetch("message_id").to_s,
-            classifier_version: data.fetch("classifier_version").to_s,
+            classifier_version: data.fetch("classifier_version").to_s
           }
           next [false, identifier.merge(reason: "missing")] unless postgres_job
 
           expected = {
             status: data.fetch("status").to_s,
-            attempt_count: data.fetch("attempt_count").to_i,
+            attempt_count: data.fetch("attempt_count").to_i
           }
           actual = {
             status: postgres_job.status,
-            attempt_count: postgres_job.attempt_count,
+            attempt_count: postgres_job.attempt_count
           }
 
           compare_record(identifier:, expected:, actual:)

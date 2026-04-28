@@ -68,7 +68,7 @@ module Logging
   def base_payload(severity, time, msg)
     payload = {
       "timestamp" => time.utc.iso8601,
-      "level" => severity.downcase,
+      "level" => severity.downcase
     }
 
     case msg

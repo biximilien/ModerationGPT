@@ -13,7 +13,7 @@ module Harassment
     :last_error_class,
     :last_error_message,
     :enqueued_at,
-    :updated_at,
+    :updated_at
   ) do
     def self.build(
       server_id:,
@@ -37,7 +37,7 @@ module Harassment
         last_error_class: optional_string(last_error_class),
         last_error_message: optional_string(last_error_message),
         enqueued_at: time!(enqueued_at, "enqueued_at"),
-        updated_at: time!(updated_at, "updated_at"),
+        updated_at: time!(updated_at, "updated_at")
       )
     end
 
@@ -48,7 +48,7 @@ module Harassment
         available_at: available_at,
         last_error_class: last_error_class,
         last_error_message: last_error_message,
-        updated_at: updated_at,
+        updated_at: updated_at
       )
     end
 
@@ -56,7 +56,7 @@ module Harassment
       self.class.build(
         **to_h,
         attempt_count: attempt_count + 1,
-        updated_at: updated_at,
+        updated_at: updated_at
       )
     end
 

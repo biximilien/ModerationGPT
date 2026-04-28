@@ -14,7 +14,7 @@ describe Logging do
       expect(payload).to include(
         "level" => "info",
         "event" => "test_event",
-        "value" => 3,
+        "value" => 3
       )
       expect(payload).to have_key("timestamp")
     end

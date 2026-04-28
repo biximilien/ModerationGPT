@@ -11,7 +11,7 @@ describe Harassment::Repositories::InMemoryRelationshipEdgeRepository do
       score_version: "harassment-score-v1",
       hostility_score: 0.4,
       interaction_count: 1,
-      last_interaction_at: Time.utc(2026, 4, 25, 16, 0, 0),
+      last_interaction_at: Time.utc(2026, 4, 25, 16, 0, 0)
     )
   end
 
@@ -23,8 +23,8 @@ describe Harassment::Repositories::InMemoryRelationshipEdgeRepository do
         server_id: "456",
         source_user_id: "321",
         target_user_id: "654",
-        score_version: "harassment-score-v1",
-      ),
+        score_version: "harassment-score-v1"
+      )
     ).to eq(edge)
   end
 
@@ -38,8 +38,8 @@ describe Harassment::Repositories::InMemoryRelationshipEdgeRepository do
         server_id: "456",
         source_user_id: "321",
         target_user_id: "654",
-        score_version: "harassment-score-v1",
-      ),
+        score_version: "harassment-score-v1"
+      )
     ).to be_nil
   end
 end

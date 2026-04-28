@@ -38,11 +38,11 @@ module OpenAI
             type: "json_schema",
             name: schema_name || "structured_output",
             strict: true,
-            schema: schema,
-          },
-        },
+            schema: schema
+          }
+        }
       },
-      user,
+      user
     )
   end
 

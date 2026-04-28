@@ -15,7 +15,7 @@ describe Harassment::CompositeSignalAnalyzer do
       channel_id: channel_id,
       author_id: author_id,
       target_user_ids: target_user_ids,
-      raw_content: "message #{message_id}",
+      raw_content: "message #{message_id}"
     )
     record = Harassment::ClassificationRecord.build(
       server_id: "456",
@@ -26,7 +26,7 @@ describe Harassment::CompositeSignalAnalyzer do
       classification: { intent: "aggressive", target_type: "individual" },
       severity_score: severity_score,
       confidence: confidence,
-      classified_at: classified_at,
+      classified_at: classified_at
     )
     read_model.ingest(event:, record:)
   end

@@ -19,19 +19,19 @@ module Harassment
             server_id: event.server_id,
             channel_id: event.channel_id,
             before: event.timestamp,
-            limit: @channel_limit,
+            limit: @channel_limit
           ),
-          participant_labels: participant_labels,
+          participant_labels: participant_labels
         ),
         recent_pair_interactions: serialize_events(
           @interaction_events.recent_between_participants(
             server_id: event.server_id,
             participant_ids: [event.author_id, *event.target_user_ids],
             before: event.timestamp,
-            limit: @pair_limit,
+            limit: @pair_limit
           ),
-          participant_labels: participant_labels,
-        ),
+          participant_labels: participant_labels
+        )
       }
     end
 
@@ -54,7 +54,7 @@ module Harassment
           timestamp: context_event.timestamp.iso8601,
           author_label: participant_label(context_event.author_id, participant_labels),
           target_labels: context_event.target_user_ids.map { |target_user_id| participant_label(target_user_id, participant_labels) },
-          content: context_event.raw_content,
+          content: context_event.raw_content
         }
       end
     end

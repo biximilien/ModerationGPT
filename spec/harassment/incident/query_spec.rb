@@ -6,7 +6,7 @@ describe Harassment::IncidentQuery do
   subject(:query) do
     described_class.new(
       interaction_events: interaction_events,
-      classification_records: classification_records,
+      classification_records: classification_records
     )
   end
 
@@ -24,8 +24,8 @@ describe Harassment::IncidentQuery do
         target_user_ids: [654],
         raw_content: "hello there",
         classification_status: Harassment::ClassificationStatus::CLASSIFIED,
-        timestamp: Time.utc(2026, 4, 25, 16, 0, 0),
-      ),
+        timestamp: Time.utc(2026, 4, 25, 16, 0, 0)
+      )
     )
     classification_records.save(
       Harassment::ClassificationRecord.build(
@@ -37,8 +37,8 @@ describe Harassment::IncidentQuery do
         classification: { intent: "aggressive", target_type: "individual" },
         severity_score: 0.8,
         confidence: 0.5,
-        classified_at: Time.utc(2026, 4, 25, 16, 0, 5),
-      ),
+        classified_at: Time.utc(2026, 4, 25, 16, 0, 5)
+      )
     )
   end
 
@@ -66,8 +66,8 @@ describe Harassment::IncidentQuery do
         target_user_ids: [999],
         raw_content: "missing record",
         classification_status: Harassment::ClassificationStatus::CLASSIFIED,
-        timestamp: Time.utc(2026, 4, 25, 16, 1, 0),
-      ),
+        timestamp: Time.utc(2026, 4, 25, 16, 1, 0)
+      )
     )
 
     incidents = query.recent_incidents("456", "789")
@@ -89,7 +89,7 @@ describe Harassment::IncidentQuery do
       channel_id: "789",
       author_id: nil,
       since: Time.utc(2026, 4, 25, 15, 0, 0),
-      limit: nil,
+      limit: nil
     )
   end
 end

@@ -25,7 +25,7 @@ describe ModerationGPT::Plugins::PostgresPlugin do
 
     expect { described_class.new.database_connection }.to raise_error(
       RuntimeError,
-      "DATABASE_URL is required when postgres plugin is enabled",
+      "DATABASE_URL is required when postgres plugin is enabled"
     )
   end
 end

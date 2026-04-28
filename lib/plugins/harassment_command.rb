@@ -10,7 +10,7 @@ module ModerationGPT
         "!moderation harassment incidents [limit]",
         "!moderation harassment incidents @user [limit]",
         "!moderation harassment incidents 24h [limit]",
-        "!moderation harassment incidents @user 24h [limit]",
+        "!moderation harassment incidents @user 24h [limit]"
       ].freeze
       MAX_INCIDENT_LIMIT = 5
       DEFAULT_INCIDENT_LIMIT = 3

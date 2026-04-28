@@ -12,7 +12,7 @@ end
 
 factory = Harassment::RepositoryFactory.new(
   backend: "postgres",
-  connection: postgres_plugin.database_connection,
+  connection: postgres_plugin.database_connection
 )
 server_id = ARGV[0]
 
@@ -21,7 +21,7 @@ rebuilder = Harassment::RelationshipEdgeRebuilder.new(
   classification_records: factory.classification_records,
   relationship_edges: factory.relationship_edges,
   score_version: Harassment::ScoreDefinition::VERSION,
-  server_id: server_id,
+  server_id: server_id
 )
 
 summary = rebuilder.run

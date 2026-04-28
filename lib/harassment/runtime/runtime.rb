@@ -39,12 +39,12 @@ module Harassment
       @classification_pipeline = ClassificationPipeline.new(
         interaction_events: @interaction_events,
         classification_records: @classification_records,
-        classification_jobs: @classification_jobs,
+        classification_jobs: @classification_jobs
       )
       @message_ingestor = MessageIngestor.new(
         interaction_events: @interaction_events,
         classification_pipeline: @classification_pipeline,
-        classifier_version: @classifier_version,
+        classifier_version: @classifier_version
       )
       @context_assembler = ContextAssembler.new(interaction_events: @interaction_events)
       @retention_manager = RetentionManager.new(interaction_events: @interaction_events)
@@ -55,7 +55,7 @@ module Harassment
         classifier: @classifier,
         rate_limiter: @rate_limiter,
         context_assembler: @context_assembler,
-        on_success: on_classification,
+        on_success: on_classification
       )
     end
 
@@ -76,7 +76,7 @@ module Harassment
       CachedClassifier.new(
         delegate: classifier,
         cache_repository: @classification_cache,
-        ttl_seconds: ttl_seconds,
+        ttl_seconds: ttl_seconds
       )
     end
 
@@ -85,7 +85,7 @@ module Harassment
 
       ServerRateLimiter.new(
         repository: @server_rate_limits,
-        limit_per_minute: limit_per_minute,
+        limit_per_minute: limit_per_minute
       )
     end
   end

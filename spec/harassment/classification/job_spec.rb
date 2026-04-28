@@ -10,7 +10,7 @@ describe Harassment::ClassificationJob do
       classifier_version: "harassment-v1",
       enqueued_at: now,
       updated_at: now,
-      available_at: now,
+      available_at: now
     )
 
     expect(job.message_id).to eq("123")

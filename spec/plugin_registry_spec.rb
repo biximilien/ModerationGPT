@@ -108,7 +108,7 @@ describe ModerationGPT::PluginRegistry do
         rewrite_instructions: nil,
         moderation_strategies: [],
         ai_provider: nil,
-        commands: [:command],
+        commands: [:command]
       )
       registry = described_class.new([plugin])
 
@@ -129,7 +129,7 @@ describe ModerationGPT::PluginRegistry do
         score: -5,
         outcome: "automod_timeout_applied",
         app: :app,
-        strategy: "Strategy",
+        strategy: "Strategy"
       )
       expect(registry.commands).to eq([:command])
     end
@@ -175,7 +175,7 @@ describe ModerationGPT::PluginRegistry do
         event: "plugin_hook_failed",
         hook: :rewrite_instructions,
         error_class: "StandardError",
-        error_message: "boom",
+        error_message: "boom"
       )
     end
 
@@ -203,7 +203,7 @@ describe ModerationGPT::PluginRegistry do
         event: "plugin_hook_failed",
         hook: :moderation_strategies,
         error_class: "StandardError",
-        error_message: "boom",
+        error_message: "boom"
       )
     end
 
@@ -219,7 +219,7 @@ describe ModerationGPT::PluginRegistry do
         event: "plugin_hook_failed",
         hook: :message,
         error_class: "StandardError",
-        error_message: "boom",
+        error_message: "boom"
       )
       expect(healthy).to have_received(:message).with(event: :message)
     end

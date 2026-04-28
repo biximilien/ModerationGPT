@@ -13,7 +13,7 @@ describe Harassment::QueryService do
       channel_id: 789,
       author_id: 321,
       target_user_ids: [654],
-      raw_content: "hello there",
+      raw_content: "hello there"
     )
   end
   let(:record) do
@@ -26,7 +26,7 @@ describe Harassment::QueryService do
       classification: { intent: "aggressive", target_type: "individual" },
       severity_score: 0.8,
       confidence: 0.5,
-      classified_at: Time.utc(2026, 4, 25, 16, 0, 0),
+      classified_at: Time.utc(2026, 4, 25, 16, 0, 0)
     )
   end
 
@@ -75,7 +75,7 @@ describe Harassment::QueryService do
       channel_id: 789,
       author_id: 999,
       target_user_ids: [888],
-      raw_content: "other incident",
+      raw_content: "other incident"
     )
     second_record = Harassment::ClassificationRecord.build(
       server_id: "456",
@@ -86,7 +86,7 @@ describe Harassment::QueryService do
       classification: { intent: "abusive", target_type: "individual" },
       severity_score: 0.5,
       confidence: 0.6,
-      classified_at: Time.utc(2026, 4, 25, 16, 5, 0),
+      classified_at: Time.utc(2026, 4, 25, 16, 5, 0)
     )
     read_model.ingest(event: second_event, record: second_record)
 
@@ -103,7 +103,7 @@ describe Harassment::QueryService do
       channel_id: 789,
       author_id: 321,
       target_user_ids: [654],
-      raw_content: "older incident",
+      raw_content: "older incident"
     )
     second_record = Harassment::ClassificationRecord.build(
       server_id: "456",
@@ -114,7 +114,7 @@ describe Harassment::QueryService do
       classification: { intent: "abusive", target_type: "individual" },
       severity_score: 0.5,
       confidence: 0.6,
-      classified_at: Time.utc(2026, 4, 24, 12, 0, 0),
+      classified_at: Time.utc(2026, 4, 24, 12, 0, 0)
     )
     read_model.ingest(event: second_event, record: second_record)
 

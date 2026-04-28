@@ -8,7 +8,7 @@ describe Discord::KarmaCommand do
       "Store",
       get_user_karma: -3,
       increment_user_karma: -1,
-      get_user_karma_history: [],
+      get_user_karma_history: []
     )
   end
   let(:server) { instance_double("Server", id: 123) }

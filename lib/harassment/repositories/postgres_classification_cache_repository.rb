@@ -22,8 +22,8 @@ module Harassment
               WHERE cache_key = $1
               LIMIT 1
             SQL
-            [cache_key.to_s],
-          ),
+            [cache_key.to_s]
+          )
         )
         return nil unless row
 
@@ -35,7 +35,7 @@ module Harassment
             DELETE FROM classification_cache_entries
             WHERE cache_key = $1
           SQL
-          [cache_key.to_s],
+          [cache_key.to_s]
         )
         nil
       end
@@ -53,7 +53,7 @@ module Harassment
             DO UPDATE SET record_payload = EXCLUDED.record_payload,
                           expires_at = EXCLUDED.expires_at
           SQL
-          [cache_key.to_s, JSON.generate(serialize_record(record)), expires_at.utc.iso8601],
+          [cache_key.to_s, JSON.generate(serialize_record(record)), expires_at.utc.iso8601]
         )
         record
       end
@@ -70,7 +70,7 @@ module Harassment
           classification: record.classification,
           severity_score: record.severity_score,
           confidence: record.confidence,
-          classified_at: record.classified_at.iso8601,
+          classified_at: record.classified_at.iso8601
         }
       end
 
@@ -84,7 +84,7 @@ module Harassment
           classification: deep_symbolize(payload.fetch("classification")),
           severity_score: payload.fetch("severity_score"),
           confidence: payload.fetch("confidence"),
-          classified_at: payload.fetch("classified_at"),
+          classified_at: payload.fetch("classified_at")
         )
       end
 

@@ -15,7 +15,7 @@ describe Harassment::RetentionPolicy do
       channel_id: 789,
       author_id: 321,
       raw_content: "hello there",
-      content_retention_expires_at: Time.utc(2026, 4, 1, 12, 0, 0),
+      content_retention_expires_at: Time.utc(2026, 4, 1, 12, 0, 0)
     )
 
     expect(described_class.new.redactable?(event, as_of: Time.utc(2026, 4, 2, 12, 0, 0))).to be(true)

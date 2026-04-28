@@ -13,7 +13,7 @@ describe Discord::ModerationCommand do
       get_user_karma: -3,
       get_user_karma_history: [
         { created_at: "2026-04-19T12:00:00Z", delta: -1, score: -3, source: "automated_infraction" },
-        { created_at: "2026-04-19T12:05:00Z", delta: 2, score: -2, source: "manual_adjustment", actor_id: 42 },
+        { created_at: "2026-04-19T12:05:00Z", delta: 2, score: -2, source: "manual_adjustment", actor_id: 42 }
       ],
       set_user_karma: -7,
       increment_user_karma: -2,
@@ -25,8 +25,8 @@ describe Discord::ModerationCommand do
           user_id: "456",
           strategy: "RemoveMessageStrategy",
           action: "removed",
-          shadow_mode: false,
-        },
+          shadow_mode: false
+        }
       ],
       clear_moderation_reviews: true,
       find_moderation_review: {
@@ -36,8 +36,8 @@ describe Discord::ModerationCommand do
         strategy: "RemoveMessageStrategy",
         action: "removed",
         shadow_mode: false,
-        original_content: "Original message",
-      },
+        original_content: "Original message"
+      }
     )
   end
   let(:event) { moderation_event(content:, administrator:) }
@@ -47,7 +47,7 @@ describe Discord::ModerationCommand do
       "PluginCommand",
       matches?: false,
       handle: true,
-      help_lines: ["!moderation plugin"],
+      help_lines: ["!moderation plugin"]
     )
   end
 
@@ -299,7 +299,7 @@ describe Discord::ModerationCommand do
         expect(event).to have_received(:respond).with(
           "Karma history for <@456>:\n" \
           "- -1 => -3 via automated_infraction at 2026-04-19T12:00:00Z\n" \
-          "- +2 => -2 via manual_adjustment by <@42> at 2026-04-19T12:05:00Z",
+          "- +2 => -2 via manual_adjustment by <@42> at 2026-04-19T12:05:00Z"
         )
       end
     end
@@ -367,7 +367,7 @@ describe Discord::ModerationCommand do
         expect(store).to have_received(:get_moderation_reviews).with(123, 1, user_id: nil)
         expect(event).to have_received(:respond).with(
           "Moderation reviews:\n" \
-          "- 2026-04-19T12:00:00Z live removed <@456> msg=111 via RemoveMessageStrategy",
+          "- 2026-04-19T12:00:00Z live removed <@456> msg=111 via RemoveMessageStrategy"
         )
       end
     end
@@ -381,7 +381,7 @@ describe Discord::ModerationCommand do
         expect(store).to have_received(:get_moderation_reviews).with(123, 5, user_id: "456")
         expect(event).to have_received(:respond).with(
           "Moderation reviews for <@456>:\n" \
-          "- 2026-04-19T12:00:00Z live removed <@456> msg=111 via RemoveMessageStrategy",
+          "- 2026-04-19T12:00:00Z live removed <@456> msg=111 via RemoveMessageStrategy"
         )
       end
     end

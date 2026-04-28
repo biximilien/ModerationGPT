@@ -14,7 +14,7 @@ describe Harassment::ClassificationWorker do
       classifier: classifier,
       rate_limiter: rate_limiter,
       context_assembler: context_assembler,
-      on_success: ->(event:, record:) { processed << [event, record] },
+      on_success: ->(event:, record:) { processed << [event, record] }
     )
   end
 
@@ -25,7 +25,7 @@ describe Harassment::ClassificationWorker do
     Harassment::ClassificationPipeline.new(
       interaction_events: interaction_events,
       classification_records: classification_records,
-      classification_jobs: classification_jobs,
+      classification_jobs: classification_jobs
     )
   end
   let(:classifier) { instance_double("Classifier") }
@@ -39,7 +39,7 @@ describe Harassment::ClassificationWorker do
       author_id: 321,
       target_user_ids: [654],
       timestamp: Time.utc(2026, 4, 25, 18, 0, 0),
-      raw_content: "you're not welcome here",
+      raw_content: "you're not welcome here"
     )
   end
   let(:record) do
@@ -57,12 +57,12 @@ describe Harassment::ClassificationWorker do
           threat: false,
           profanity: false,
           exclusion: true,
-          harassment: true,
-        },
+          harassment: true
+        }
       },
       severity_score: 0.8,
       confidence: 0.9,
-      classified_at: Time.utc(2026, 4, 25, 18, 1, 0),
+      classified_at: Time.utc(2026, 4, 25, 18, 1, 0)
     )
   end
   let(:processed) { [] }
@@ -84,7 +84,7 @@ describe Harassment::ClassificationWorker do
       event: event,
       classifier_version: Harassment::ClassifierVersion.build("harassment-v1"),
       context: { recent_channel_messages: [], recent_pair_interactions: [], participant_labels: {} },
-      classified_at: Time.utc(2026, 4, 25, 18, 1, 0),
+      classified_at: Time.utc(2026, 4, 25, 18, 1, 0)
     )
     expect(classification_records.latest_for_message(server_id: "456", message_id: "123")).to eq(record)
     expect(classification_jobs.find(server_id: "456", message_id: "123", classifier_version: "harassment-v1").status).to eq(Harassment::ClassificationStatus::CLASSIFIED)

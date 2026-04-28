@@ -31,8 +31,8 @@ module Harassment
               ON CONFLICT (guild_id, message_id, classifier_version) DO NOTHING
               RETURNING *
             SQL
-            serialize_job(job),
-          ),
+            serialize_job(job)
+          )
         )
         return deserialize_job(row) if row
 
@@ -50,8 +50,8 @@ module Harassment
                 AND classifier_version = $3
               LIMIT 1
             SQL
-            [server_id.to_s, message_id.to_s, normalize_classifier_version(classifier_version)],
-          ),
+            [server_id.to_s, message_id.to_s, normalize_classifier_version(classifier_version)]
+          )
         )
         row ? deserialize_job(row) : nil
       end
@@ -73,8 +73,8 @@ module Harassment
                 AND classifier_version = $3
               RETURNING *
             SQL
-            serialize_job(job),
-          ),
+            serialize_job(job)
+          )
         )
         row ? deserialize_job(row) : nil
       end
@@ -89,8 +89,8 @@ module Harassment
                 AND status IN ('pending', 'failed_retryable')
               ORDER BY available_at ASC
             SQL
-            [as_of.utc.iso8601(9)],
-          ),
+            [as_of.utc.iso8601(9)]
+          )
         ).map { |row| deserialize_job(row) }
       end
 
@@ -107,7 +107,7 @@ module Harassment
           job.last_error_class,
           job.last_error_message,
           job.enqueued_at.iso8601(9),
-          job.updated_at.iso8601(9),
+          job.updated_at.iso8601(9)
         ]
       end
 
@@ -122,7 +122,7 @@ module Harassment
           last_error_class: row["last_error_class"],
           last_error_message: row["last_error_message"],
           enqueued_at: row.fetch("enqueued_at"),
-          updated_at: row.fetch("updated_at"),
+          updated_at: row.fetch("updated_at")
         )
       end
     end

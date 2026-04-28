@@ -7,8 +7,8 @@ describe ModerationGPT::AI::JsonTransport do
       provider_name: "Test AI",
       headers: {
         "Content-Type" => "application/json",
-        "Authorization" => "Bearer test-key",
-      },
+        "Authorization" => "Bearer test-key"
+      }
     )
   end
 
@@ -44,8 +44,8 @@ describe ModerationGPT::AI::JsonTransport do
         "http.target" => "/v1/test",
         "net.peer.name" => "example.test",
         "discord.user.hash" => Telemetry::Anonymizer.hash(123),
-        "discord.user.bot_account" => false,
-      ),
+        "discord.user.bot_account" => false
+      )
     )
     expect(span).to have_received(:set_attribute).with("http.status_code", 200)
   end

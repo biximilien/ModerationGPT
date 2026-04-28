@@ -14,8 +14,8 @@ describe GoogleAI::Transport do
       provider_name: "Google AI",
       headers: {
         "Content-Type" => "application/json",
-        "x-goog-api-key" => "google-key",
-      },
+        "x-goog-api-key" => "google-key"
+      }
     )
   end
 
@@ -27,7 +27,7 @@ describe GoogleAI::Transport do
     expect(json_transport).to have_received(:post).with(
       url: "https://generativelanguage.googleapis.com/v1beta/models/gemini-test:generateContent",
       payload: { contents: [] },
-      user:,
+      user:
     )
   end
 end

@@ -22,33 +22,33 @@ module Harassment
       interaction_events: {
         "memory" => Repositories::InMemoryInteractionEventRepository,
         "redis" => Repositories::RedisInteractionEventRepository,
-        "postgres" => Repositories::PostgresInteractionEventRepository,
+        "postgres" => Repositories::PostgresInteractionEventRepository
       },
       classification_records: {
         "memory" => Repositories::InMemoryClassificationRecordRepository,
         "redis" => Repositories::RedisClassificationRecordRepository,
-        "postgres" => Repositories::PostgresClassificationRecordRepository,
+        "postgres" => Repositories::PostgresClassificationRecordRepository
       },
       classification_jobs: {
         "memory" => Repositories::InMemoryClassificationJobRepository,
         "redis" => Repositories::RedisClassificationJobRepository,
-        "postgres" => Repositories::PostgresClassificationJobRepository,
+        "postgres" => Repositories::PostgresClassificationJobRepository
       },
       classification_cache: {
         "memory" => Repositories::InMemoryClassificationCacheRepository,
         "redis" => Repositories::RedisClassificationCacheRepository,
-        "postgres" => Repositories::PostgresClassificationCacheRepository,
+        "postgres" => Repositories::PostgresClassificationCacheRepository
       },
       server_rate_limits: {
         "memory" => Repositories::InMemoryServerRateLimitRepository,
         "redis" => Repositories::RedisServerRateLimitRepository,
-        "postgres" => Repositories::PostgresServerRateLimitRepository,
+        "postgres" => Repositories::PostgresServerRateLimitRepository
       },
       relationship_edges: {
         "memory" => Repositories::InMemoryRelationshipEdgeRepository,
         "redis" => Repositories::InMemoryRelationshipEdgeRepository,
-        "postgres" => Repositories::PostgresRelationshipEdgeRepository,
-      },
+        "postgres" => Repositories::PostgresRelationshipEdgeRepository
+      }
     }.freeze
 
     def initialize(backend:, redis: nil, connection: nil)

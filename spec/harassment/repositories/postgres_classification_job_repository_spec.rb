@@ -10,7 +10,7 @@ describe Harassment::Repositories::PostgresClassificationJobRepository do
       server_id: 456,
       message_id: 123,
       classifier_version: "harassment-v1",
-      available_at: Time.utc(2026, 4, 25, 15, 0, 0),
+      available_at: Time.utc(2026, 4, 25, 15, 0, 0)
     )
   end
   let(:retryable_job) do
@@ -19,7 +19,7 @@ describe Harassment::Repositories::PostgresClassificationJobRepository do
       message_id: 124,
       classifier_version: "harassment-v1",
       status: Harassment::ClassificationStatus::FAILED_RETRYABLE,
-      available_at: Time.utc(2026, 4, 25, 15, 5, 0),
+      available_at: Time.utc(2026, 4, 25, 15, 5, 0)
     )
   end
 

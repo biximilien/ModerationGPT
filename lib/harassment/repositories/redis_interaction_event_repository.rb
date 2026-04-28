@@ -102,7 +102,7 @@ module Harassment
         event.to_h.merge(
           timestamp: event.timestamp.iso8601(9),
           content_retention_expires_at: event.content_retention_expires_at&.iso8601(9),
-          content_redacted_at: event.content_redacted_at&.iso8601(9),
+          content_redacted_at: event.content_redacted_at&.iso8601(9)
         )
       end
 

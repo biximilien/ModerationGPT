@@ -22,8 +22,8 @@ describe ModerationGPT::Plugins::HarassmentCommand do
           persistence: 0.6,
           burst_intensity: 0.4,
           target_concentration: 1.0,
-          average_severity: 0.7,
-        },
+          average_severity: 0.7
+        }
       ),
       get_pair_relationship: Harassment::PairRelationshipReport.build(
         server_id: "123",
@@ -36,8 +36,8 @@ describe ModerationGPT::Plugins::HarassmentCommand do
           score_version: "harassment-score-v1",
           hostility_score: 0.5,
           interaction_count: 3,
-          last_interaction_at: Time.utc(2026, 4, 25, 16, 0, 0),
-        ),
+          last_interaction_at: Time.utc(2026, 4, 25, 16, 0, 0)
+        )
       ),
       recent_incidents: Harassment::RecentIncidentsReport.build(
         server_id: "123",
@@ -55,10 +55,10 @@ describe ModerationGPT::Plugins::HarassmentCommand do
             target_type: "individual",
             severity_score: 0.8,
             confidence: 0.7,
-            classified_at: Time.utc(2026, 4, 25, 16, 0, 0),
-          ),
-        ],
-      ),
+            classified_at: Time.utc(2026, 4, 25, 16, 0, 0)
+          )
+        ]
+      )
     )
   end
 
@@ -87,8 +87,8 @@ describe ModerationGPT::Plugins::HarassmentCommand do
         "Score: 0.72",
         "Score version: harassment-score-v1",
         "Relationships: 2",
-        "- Asymmetry: 0.80",
-      ),
+        "- Asymmetry: 0.80"
+      )
     )
   end
 
@@ -99,7 +99,7 @@ describe ModerationGPT::Plugins::HarassmentCommand do
     command.handle(event)
 
     expect(event).to have_received(:respond).with(
-      "Harassment relationship <@456> -> <@789>\nHostility: 0.50\nScore version: harassment-score-v1\nInteractions: 3\nLast seen: 2026-04-25T16:00:00Z",
+      "Harassment relationship <@456> -> <@789>\nHostility: 0.50\nScore version: harassment-score-v1\nInteractions: 3\nLast seen: 2026-04-25T16:00:00Z"
     )
   end
 
@@ -111,7 +111,7 @@ describe ModerationGPT::Plugins::HarassmentCommand do
 
     expect(query_service).to have_received(:recent_incidents).with(123, 321, limit: 1, user_id: nil, since: nil)
     expect(event).to have_received(:respond).with(
-      a_string_including("Recent harassment incidents:", "<@456> -> <@789> | aggressive | severity 0.80 | confidence 0.70"),
+      a_string_including("Recent harassment incidents:", "<@456> -> <@789> | aggressive | severity 0.80 | confidence 0.70")
     )
   end
 
@@ -131,9 +131,9 @@ describe ModerationGPT::Plugins::HarassmentCommand do
           target_type: "individual",
           severity_score: 0.8,
           confidence: 0.7,
-          classified_at: Time.utc(2026, 4, 25, 16, 0, 0),
-        ),
-      ],
+          classified_at: Time.utc(2026, 4, 25, 16, 0, 0)
+        )
+      ]
     )
     allow(query_service).to receive(:recent_incidents).and_return(filtered_report)
     message = instance_double("Message", content: "!moderation harassment incidents <@456> 1")
@@ -143,13 +143,13 @@ describe ModerationGPT::Plugins::HarassmentCommand do
 
     expect(query_service).to have_received(:recent_incidents).with(123, 321, limit: 1, user_id: "456", since: nil)
     expect(event).to have_received(:respond).with(
-      a_string_including("Recent harassment incidents for <@456>:"),
+      a_string_including("Recent harassment incidents for <@456>:")
     )
   end
 
   it "responds with a filtered empty-state message" do
     allow(query_service).to receive(:recent_incidents).and_return(
-      Harassment::RecentIncidentsReport.build(server_id: "123", channel_id: "321", user_id: "456", incidents: []),
+      Harassment::RecentIncidentsReport.build(server_id: "123", channel_id: "321", user_id: "456", incidents: [])
     )
     message = instance_double("Message", content: "!moderation harassment incidents <@456>")
     allow(event).to receive(:message).and_return(message)
@@ -176,9 +176,9 @@ describe ModerationGPT::Plugins::HarassmentCommand do
           target_type: "individual",
           severity_score: 0.8,
           confidence: 0.7,
-          classified_at: Time.utc(2026, 4, 25, 16, 0, 0),
-        ),
-      ],
+          classified_at: Time.utc(2026, 4, 25, 16, 0, 0)
+        )
+      ]
     )
     allow(query_service).to receive(:recent_incidents).and_return(report)
     message = instance_double("Message", content: "!moderation harassment incidents 24h 1")
@@ -193,14 +193,14 @@ describe ModerationGPT::Plugins::HarassmentCommand do
       321,
       limit: 1,
       user_id: nil,
-      since: Time.utc(2026, 4, 25, 15, 0, 0),
+      since: Time.utc(2026, 4, 25, 15, 0, 0)
     )
     expect(event).to have_received(:respond).with(a_string_including("Recent harassment incidents in the last 24h:"))
   end
 
   it "responds with time-windowed empty state for a user" do
     allow(query_service).to receive(:recent_incidents).and_return(
-      Harassment::RecentIncidentsReport.build(server_id: "123", channel_id: "321", user_id: "456", since: Time.utc(2026, 4, 25, 15, 0, 0), incidents: []),
+      Harassment::RecentIncidentsReport.build(server_id: "123", channel_id: "321", user_id: "456", since: Time.utc(2026, 4, 25, 15, 0, 0), incidents: [])
     )
     message = instance_double("Message", content: "!moderation harassment incidents <@456> 24h")
     allow(event).to receive(:message).and_return(message)
@@ -228,9 +228,9 @@ describe ModerationGPT::Plugins::HarassmentCommand do
           target_type: "individual",
           severity_score: 0.8,
           confidence: 0.7,
-          classified_at: Time.utc(2026, 4, 25, 16, 0, 0),
-        ),
-      ],
+          classified_at: Time.utc(2026, 4, 25, 16, 0, 0)
+        )
+      ]
     )
     allow(query_service).to receive(:recent_incidents).and_return(report)
     message = instance_double("Message", content: "!moderation harassment incidents <@456> 1 24h")
@@ -244,7 +244,7 @@ describe ModerationGPT::Plugins::HarassmentCommand do
       321,
       limit: 1,
       user_id: "456",
-      since: Time.utc(2026, 4, 25, 15, 0, 0),
+      since: Time.utc(2026, 4, 25, 15, 0, 0)
     )
     expect(event).to have_received(:respond).with(a_string_including("Recent harassment incidents for <@456> in the last 24h:"))
   end

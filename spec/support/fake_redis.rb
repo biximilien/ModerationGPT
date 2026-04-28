@@ -101,7 +101,7 @@ class FakeRedis
 
     lpush(
       history_key,
-      build_event_json(created_at:, delta: score.to_i - previous, score: score.to_i, source:, actor_id:, reason:),
+      build_event_json(created_at:, delta: score.to_i - previous, score: score.to_i, source:, actor_id:, reason:)
     )
     ltrim(history_key, 0, limit.to_i - 1)
     score.to_i
@@ -113,7 +113,7 @@ class FakeRedis
 
     lpush(
       history_key,
-      build_event_json(created_at:, delta: delta.to_i, score: score.to_i, source:, actor_id:, reason:),
+      build_event_json(created_at:, delta: delta.to_i, score: score.to_i, source:, actor_id:, reason:)
     )
     ltrim(history_key, 0, limit.to_i - 1)
     score.to_i
@@ -124,7 +124,7 @@ class FakeRedis
       created_at: created_at,
       delta: delta,
       score: score,
-      source: source,
+      source: source
     }
     event[:actor_id] = actor_id.to_i unless actor_id.nil? || actor_id.empty?
     event[:reason] = reason unless reason.nil? || reason.empty?

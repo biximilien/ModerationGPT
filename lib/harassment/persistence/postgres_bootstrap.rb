@@ -17,7 +17,7 @@ module Harassment
       {
         interaction_events: import_interaction_events,
         classification_records: import_classification_records,
-        classification_jobs: import_classification_jobs,
+        classification_jobs: import_classification_jobs
       }
     end
 
@@ -41,7 +41,7 @@ module Harassment
         existing = @classification_jobs.find(
           server_id: job.server_id,
           message_id: job.message_id,
-          classifier_version: job.classifier_version,
+          classifier_version: job.classifier_version
         )
         raise ArgumentError, "classification job already exists" if existing
 

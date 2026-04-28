@@ -17,7 +17,7 @@ bootstrap = Harassment::PostgresBootstrap.new(
   redis: app.redis,
   interaction_events: Harassment::Repositories::PostgresInteractionEventRepository.new(connection: connection),
   classification_records: Harassment::Repositories::PostgresClassificationRecordRepository.new(connection: connection),
-  classification_jobs: Harassment::Repositories::PostgresClassificationJobRepository.new(connection: connection),
+  classification_jobs: Harassment::Repositories::PostgresClassificationJobRepository.new(connection: connection)
 )
 
 summary = bootstrap.run

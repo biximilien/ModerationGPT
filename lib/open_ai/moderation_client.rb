@@ -11,14 +11,14 @@ module OpenAI
     def moderate_text(text, user = nil)
       response = @transport.query(ENDPOINT, {
                                     model: Environment.openai_moderation_model,
-                                    input: text,
+                                    input: text
                                   }, user)
 
       result = response.fetch("results").first
       ModerationResult.new(
         flagged: result.fetch("flagged"),
         categories: result.fetch("categories"),
-        category_scores: result.fetch("category_scores"),
+        category_scores: result.fetch("category_scores")
       )
     end
   end

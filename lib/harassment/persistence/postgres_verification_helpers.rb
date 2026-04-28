@@ -33,7 +33,7 @@ module Harassment
         sampled: source_rows.length,
         matched:,
         mismatches:,
-        matches: mismatches.empty?,
+        matches: mismatches.empty?
       }
     end
 
@@ -47,7 +47,7 @@ module Harassment
       result = {
         found_in_redis: true,
         found_in_postgres: true,
-        matches: expected == actual,
+        matches: expected == actual
       }
       result[:identifier] = identifier if identifier
       result[:fields] = mismatch_fields(expected:, actual:) unless expected == actual
@@ -59,7 +59,7 @@ module Harassment
         found_in_redis: true,
         found_in_postgres: false,
         matches: false,
-        identifier:,
+        identifier:
       }
     end
 

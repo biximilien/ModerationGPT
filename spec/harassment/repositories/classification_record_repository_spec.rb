@@ -12,7 +12,7 @@ describe Harassment::Repositories::ClassificationRecordRepository do
       prompt_version: "harassment-prompt-v1",
       classification: {},
       severity_score: 0.4,
-      confidence: 0.8,
+      confidence: 0.8
     )
   end
 

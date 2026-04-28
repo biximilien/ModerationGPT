@@ -109,7 +109,7 @@ class FakePostgresConnection
       "classification_status" => classification_status,
       "content_retention_expires_at" => retention_expires_at,
       "content_redacted_at" => redacted_at,
-      "created_at" => created_at,
+      "created_at" => created_at
     }
     @interaction_events << row
     [row]
@@ -223,7 +223,7 @@ class FakePostgresConnection
       "classification" => classification,
       "severity_score" => severity_score,
       "confidence" => confidence,
-      "classified_at" => classified_at,
+      "classified_at" => classified_at
     }
     @classification_records << row
     [row]
@@ -267,7 +267,7 @@ class FakePostgresConnection
       "last_error_class" => last_error_class,
       "last_error_message" => last_error_message,
       "enqueued_at" => enqueued_at,
-      "updated_at" => updated_at,
+      "updated_at" => updated_at
     }
     @classification_jobs << row
     [row]
@@ -331,7 +331,7 @@ class FakePostgresConnection
       row = {
         "cache_key" => cache_key,
         "record_payload" => record_payload,
-        "expires_at" => expires_at,
+        "expires_at" => expires_at
       }
       @classification_cache_entries << row
     end
@@ -371,7 +371,7 @@ class FakePostgresConnection
         "hostility_score" => hostility_score,
         "positive_score" => positive_score,
         "interaction_count" => interaction_count,
-        "last_interaction_at" => last_interaction_at,
+        "last_interaction_at" => last_interaction_at
       }
       @relationship_edges << row
     end
@@ -423,7 +423,7 @@ class FakePostgresConnection
     else
       row = {
         "guild_id" => guild_id,
-        "timestamps" => timestamps,
+        "timestamps" => timestamps
       }
       @server_rate_limits << row
     end

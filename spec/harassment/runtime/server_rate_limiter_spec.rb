@@ -5,7 +5,7 @@ describe Harassment::ServerRateLimiter do
   subject(:limiter) do
     described_class.new(
       repository: repository,
-      limit_per_minute: 2,
+      limit_per_minute: 2
     )
   end
 

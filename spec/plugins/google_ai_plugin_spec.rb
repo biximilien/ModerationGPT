@@ -28,7 +28,7 @@ describe ModerationGPT::Plugins::GoogleAIPlugin do
 
     expect { described_class.new.boot(app: instance_double("Application")) }.to raise_error(
       RuntimeError,
-      "GOOGLE_AI_API_KEY is required when google_ai plugin is enabled",
+      "GOOGLE_AI_API_KEY is required when google_ai plugin is enabled"
     )
   end
 end

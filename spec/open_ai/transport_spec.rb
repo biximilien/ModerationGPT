@@ -14,8 +14,8 @@ describe OpenAI::Transport do
       provider_name: "OpenAI",
       headers: {
         "Content-Type" => "application/json",
-        "Authorization" => "Bearer test-key",
-      },
+        "Authorization" => "Bearer test-key"
+      }
     )
   end
 
@@ -27,7 +27,7 @@ describe OpenAI::Transport do
     expect(json_transport).to have_received(:post).with(
       url: "https://api.openai.com/v1/test",
       payload: { input: "hello" },
-      user:,
+      user:
     )
   end
 end

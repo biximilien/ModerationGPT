@@ -17,7 +17,7 @@ module DataModel
     :rewrite,
     :original_content,
     :automod_outcome,
-    keyword_init: true,
+    keyword_init: true
   ) do
     def to_h
       {
@@ -35,7 +35,7 @@ module DataModel
         category_scores: category_scores,
         rewrite: rewrite,
         original_content: original_content,
-        automod_outcome: automod_outcome,
+        automod_outcome: automod_outcome
       }.compact
     end
 

@@ -8,8 +8,8 @@ module OpenAI
         provider_name: "OpenAI",
         headers: {
           "Content-Type" => "application/json",
-          "Authorization" => "Bearer #{api_key}",
-        },
+          "Authorization" => "Bearer #{api_key}"
+        }
       )
     end
 

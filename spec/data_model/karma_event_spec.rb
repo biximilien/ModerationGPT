@@ -23,7 +23,7 @@ describe DataModel::KarmaEvent do
       score: -3,
       source: "manual_adjustment",
       actor_id: 42,
-      reason: "appeal",
+      reason: "appeal"
     )
 
     parsed = described_class.from_json(event.to_json)

@@ -21,7 +21,7 @@ module Harassment
         event: event,
         classifier_version: classifier_version,
         context: context,
-        classified_at: classified_at,
+        classified_at: classified_at
       )
       @cache_repository.store(cache_key, record, expires_at: classified_at + @ttl_seconds)
       record
@@ -40,9 +40,9 @@ module Harassment
         classifier_identity: deep_sort(@delegate.cache_identity),
         message: {
           raw_content: event.raw_content,
-          target_count: event.target_user_ids.length,
+          target_count: event.target_user_ids.length
         },
-        context: deep_sort(context || {}),
+        context: deep_sort(context || {})
       }
 
       "harassment-cache:#{Digest::SHA256.hexdigest(JSON.generate(payload))}"

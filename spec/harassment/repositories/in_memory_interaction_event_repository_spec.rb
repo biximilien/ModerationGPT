@@ -10,7 +10,7 @@ describe Harassment::Repositories::InMemoryInteractionEventRepository do
       channel_id: 789,
       author_id: 321,
       timestamp: Time.utc(2026, 4, 25, 12, 0, 0),
-      raw_content: "hello there",
+      raw_content: "hello there"
     )
   end
 
@@ -32,7 +32,7 @@ describe Harassment::Repositories::InMemoryInteractionEventRepository do
       server_id: 999,
       channel_id: 789,
       author_id: 321,
-      raw_content: "other server",
+      raw_content: "other server"
     )
     repository.save(event)
     repository.save(other_server_event)
@@ -61,8 +61,8 @@ describe Harassment::Repositories::InMemoryInteractionEventRepository do
         channel_id: 789,
         author_id: 654,
         raw_content: "follow-up",
-        classification_status: Harassment::ClassificationStatus::FAILED_RETRYABLE,
-      ),
+        classification_status: Harassment::ClassificationStatus::FAILED_RETRYABLE
+      )
     )
 
     expect(repository.list_by_classification_status(Harassment::ClassificationStatus::PENDING).map(&:message_id)).to eq(["123"])
@@ -77,8 +77,8 @@ describe Harassment::Repositories::InMemoryInteractionEventRepository do
         channel_id: 789,
         author_id: 321,
         raw_content: "hello there",
-        content_retention_expires_at: Time.utc(2026, 4, 1, 12, 0, 0),
-      ),
+        content_retention_expires_at: Time.utc(2026, 4, 1, 12, 0, 0)
+      )
     )
 
     expect(repository.list_with_expired_content(as_of: Time.utc(2026, 4, 2, 12, 0, 0)).map(&:message_id)).to eq(["123"])
@@ -98,8 +98,8 @@ describe Harassment::Repositories::InMemoryInteractionEventRepository do
         channel_id: 789,
         author_id: 654,
         timestamp: Time.utc(2026, 4, 25, 12, 5, 0),
-        raw_content: "later message",
-      ),
+        raw_content: "later message"
+      )
     )
     repository.save(
       Harassment::InteractionEvent.build(
@@ -108,8 +108,8 @@ describe Harassment::Repositories::InMemoryInteractionEventRepository do
         channel_id: 790,
         author_id: 654,
         timestamp: Time.utc(2026, 4, 25, 12, 6, 0),
-        raw_content: "other channel",
-      ),
+        raw_content: "other channel"
+      )
     )
 
     results = repository.recent_in_channel(server_id: "456", channel_id: "789", before: Time.utc(2026, 4, 25, 12, 6, 0), limit: 2)
@@ -127,8 +127,8 @@ describe Harassment::Repositories::InMemoryInteractionEventRepository do
         author_id: 654,
         target_user_ids: [999],
         timestamp: Time.utc(2026, 4, 25, 12, 5, 0),
-        raw_content: "same author",
-      ),
+        raw_content: "same author"
+      )
     )
     repository.save(
       Harassment::InteractionEvent.build(
@@ -138,15 +138,15 @@ describe Harassment::Repositories::InMemoryInteractionEventRepository do
         author_id: 321,
         target_user_ids: [654],
         timestamp: Time.utc(2026, 4, 25, 12, 6, 0),
-        raw_content: "wrong server",
-      ),
+        raw_content: "wrong server"
+      )
     )
 
     results = repository.recent_between_participants(
       server_id: "456",
       participant_ids: %w[321 654],
       before: Time.utc(2026, 4, 25, 12, 7, 0),
-      limit: 5,
+      limit: 5
     )
 
     expect(results.map(&:message_id)).to eq(%w[123 124])

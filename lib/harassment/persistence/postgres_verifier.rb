@@ -11,16 +11,16 @@ module Harassment
     TABLES = {
       interaction_events: {
         redis_key: DataModel::Keys.harassment_interaction_events,
-        table_name: "interaction_events",
+        table_name: "interaction_events"
       },
       classification_records: {
         redis_key: DataModel::Keys.harassment_classification_records,
-        table_name: "classification_records",
+        table_name: "classification_records"
       },
       classification_jobs: {
         redis_key: DataModel::Keys.harassment_classification_jobs,
-        table_name: "classification_jobs",
-      },
+        table_name: "classification_jobs"
+      }
     }.freeze
 
     DEFAULT_SPOT_CHECK_LIMIT = 5
@@ -58,7 +58,7 @@ module Harassment
         redis: @redis,
         interaction_event_repository: @interaction_event_repository,
         classification_record_repository: @classification_record_repository,
-        classification_job_repository: @classification_job_repository,
+        classification_job_repository: @classification_job_repository
       )
     end
 
@@ -67,7 +67,7 @@ module Harassment
         redis: @redis,
         interaction_event_repository: @interaction_event_repository,
         classification_record_repository: @classification_record_repository,
-        classification_job_repository: @classification_job_repository,
+        classification_job_repository: @classification_job_repository
       )
     end
   end

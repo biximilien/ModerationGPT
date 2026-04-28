@@ -10,11 +10,11 @@ describe GoogleAI::Provider do
         {
           "content" => {
             "parts" => [
-              { "text" => '{"flagged":true,"categories":{"harassment":true,"hate":false,"threat":false,"sexual":false,"violence":false,"self_harm":false},"category_scores":{"harassment":0.9,"hate":0.0,"threat":0.0,"sexual":0.0,"violence":0.0,"self_harm":0.0}}' },
-            ],
-          },
-        },
-      ],
+              { "text" => '{"flagged":true,"categories":{"harassment":true,"hate":false,"threat":false,"sexual":false,"violence":false,"self_harm":false},"category_scores":{"harassment":0.9,"hate":0.0,"threat":0.0,"sexual":0.0,"violence":0.0,"self_harm":0.0}}' }
+            ]
+          }
+        }
+      ]
     }
   end
 
@@ -33,7 +33,7 @@ describe GoogleAI::Provider do
 
   it "rewrites text through Gemini content generation" do
     allow(transport).to receive(:generate_content).and_return(
-      "candidates" => [{ "content" => { "parts" => [{ "text" => "Please stop." }] } }],
+      "candidates" => [{ "content" => { "parts" => [{ "text" => "Please stop." }] } }]
     )
 
     expect(provider.moderation_rewrite("you are awful", instructions: "Be calm.")).to eq("Please stop.")
@@ -51,12 +51,12 @@ describe GoogleAI::Provider do
             schema: {
               type: "object",
               properties: {
-                flagged: { type: "boolean" },
-              },
-            },
-          },
-        },
-      },
+                flagged: { type: "boolean" }
+              }
+            }
+          }
+        }
+      }
     )
 
     expect(transport).to have_received(:generate_content).with(
@@ -65,21 +65,21 @@ describe GoogleAI::Provider do
         contents: [
           {
             parts: [
-              { text: "Classify this.\n\nmessage" },
-            ],
-          },
+              { text: "Classify this.\n\nmessage" }
+            ]
+          }
         ],
         generationConfig: hash_including(
           responseMimeType: "application/json",
           responseJsonSchema: hash_including(
             "type" => "object",
             "properties" => {
-              "flagged" => { "type" => "boolean" },
-            },
-          ),
-        ),
+              "flagged" => { "type" => "boolean" }
+            }
+          )
+        )
       ),
-      user: nil,
+      user: nil
     )
   end
 end

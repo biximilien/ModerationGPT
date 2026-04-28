@@ -15,7 +15,7 @@ module DataModel
         score: attributes.fetch(:score),
         source: attributes.fetch(:source),
         actor_id: attributes[:actor_id],
-        reason: attributes[:reason],
+        reason: attributes[:reason]
       )
     end
 

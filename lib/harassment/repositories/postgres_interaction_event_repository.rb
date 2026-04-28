@@ -34,8 +34,8 @@ module Harassment
               ON CONFLICT (guild_id, message_id) DO NOTHING
               RETURNING *
             SQL
-            serialize_event(event),
-          ),
+            serialize_event(event)
+          )
         )
         unless row
           raise ArgumentError, "interaction event already exists for server_id=#{event.server_id} message_id=#{event.message_id}"
@@ -54,8 +54,8 @@ module Harassment
                 AND message_id = $2
               LIMIT 1
             SQL
-            [server_id.to_s, message_id.to_s],
-          ),
+            [server_id.to_s, message_id.to_s]
+          )
         )
         row ? deserialize_event(row) : nil
       end
@@ -71,8 +71,8 @@ module Harassment
                 AND message_id = $2
               RETURNING *
             SQL
-            [server_id.to_s, message_id.to_s, normalized_status],
-          ),
+            [server_id.to_s, message_id.to_s, normalized_status]
+          )
         )
         row ? deserialize_event(row) : nil
       end
@@ -87,8 +87,8 @@ module Harassment
               WHERE classification_status = $1
               ORDER BY created_at ASC
             SQL
-            [normalized_status],
-          ),
+            [normalized_status]
+          )
         ).map { |row| deserialize_event(row) }
       end
 
@@ -112,9 +112,9 @@ module Harassment
               channel_id&.to_s,
               author_id&.to_s,
               since&.utc&.iso8601(9),
-              limit ? Integer(limit) : nil,
-            ],
-          ),
+              limit ? Integer(limit) : nil
+            ]
+          )
         ).map { |row| deserialize_event(row) }.sort_by(&:timestamp)
       end
 
@@ -129,8 +129,8 @@ module Harassment
                 AND content_redacted_at IS NULL
               ORDER BY created_at ASC
             SQL
-            [as_of.utc.iso8601(9)],
-          ),
+            [as_of.utc.iso8601(9)]
+          )
         ).map { |row| deserialize_event(row) }
       end
 
@@ -145,8 +145,8 @@ module Harassment
                 AND message_id = $2
               RETURNING *
             SQL
-            [server_id.to_s, message_id.to_s, REDACTED_CONTENT, redacted_at.utc.iso8601(9)],
-          ),
+            [server_id.to_s, message_id.to_s, REDACTED_CONTENT, redacted_at.utc.iso8601(9)]
+          )
         )
         row ? deserialize_event(row) : nil
       end
@@ -163,8 +163,8 @@ module Harassment
               ORDER BY created_at DESC
               LIMIT $4
             SQL
-            [server_id.to_s, channel_id.to_s, before.utc.iso8601(9), Integer(limit)],
-          ),
+            [server_id.to_s, channel_id.to_s, before.utc.iso8601(9), Integer(limit)]
+          )
         ).map { |row| deserialize_event(row) }.sort_by(&:timestamp)
       end
 
@@ -183,8 +183,8 @@ module Harassment
               ORDER BY created_at DESC
               LIMIT $4
             SQL
-            [server_id.to_s, before.utc.iso8601(9), Array(participant_ids).map(&:to_s), Integer(limit)],
-          ),
+            [server_id.to_s, before.utc.iso8601(9), Array(participant_ids).map(&:to_s), Integer(limit)]
+          )
         ).map { |row| deserialize_event(row) }.sort_by(&:timestamp)
       end
 
@@ -201,7 +201,7 @@ module Harassment
           event.classification_status,
           event.content_retention_expires_at&.iso8601(9),
           event.content_redacted_at&.iso8601(9),
-          event.timestamp.iso8601(9),
+          event.timestamp.iso8601(9)
         ]
       end
 
@@ -216,7 +216,7 @@ module Harassment
           raw_content: row.fetch("raw_content"),
           classification_status: row.fetch("classification_status"),
           content_retention_expires_at: row["content_retention_expires_at"],
-          content_redacted_at: row["content_redacted_at"],
+          content_redacted_at: row["content_redacted_at"]
         )
       end
 

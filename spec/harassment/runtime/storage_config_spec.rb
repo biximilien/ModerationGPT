@@ -27,7 +27,7 @@ describe Harassment::StorageConfig do
 
     expect { config.database_connection }.to raise_error(
       RuntimeError,
-      "HARASSMENT_STORAGE_BACKEND=postgres requires the postgres plugin to be enabled",
+      "HARASSMENT_STORAGE_BACKEND=postgres requires the postgres plugin to be enabled"
     )
   end
 end

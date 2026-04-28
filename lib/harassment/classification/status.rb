@@ -9,7 +9,7 @@ module Harassment
       PENDING,
       CLASSIFIED,
       FAILED_RETRYABLE,
-      FAILED_TERMINAL,
+      FAILED_TERMINAL
     ].freeze
 
     def self.normalize!(value, field_name: "status")

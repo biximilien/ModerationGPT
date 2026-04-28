@@ -13,7 +13,7 @@ describe Harassment::Discord::CommandPresenter do
       score_version: "harassment-score-v1",
       risk_score: 0.72,
       relationship_count: 2,
-      signals: { persistence: 0.6, asymmetry: 0.8 },
+      signals: { persistence: 0.6, asymmetry: 0.8 }
     )
 
     expect(presenter.risk(report, user_id: "456")).to eq(
@@ -23,7 +23,7 @@ describe Harassment::Discord::CommandPresenter do
       "Relationships: 2\n" \
       "Signals:\n" \
       "- Asymmetry: 0.80\n" \
-      "- Persistence: 0.60",
+      "- Persistence: 0.60"
     )
   end
 
@@ -33,11 +33,11 @@ describe Harassment::Discord::CommandPresenter do
       channel_id: "321",
       user_id: "456",
       since: Time.utc(2026, 4, 25, 15, 0, 0),
-      incidents: [],
+      incidents: []
     )
 
     expect(presenter.incidents(report, user_id: "456", window: "24h")).to eq(
-      "No recent harassment incidents for <@456> in the last 24h in this channel",
+      "No recent harassment incidents for <@456> in the last 24h in this channel"
     )
   end
 end

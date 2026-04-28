@@ -10,7 +10,7 @@ describe Harassment::RelationshipEdgeRebuilder do
       classification_records: classification_records,
       relationship_edges: relationship_edges,
       score_version: "harassment-score-v1",
-      server_id: server_id,
+      server_id: server_id
     )
   end
 
@@ -29,7 +29,7 @@ describe Harassment::RelationshipEdgeRebuilder do
       target_user_ids: [654],
       raw_content: "hello there",
       classification_status: Harassment::ClassificationStatus::CLASSIFIED,
-      timestamp: Time.utc(2026, 4, 25, 16, 0, 0),
+      timestamp: Time.utc(2026, 4, 25, 16, 0, 0)
     )
   end
   let(:classified_record) do
@@ -42,7 +42,7 @@ describe Harassment::RelationshipEdgeRebuilder do
       classification: { intent: "aggressive", target_type: "individual" },
       severity_score: 0.8,
       confidence: 0.5,
-      classified_at: Time.utc(2026, 4, 25, 16, 0, 5),
+      classified_at: Time.utc(2026, 4, 25, 16, 0, 5)
     )
   end
 
@@ -57,13 +57,13 @@ describe Harassment::RelationshipEdgeRebuilder do
     expect(summary).to eq(
       rebuilt: 1,
       skipped_missing_record: 0,
-      skipped_server_scope: 0,
+      skipped_server_scope: 0
     )
     edge = relationship_edges.find(
       server_id: "456",
       source_user_id: "321",
       target_user_id: "654",
-      score_version: "harassment-score-v1",
+      score_version: "harassment-score-v1"
     )
     expect(edge.hostility_score).to eq(0.4)
     expect(edge.interaction_count).to eq(1)
@@ -78,8 +78,8 @@ describe Harassment::RelationshipEdgeRebuilder do
         score_version: "harassment-score-v1",
         hostility_score: 9.9,
         interaction_count: 99,
-        last_interaction_at: Time.utc(2026, 4, 25, 15, 0, 0),
-      ),
+        last_interaction_at: Time.utc(2026, 4, 25, 15, 0, 0)
+      )
     )
 
     rebuilder.run
@@ -88,7 +88,7 @@ describe Harassment::RelationshipEdgeRebuilder do
       server_id: "456",
       source_user_id: "321",
       target_user_id: "654",
-      score_version: "harassment-score-v1",
+      score_version: "harassment-score-v1"
     )
     expect(edge.hostility_score).to eq(0.4)
     expect(edge.interaction_count).to eq(1)
@@ -104,8 +104,8 @@ describe Harassment::RelationshipEdgeRebuilder do
         target_user_ids: [111],
         raw_content: "missing record",
         classification_status: Harassment::ClassificationStatus::CLASSIFIED,
-        timestamp: Time.utc(2026, 4, 25, 16, 1, 0),
-      ),
+        timestamp: Time.utc(2026, 4, 25, 16, 1, 0)
+      )
     )
 
     summary = rebuilder.run
@@ -126,8 +126,8 @@ describe Harassment::RelationshipEdgeRebuilder do
           target_user_ids: [666],
           raw_content: "other server",
           classification_status: Harassment::ClassificationStatus::CLASSIFIED,
-          timestamp: Time.utc(2026, 4, 25, 16, 2, 0),
-        ),
+          timestamp: Time.utc(2026, 4, 25, 16, 2, 0)
+        )
       )
       classification_records.save(
         Harassment::ClassificationRecord.build(
@@ -139,8 +139,8 @@ describe Harassment::RelationshipEdgeRebuilder do
           classification: { intent: "abusive", target_type: "individual" },
           severity_score: 0.5,
           confidence: 0.5,
-          classified_at: Time.utc(2026, 4, 25, 16, 2, 5),
-        ),
+          classified_at: Time.utc(2026, 4, 25, 16, 2, 5)
+        )
       )
 
       summary = rebuilder.run
@@ -152,8 +152,8 @@ describe Harassment::RelationshipEdgeRebuilder do
           server_id: "999",
           source_user_id: "777",
           target_user_id: "666",
-          score_version: "harassment-score-v1",
-        ),
+          score_version: "harassment-score-v1"
+        )
       ).to be_nil
     end
   end

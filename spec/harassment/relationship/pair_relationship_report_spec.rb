@@ -7,7 +7,7 @@ describe Harassment::PairRelationshipReport do
       server_id: 789,
       source_user_id: 123,
       target_user_id: 456,
-      relationship_edge: Harassment::RelationshipEdge.build(server_id: 789, source_user_id: 123, target_user_id: 456, score_version: "harassment-score-v1"),
+      relationship_edge: Harassment::RelationshipEdge.build(server_id: 789, source_user_id: 123, target_user_id: 456, score_version: "harassment-score-v1")
     )
 
     expect(missing.found?).to be(false)

@@ -26,7 +26,7 @@ module Harassment
         score_version: analysis.fetch(:score_version),
         risk_score: analysis.fetch(:harassment_score),
         relationship_count: analysis.fetch(:relationship_count),
-        signals: analysis.fetch(:signals),
+        signals: analysis.fetch(:signals)
       )
     end
 
@@ -35,7 +35,7 @@ module Harassment
         server_id: server_id,
         source_user_id: user_a,
         target_user_id: user_b,
-        relationship_edge: @read_model.get_pair_relationship(server_id, user_a, user_b, as_of:),
+        relationship_edge: @read_model.get_pair_relationship(server_id, user_a, user_b, as_of:)
       )
     end
 
@@ -45,7 +45,7 @@ module Harassment
         channel_id: channel_id,
         user_id: user_id,
         since: since,
-        incidents: @incident_query.recent_incidents(server_id, channel_id, limit:, user_id:, since:),
+        incidents: @incident_query.recent_incidents(server_id, channel_id, limit:, user_id:, since:)
       )
     end
   end

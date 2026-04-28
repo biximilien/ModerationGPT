@@ -21,8 +21,8 @@ module Harassment
               WHERE guild_id = $1
               LIMIT 1
             SQL
-            [server_id.to_s],
-          ),
+            [server_id.to_s]
+          )
         )
         return [] unless row
 
@@ -40,7 +40,7 @@ module Harassment
             ON CONFLICT (guild_id)
             DO UPDATE SET timestamps = EXCLUDED.timestamps
           SQL
-          [server_id.to_s, JSON.generate(timestamps.map { |timestamp| timestamp.utc.iso8601 })],
+          [server_id.to_s, JSON.generate(timestamps.map { |timestamp| timestamp.utc.iso8601 })]
         )
       end
 

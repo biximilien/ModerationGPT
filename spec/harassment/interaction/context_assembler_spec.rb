@@ -14,7 +14,7 @@ describe Harassment::ContextAssembler do
       author_id: 321,
       target_user_ids: [654],
       timestamp: Time.utc(2026, 4, 25, 16, 5, 0),
-      raw_content: "leave them alone",
+      raw_content: "leave them alone"
     )
   end
 
@@ -27,7 +27,7 @@ describe Harassment::ContextAssembler do
         author_id: 999,
         target_user_ids: [321],
         timestamp: Time.utc(2026, 4, 25, 16, 1, 0),
-        raw_content: "calm down",
+        raw_content: "calm down"
       ),
       Harassment::InteractionEvent.build(
         message_id: 102,
@@ -36,7 +36,7 @@ describe Harassment::ContextAssembler do
         author_id: 654,
         target_user_ids: [321],
         timestamp: Time.utc(2026, 4, 25, 16, 2, 0),
-        raw_content: "what's your problem?",
+        raw_content: "what's your problem?"
       ),
       Harassment::InteractionEvent.build(
         message_id: 103,
@@ -45,7 +45,7 @@ describe Harassment::ContextAssembler do
         author_id: 321,
         target_user_ids: [654],
         timestamp: Time.utc(2026, 4, 25, 16, 3, 0),
-        raw_content: "back off",
+        raw_content: "back off"
       ),
       Harassment::InteractionEvent.build(
         message_id: 104,
@@ -54,8 +54,8 @@ describe Harassment::ContextAssembler do
         author_id: 321,
         target_user_ids: [654],
         timestamp: Time.utc(2026, 4, 25, 16, 4, 0),
-        raw_content: "wrong server",
-      ),
+        raw_content: "wrong server"
+      )
     ].each { |event| interaction_events.save(event) }
   end
 
@@ -64,11 +64,11 @@ describe Harassment::ContextAssembler do
 
     expect(context[:participant_labels]).to eq(
       "321" => "author",
-      "654" => "target_1",
+      "654" => "target_1"
     )
     expect(context[:recent_channel_messages].map { |entry| entry[:content] }).to eq([
                                                                                       "calm down",
-                                                                                      "what's your problem?",
+                                                                                      "what's your problem?"
                                                                                     ])
     expect(context[:recent_channel_messages].map { |entry| entry[:author_label] }).to eq(%w[
                                                                                            participant_3
@@ -76,7 +76,7 @@ describe Harassment::ContextAssembler do
                                                                                          ])
     expect(context[:recent_pair_interactions].map { |entry| entry[:content] }).to eq([
                                                                                        "what's your problem?",
-                                                                                       "back off",
+                                                                                       "back off"
                                                                                      ])
   end
 end

@@ -75,7 +75,7 @@ class ModerationStrategy
       category_scores: result&.category_scores || {},
       rewrite: rewrite,
       original_content: review_original_content(event),
-      automod_outcome: automod_outcome,
+      automod_outcome: automod_outcome
     )
   end
 

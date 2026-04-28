@@ -12,7 +12,7 @@ message_ids = ARGV
 
 verifier = Harassment::PostgresVerifier.new(
   redis: app.redis,
-  connection: postgres_plugin.database_connection,
+  connection: postgres_plugin.database_connection
 )
 
 summary = verifier.run(verify_message_ids: message_ids)

@@ -21,7 +21,7 @@ module Harassment
         target_user_ids: target_user_ids(event),
         timestamp: event.message.timestamp,
         raw_content: event.message.content,
-        content_retention_expires_at: @retention_policy.retention_expires_at(event.message.timestamp),
+        content_retention_expires_at: @retention_policy.retention_expires_at(event.message.timestamp)
       )
 
       @interaction_events.save(interaction_event)
@@ -29,7 +29,7 @@ module Harassment
         message_id: interaction_event.message_id,
         server_id: interaction_event.server_id,
         classifier_version: @classifier_version,
-        enqueued_at: interaction_event.timestamp,
+        enqueued_at: interaction_event.timestamp
       )
 
       interaction_event

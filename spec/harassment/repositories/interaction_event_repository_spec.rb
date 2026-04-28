@@ -9,7 +9,7 @@ describe Harassment::Repositories::InteractionEventRepository do
       server_id: 456,
       channel_id: 789,
       author_id: 321,
-      raw_content: "hello there",
+      raw_content: "hello there"
     )
   end
 
@@ -55,7 +55,7 @@ describe Harassment::Repositories::InteractionEventRepository do
         server_id: "456",
         participant_ids: %w[321 654],
         before: Time.utc(2026, 4, 25, 12, 0, 0),
-        limit: 2,
+        limit: 2
       )
     end.to raise_error(NotImplementedError, /must implement #recent_between_participants/)
   end

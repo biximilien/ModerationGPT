@@ -23,7 +23,7 @@ module Backend
         category_scores: normalize_hash(category_scores),
         rewrite: rewrite,
         original_content: original_content,
-        automod_outcome: automod_outcome,
+        automod_outcome: automod_outcome
       )
 
       @redis.lpush(DataModel::Keys.moderation_review(server_id), entry.to_json)

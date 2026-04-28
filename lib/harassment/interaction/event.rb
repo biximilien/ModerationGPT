@@ -12,7 +12,7 @@ module Harassment
     :raw_content,
     :classification_status,
     :content_retention_expires_at,
-    :content_redacted_at,
+    :content_redacted_at
   ) do
     def self.build(
       message_id:,
@@ -36,7 +36,7 @@ module Harassment
         raw_content: string!(raw_content, "raw_content"),
         classification_status: classification_status!(classification_status),
         content_retention_expires_at: optional_time(content_retention_expires_at, "content_retention_expires_at"),
-        content_redacted_at: optional_time(content_redacted_at, "content_redacted_at"),
+        content_redacted_at: optional_time(content_redacted_at, "content_redacted_at")
       )
     end
 
@@ -58,7 +58,7 @@ module Harassment
       self.class.build(
         **to_h,
         raw_content: replacement.to_s,
-        content_redacted_at: redacted_at,
+        content_redacted_at: redacted_at
       )
     end
 

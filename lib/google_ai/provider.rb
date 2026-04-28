@@ -19,15 +19,15 @@ module GoogleAI
           type: "object",
           additionalProperties: false,
           required: %w[harassment hate threat sexual violence self_harm],
-          properties: %w[harassment hate threat sexual violence self_harm].to_h { |name| [name, { type: "boolean" }] },
+          properties: %w[harassment hate threat sexual violence self_harm].to_h { |name| [name, { type: "boolean" }] }
         },
         category_scores: {
           type: "object",
           additionalProperties: false,
           required: %w[harassment hate threat sexual violence self_harm],
-          properties: %w[harassment hate threat sexual violence self_harm].to_h { |name| [name, { type: "number", minimum: 0.0, maximum: 1.0 }] },
-        },
-      },
+          properties: %w[harassment hate threat sexual violence self_harm].to_h { |name| [name, { type: "number", minimum: 0.0, maximum: 1.0 }] }
+        }
+      }
     }.freeze
 
     def initialize(transport: Transport.new, model: Environment.google_ai_model)
@@ -42,24 +42,24 @@ module GoogleAI
           "Classify this Discord message for moderation review.",
           "Return only JSON matching the schema.",
           "Message:",
-          text,
+          text
         ].join("\n"),
         schema: MODERATION_SCHEMA,
-        user:,
+        user:
       )
       payload = JSON.parse(response_text(response))
 
       ModerationGPT::AI::ModerationResult.new(
         flagged: payload.fetch("flagged"),
         categories: payload.fetch("categories"),
-        category_scores: payload.fetch("category_scores"),
+        category_scores: payload.fetch("category_scores")
       )
     end
 
     def moderation_rewrite(text, user = nil, instructions: DEFAULT_REWRITE_INSTRUCTIONS)
       response = generate_text(
         prompt: "#{instructions}\n\nMessage:\n#{text}",
-        user:,
+        user:
       )
       response_text(response)
     end
@@ -91,7 +91,7 @@ module GoogleAI
       @transport.generate_content(
         model:,
         payload: content_payload(prompt),
-        user:,
+        user:
       )
     end
 
@@ -101,10 +101,10 @@ module GoogleAI
         payload: content_payload(prompt).merge(
           generationConfig: {
             responseMimeType: "application/json",
-            responseJsonSchema: normalize_schema(schema),
-          },
+            responseJsonSchema: normalize_schema(schema)
+          }
         ),
-        user:,
+        user:
       )
     end
 
@@ -113,10 +113,10 @@ module GoogleAI
         contents: [
           {
             parts: [
-              { text: prompt.to_s },
-            ],
-          },
-        ],
+              { text: prompt.to_s }
+            ]
+          }
+        ]
       }
     end
 

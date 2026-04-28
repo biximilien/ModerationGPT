@@ -4,7 +4,7 @@ module Harassment
     :channel_id,
     :user_id,
     :since,
-    :incidents,
+    :incidents
   ) do
     def self.build(server_id:, channel_id:, incidents:, user_id: nil, since: nil)
       new(
@@ -12,7 +12,7 @@ module Harassment
         channel_id: channel_id.to_s,
         user_id: user_id&.to_s,
         since: since&.utc,
-        incidents: Array(incidents),
+        incidents: Array(incidents)
       )
     end
   end

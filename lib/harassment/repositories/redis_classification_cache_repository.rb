@@ -27,7 +27,7 @@ module Harassment
       def store(cache_key, record, expires_at:)
         payload = {
           expires_at: expires_at.utc.iso8601,
-          record: serialize_record(record),
+          record: serialize_record(record)
         }
         @redis.hset(@key, cache_key, JSON.generate(payload))
         record
@@ -45,7 +45,7 @@ module Harassment
           classification: record.classification,
           severity_score: record.severity_score,
           confidence: record.confidence,
-          classified_at: record.classified_at.iso8601,
+          classified_at: record.classified_at.iso8601
         }
       end
 
@@ -59,7 +59,7 @@ module Harassment
           classification: payload.fetch(:classification),
           severity_score: payload.fetch(:severity_score),
           confidence: payload.fetch(:confidence),
-          classified_at: payload.fetch(:classified_at),
+          classified_at: payload.fetch(:classified_at)
         )
       end
     end

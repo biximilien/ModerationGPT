@@ -23,7 +23,7 @@ describe Environment do
 
       expect { described_class.validate! }.to raise_error(
         RuntimeError,
-        "Missing required environment variables: OPENAI_API_KEY",
+        "Missing required environment variables: OPENAI_API_KEY"
       )
     end
 
@@ -36,7 +36,7 @@ describe Environment do
 
       expect { described_class.validate! }.to raise_error(
         RuntimeError,
-        "Missing required environment variables: GOOGLE_AI_API_KEY",
+        "Missing required environment variables: GOOGLE_AI_API_KEY"
       )
     end
 
@@ -230,7 +230,7 @@ describe Environment do
 
       expect(described_class.plugin_requires).to eq([
                                                       "moderation_gpt/plugins/audit_webhook",
-                                                      "custom/plugin",
+                                                      "custom/plugin"
                                                     ])
     end
   end

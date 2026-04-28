@@ -23,8 +23,8 @@ module Harassment
                 AND score_version = $4
               LIMIT 1
             SQL
-            [server_id.to_s, source_user_id.to_s, target_user_id.to_s, score_version.to_s],
-          ),
+            [server_id.to_s, source_user_id.to_s, target_user_id.to_s, score_version.to_s]
+          )
         )
         row ? deserialize_edge(row) : nil
       end
@@ -51,8 +51,8 @@ module Harassment
                             last_interaction_at = EXCLUDED.last_interaction_at
               RETURNING *
             SQL
-            serialize_edge(edge),
-          ),
+            serialize_edge(edge)
+          )
         )
         deserialize_edge(row)
       end
@@ -68,8 +68,8 @@ module Harassment
                 AND score_version = $3
               ORDER BY target_user_id ASC
             SQL
-            [server_id.to_s, source_user_id.to_s, score_version.to_s],
-          ),
+            [server_id.to_s, source_user_id.to_s, score_version.to_s]
+          )
         ).map { |row| deserialize_edge(row) }
       end
 
@@ -84,8 +84,8 @@ module Harassment
                 AND score_version = $3
               ORDER BY source_user_id ASC
             SQL
-            [server_id.to_s, target_user_id.to_s, score_version.to_s],
-          ),
+            [server_id.to_s, target_user_id.to_s, score_version.to_s]
+          )
         ).map { |row| deserialize_edge(row) }
       end
 
@@ -97,7 +97,7 @@ module Harassment
               WHERE guild_id = $1
                 AND score_version = $2
             SQL
-            [server_id.to_s, score_version.to_s],
+            [server_id.to_s, score_version.to_s]
           )
         else
           @connection.exec_params(
@@ -105,7 +105,7 @@ module Harassment
               DELETE FROM relationship_edges
               WHERE score_version = $1
             SQL
-            [score_version.to_s],
+            [score_version.to_s]
           )
         end
       end
@@ -121,7 +121,7 @@ module Harassment
           edge.hostility_score,
           edge.positive_score,
           edge.interaction_count,
-          edge.last_interaction_at&.iso8601(9),
+          edge.last_interaction_at&.iso8601(9)
         ]
       end
 
@@ -134,7 +134,7 @@ module Harassment
           hostility_score: row.fetch("hostility_score"),
           positive_score: row.fetch("positive_score"),
           interaction_count: row.fetch("interaction_count"),
-          last_interaction_at: row.fetch("last_interaction_at"),
+          last_interaction_at: row.fetch("last_interaction_at")
         )
       end
     end

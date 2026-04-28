@@ -23,7 +23,7 @@ module Harassment
             postgres_total: postgres_counts.fetch(:total),
             redis_by_server: redis_counts.fetch(:by_server),
             postgres_by_server: postgres_counts.fetch(:by_server),
-            matches: redis_counts == postgres_counts,
+            matches: redis_counts == postgres_counts
           }
         end
       end
@@ -35,8 +35,8 @@ module Harassment
               SELECT COUNT(*) AS count
               FROM #{table_name}
             SQL
-            [],
-          ),
+            []
+          )
         )
         server_rows = rows(
           @connection.exec_params(
@@ -46,13 +46,13 @@ module Harassment
               GROUP BY guild_id
               ORDER BY guild_id ASC
             SQL
-            [],
-          ),
+            []
+          )
         )
 
         {
           total: total_row.fetch("count").to_i,
-          by_server: server_rows.to_h { |row| [row.fetch("guild_id").to_s, row.fetch("count").to_i] },
+          by_server: server_rows.to_h { |row| [row.fetch("guild_id").to_s, row.fetch("count").to_i] }
         }
       end
 
@@ -66,7 +66,7 @@ module Harassment
 
         {
           total: by_server.values.sum,
-          by_server: by_server.sort.to_h,
+          by_server: by_server.sort.to_h
         }
       end
     end

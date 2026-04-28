@@ -13,7 +13,7 @@ describe Harassment::Repositories::InMemoryClassificationRecordRepository do
       classification: {},
       severity_score: 0.4,
       confidence: 0.8,
-      classified_at: Time.utc(2026, 4, 25, 14, 0, 0),
+      classified_at: Time.utc(2026, 4, 25, 14, 0, 0)
     )
   end
 
@@ -27,7 +27,7 @@ describe Harassment::Repositories::InMemoryClassificationRecordRepository do
       classification: { intent: "aggressive" },
       severity_score: 0.6,
       confidence: 0.9,
-      classified_at: Time.utc(2026, 4, 25, 14, 5, 0),
+      classified_at: Time.utc(2026, 4, 25, 14, 5, 0)
     )
   end
 

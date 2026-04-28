@@ -13,11 +13,11 @@ describe Harassment::ClassificationRecord do
       classification: {
         intent: "aggressive",
         target_type: "individual",
-        categories: { insult: true, threat: false },
+        categories: { insult: true, threat: false }
       },
       severity_score: 0.8,
       confidence: 0.9,
-      classified_at: classified_at,
+      classified_at: classified_at
     )
 
     expect(record.message_id).to eq("123")
@@ -36,7 +36,7 @@ describe Harassment::ClassificationRecord do
         classifier_version: "harassment-v1",
         classification: {},
         severity_score: 0.4,
-        confidence: 0.5,
+        confidence: 0.5
       )
     end.to raise_error(ArgumentError, /missing keywords: :server_id, :model_version, :prompt_version/)
   end
@@ -51,7 +51,7 @@ describe Harassment::ClassificationRecord do
         prompt_version: "harassment-prompt-v1",
         classification: {},
         severity_score: 1.5,
-        confidence: 0.5,
+        confidence: 0.5
       )
     end.to raise_error(ArgumentError, "severity_score must be between 0.0 and 1.0")
   end
@@ -66,7 +66,7 @@ describe Harassment::ClassificationRecord do
         prompt_version: "harassment-prompt-v1",
         classification: {},
         severity_score: 0.4,
-        confidence: 0.5,
+        confidence: 0.5
       )
     end.to raise_error(ArgumentError, "model_version must not be empty")
   end

@@ -14,7 +14,7 @@ describe Harassment::PostgresBootstrap do
       redis: redis,
       interaction_events: target_interaction_events,
       classification_records: target_classification_records,
-      classification_jobs: target_classification_jobs,
+      classification_jobs: target_classification_jobs
     )
   end
 
@@ -36,7 +36,7 @@ describe Harassment::PostgresBootstrap do
       author_id: 321,
       target_user_ids: [654],
       timestamp: Time.utc(2026, 4, 25, 12, 0, 0),
-      raw_content: "hello there",
+      raw_content: "hello there"
     )
   end
   let(:record) do
@@ -49,7 +49,7 @@ describe Harassment::PostgresBootstrap do
       classification: { intent: "aggressive", target_type: "individual", toxicity_dimensions: {} },
       severity_score: 0.4,
       confidence: 0.8,
-      classified_at: Time.utc(2026, 4, 25, 12, 0, 5),
+      classified_at: Time.utc(2026, 4, 25, 12, 0, 5)
     )
   end
   let(:job) do
@@ -59,7 +59,7 @@ describe Harassment::PostgresBootstrap do
       classifier_version: "harassment-v1",
       available_at: Time.utc(2026, 4, 25, 12, 0, 0),
       enqueued_at: Time.utc(2026, 4, 25, 12, 0, 0),
-      updated_at: Time.utc(2026, 4, 25, 12, 0, 0),
+      updated_at: Time.utc(2026, 4, 25, 12, 0, 0)
     )
   end
 
@@ -75,7 +75,7 @@ describe Harassment::PostgresBootstrap do
     expect(summary).to eq(
       interaction_events: { imported: 1, skipped: 0 },
       classification_records: { imported: 1, skipped: 0 },
-      classification_jobs: { imported: 1, skipped: 0 },
+      classification_jobs: { imported: 1, skipped: 0 }
     )
     expect(target_interaction_events.find("123", server_id: "456")).to eq(event)
     expect(target_classification_records.find(server_id: "456", message_id: "123", classifier_version: "harassment-v1")).to eq(record)
@@ -89,7 +89,7 @@ describe Harassment::PostgresBootstrap do
     expect(summary).to eq(
       interaction_events: { imported: 0, skipped: 1 },
       classification_records: { imported: 0, skipped: 1 },
-      classification_jobs: { imported: 0, skipped: 1 },
+      classification_jobs: { imported: 0, skipped: 1 }
     )
   end
 end

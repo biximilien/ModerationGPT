@@ -8,7 +8,7 @@ describe Harassment::Repositories::PostgresServerRateLimitRepository do
   let(:timestamps) do
     [
       Time.utc(2026, 4, 25, 15, 0, 0),
-      Time.utc(2026, 4, 25, 15, 0, 30),
+      Time.utc(2026, 4, 25, 15, 0, 30)
     ]
   end
 

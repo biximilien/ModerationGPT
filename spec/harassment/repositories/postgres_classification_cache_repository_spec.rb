@@ -15,7 +15,7 @@ describe Harassment::Repositories::PostgresClassificationCacheRepository do
       classification: { intent: "aggressive" },
       severity_score: 0.4,
       confidence: 0.8,
-      classified_at: Time.utc(2026, 4, 25, 14, 0, 0),
+      classified_at: Time.utc(2026, 4, 25, 14, 0, 0)
     )
   end
 

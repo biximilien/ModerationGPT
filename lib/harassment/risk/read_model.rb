@@ -33,12 +33,12 @@ module Harassment
             server_id: incident.server_id,
             source_user_id: incident.author_id,
             target_user_id: target_user_id,
-            score_version: @score_version,
+            score_version: @score_version
           ) || RelationshipEdge.build(
             server_id: incident.server_id,
             source_user_id: incident.author_id,
             target_user_id: target_user_id,
-            score_version: @score_version,
+            score_version: @score_version
           )
         @edge_repository.save(update_edge(edge, incident))
       end
@@ -107,7 +107,7 @@ module Harassment
         hostility_score: decayed_edge.hostility_score + (incident.severity_score * incident.confidence),
         positive_score: decayed_edge.positive_score,
         interaction_count: decayed_edge.interaction_count + 1,
-        last_interaction_at: incident.classified_at,
+        last_interaction_at: incident.classified_at
       )
     end
   end

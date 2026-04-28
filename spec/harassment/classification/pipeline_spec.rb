@@ -8,7 +8,7 @@ describe Harassment::ClassificationPipeline do
     described_class.new(
       interaction_events: interaction_events,
       classification_records: classification_records,
-      classification_jobs: classification_jobs,
+      classification_jobs: classification_jobs
     )
   end
 
@@ -23,7 +23,7 @@ describe Harassment::ClassificationPipeline do
       server_id: 456,
       channel_id: 789,
       author_id: 321,
-      raw_content: "hello there",
+      raw_content: "hello there"
     )
   end
 
@@ -49,7 +49,7 @@ describe Harassment::ClassificationPipeline do
       prompt_version: "harassment-prompt-v1",
       classification: { intent: "aggressive" },
       severity_score: 0.8,
-      confidence: 0.9,
+      confidence: 0.9
     )
 
     first = pipeline.record_success(record)
@@ -70,7 +70,7 @@ describe Harassment::ClassificationPipeline do
       message_id: "123",
       classifier_version: "harassment-v1",
       error: StandardError.new("temporary failure"),
-      retry_at: retry_at,
+      retry_at: retry_at
     )
 
     expect(job.status).to eq(Harassment::ClassificationStatus::FAILED_RETRYABLE)
@@ -86,7 +86,7 @@ describe Harassment::ClassificationPipeline do
       server_id: "456",
       message_id: "123",
       classifier_version: "harassment-v1",
-      error: StandardError.new("permanent failure"),
+      error: StandardError.new("permanent failure")
     )
 
     expect(job.status).to eq(Harassment::ClassificationStatus::FAILED_TERMINAL)
@@ -101,7 +101,7 @@ describe Harassment::ClassificationPipeline do
       server_id: "456",
       message_id: "123",
       classifier_version: "harassment-v1",
-      available_at: Time.utc(2026, 4, 25, 15, 10, 0),
+      available_at: Time.utc(2026, 4, 25, 15, 10, 0)
     )
 
     expect(job.status).to eq(Harassment::ClassificationStatus::PENDING)

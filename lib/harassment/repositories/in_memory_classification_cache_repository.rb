@@ -21,7 +21,7 @@ module Harassment
       def store(cache_key, record, expires_at:)
         @entries[cache_key] = {
           record: record,
-          expires_at: expires_at.utc,
+          expires_at: expires_at.utc
         }
         record
       end

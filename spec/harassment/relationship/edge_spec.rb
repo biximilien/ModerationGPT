@@ -13,7 +13,7 @@ describe Harassment::RelationshipEdge do
       hostility_score: 0.75,
       positive_score: 0.25,
       interaction_count: 4,
-      last_interaction_at: last_interaction_at,
+      last_interaction_at: last_interaction_at
     )
 
     expect(edge.source_user_id).to eq("123")
@@ -32,7 +32,7 @@ describe Harassment::RelationshipEdge do
         source_user_id: 123,
         target_user_id: 456,
         score_version: "harassment-score-v1",
-        hostility_score: -0.1,
+        hostility_score: -0.1
       )
     end.to raise_error(ArgumentError, "hostility_score must be non-negative")
   end
@@ -46,7 +46,7 @@ describe Harassment::RelationshipEdge do
       hostility_score: 1.0,
       positive_score: 0.5,
       interaction_count: 1,
-      last_interaction_at: Time.utc(2026, 4, 25, 12, 0, 0),
+      last_interaction_at: Time.utc(2026, 4, 25, 12, 0, 0)
     )
     decay_policy = Harassment::DecayPolicy.new(lambda_value: Math.log(2) / 3600.0)
 

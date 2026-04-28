@@ -15,7 +15,7 @@ describe Harassment::PluginBootstrap do
       plugin_registry: nil,
       storage_backend: "redis",
       score_version: "harassment-score-v1",
-      current_read_model: read_model,
+      current_read_model: read_model
     ).build
 
     expect(configured.fetch(:read_model)).to eq(read_model)
@@ -33,7 +33,7 @@ describe Harassment::PluginBootstrap do
       plugin_registry: plugin_registry,
       storage_backend: "postgres",
       score_version: "harassment-score-v1",
-      current_read_model: read_model,
+      current_read_model: read_model
     ).build
 
     expect(configured.fetch(:read_model)).to be_a(Harassment::ReadModel)
@@ -50,12 +50,12 @@ describe Harassment::PluginBootstrap do
       plugin_registry: plugin_registry,
       storage_backend: "postgres",
       score_version: "harassment-score-v1",
-      current_read_model: read_model,
+      current_read_model: read_model
     )
 
     expect { bootstrap.build }.to raise_error(
       RuntimeError,
-      "HARASSMENT_STORAGE_BACKEND=postgres requires the postgres plugin to be enabled",
+      "HARASSMENT_STORAGE_BACKEND=postgres requires the postgres plugin to be enabled"
     )
   end
 end

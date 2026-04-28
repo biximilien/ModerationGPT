@@ -15,7 +15,7 @@ describe Harassment::RetentionManager do
       author_id: 321,
       target_user_ids: [654],
       raw_content: "hello there",
-      content_retention_expires_at: Time.utc(2026, 4, 1, 12, 0, 0),
+      content_retention_expires_at: Time.utc(2026, 4, 1, 12, 0, 0)
     )
     interaction_events.save(event)
 
@@ -36,7 +36,7 @@ describe Harassment::RetentionManager do
       channel_id: 789,
       author_id: 321,
       raw_content: "hello there",
-      content_retention_expires_at: Time.utc(2026, 4, 10, 12, 0, 0),
+      content_retention_expires_at: Time.utc(2026, 4, 10, 12, 0, 0)
     )
     redacted = Harassment::InteractionEvent.build(
       message_id: 124,
@@ -45,7 +45,7 @@ describe Harassment::RetentionManager do
       author_id: 321,
       raw_content: "[REDACTED]",
       content_retention_expires_at: Time.utc(2026, 4, 1, 12, 0, 0),
-      content_redacted_at: Time.utc(2026, 4, 2, 10, 0, 0),
+      content_redacted_at: Time.utc(2026, 4, 2, 10, 0, 0)
     )
 
     interaction_events.save(unexpired)

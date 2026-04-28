@@ -29,7 +29,7 @@ describe Harassment::PostgresVerifier do
       server_id: 456,
       channel_id: 789,
       author_id: 321,
-      raw_content: "hello there",
+      raw_content: "hello there"
     )
     record = Harassment::ClassificationRecord.build(
       server_id: 456,
@@ -39,12 +39,12 @@ describe Harassment::PostgresVerifier do
       prompt_version: "harassment-prompt-v1",
       classification: { intent: "aggressive", target_type: "individual", toxicity_dimensions: {} },
       severity_score: 0.4,
-      confidence: 0.8,
+      confidence: 0.8
     )
     job = Harassment::ClassificationJob.build(
       server_id: 456,
       message_id: 123,
-      classifier_version: "harassment-v1",
+      classifier_version: "harassment-v1"
     )
 
     source_interaction_events.save(event)
@@ -62,8 +62,8 @@ describe Harassment::PostgresVerifier do
         score_version: "harassment-score-v1",
         hostility_score: 0.4,
         interaction_count: 1,
-        last_interaction_at: Time.utc(2026, 4, 25, 12, 0, 5),
-      ),
+        last_interaction_at: Time.utc(2026, 4, 25, 12, 0, 5)
+      )
     )
   end
 
@@ -75,33 +75,33 @@ describe Harassment::PostgresVerifier do
       postgres_total: 1,
       redis_by_server: { "456" => 1 },
       postgres_by_server: { "456" => 1 },
-      matches: true,
+      matches: true
     )
     expect(summary[:classification_records][:matches]).to be(true)
     expect(summary[:classification_jobs][:matches]).to be(true)
     expect(summary[:relationship_edges]).to eq(
       total: 1,
-      by_server: { "456" => 1 },
+      by_server: { "456" => 1 }
     )
     expect(summary[:spot_checks]).to eq(
       interaction_events: {
         sampled: 1,
         matched: 1,
         mismatches: [],
-        matches: true,
+        matches: true
       },
       classification_records: {
         sampled: 1,
         matched: 1,
         mismatches: [],
-        matches: true,
+        matches: true
       },
       classification_jobs: {
         sampled: 1,
         matched: 1,
         mismatches: [],
-        matches: true,
-      },
+        matches: true
+      }
     )
   end
 
@@ -110,8 +110,8 @@ describe Harassment::PostgresVerifier do
       Harassment::ClassificationJob.build(
         server_id: 456,
         message_id: 999,
-        classifier_version: "harassment-v1",
-      ),
+        classifier_version: "harassment-v1"
+      )
     )
 
     summary = verifier.run
@@ -125,7 +125,7 @@ describe Harassment::PostgresVerifier do
     verifier_with_missing_record = described_class.new(
       redis: redis,
       connection: connection,
-      classification_record_repository: double(find: nil),
+      classification_record_repository: double(find: nil)
     )
 
     summary = verifier_with_missing_record.run
@@ -138,10 +138,10 @@ describe Harassment::PostgresVerifier do
           server_id: "456",
           message_id: "123",
           classifier_version: "harassment-v1",
-          reason: "missing",
-        },
+          reason: "missing"
+        }
       ],
-      matches: false,
+      matches: false
     )
   end
 
@@ -151,7 +151,7 @@ describe Harassment::PostgresVerifier do
       server_id: 456,
       channel_id: 789,
       author_id: 654,
-      raw_content: "another message",
+      raw_content: "another message"
     )
     source_interaction_events.save(extra_event)
     target_interaction_events.save(extra_event)
@@ -169,7 +169,7 @@ describe Harassment::PostgresVerifier do
         interaction_event: {
           found_in_redis: true,
           found_in_postgres: true,
-          matches: true,
+          matches: true
         },
         classification_records: {
           found_in_redis: true,
@@ -182,10 +182,10 @@ describe Harassment::PostgresVerifier do
               matches: true,
               identifier: {
                 server_id: "456",
-                classifier_version: "harassment-v1",
-              },
-            },
-          ],
+                classifier_version: "harassment-v1"
+              }
+            }
+          ]
         },
         classification_jobs: {
           found_in_redis: true,
@@ -198,12 +198,12 @@ describe Harassment::PostgresVerifier do
               matches: true,
               identifier: {
                 server_id: "456",
-                classifier_version: "harassment-v1",
-              },
-            },
-          ],
-        },
-      },
+                classifier_version: "harassment-v1"
+              }
+            }
+          ]
+        }
+      }
     )
   end
 
@@ -214,20 +214,20 @@ describe Harassment::PostgresVerifier do
       interaction_event: {
         found_in_redis: false,
         found_in_postgres: false,
-        matches: false,
+        matches: false
       },
       classification_records: {
         found_in_redis: false,
         found_in_postgres: false,
         matches: false,
-        entries: [],
+        entries: []
       },
       classification_jobs: {
         found_in_redis: false,
         found_in_postgres: false,
         matches: false,
-        entries: [],
-      },
+        entries: []
+      }
     )
   end
 end

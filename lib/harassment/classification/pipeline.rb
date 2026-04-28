@@ -29,7 +29,7 @@ module Harassment
         status: ClassificationStatus::PENDING,
         enqueued_at: enqueued_at,
         updated_at: enqueued_at,
-        available_at: enqueued_at,
+        available_at: enqueued_at
       )
 
       @classification_jobs.enqueue_unique(job)
@@ -39,7 +39,7 @@ module Harassment
       existing_record = @classification_records.find(
         server_id: record.server_id,
         message_id: record.message_id,
-        classifier_version: record.classifier_version,
+        classifier_version: record.classifier_version
       )
       return existing_record if existing_record
 
@@ -58,7 +58,7 @@ module Harassment
         classifier_version:,
         status: ClassificationStatus::FAILED_RETRYABLE,
         error:,
-        available_at: retry_at,
+        available_at: retry_at
       )
     end
 
@@ -70,7 +70,7 @@ module Harassment
         classifier_version:,
         status: ClassificationStatus::FAILED_TERMINAL,
         error:,
-        available_at: Time.now.utc,
+        available_at: Time.now.utc
       )
     end
 
@@ -78,7 +78,7 @@ module Harassment
       deferred_job = fetch_job(server_id:, message_id:, classifier_version:).with_status(
         ClassificationStatus::PENDING,
         available_at: available_at,
-        updated_at: available_at,
+        updated_at: available_at
       )
       @classification_jobs.save(deferred_job)
       @interaction_events.update_classification_status(message_id, ClassificationStatus::PENDING, server_id:)
@@ -96,7 +96,7 @@ module Harassment
                       available_at: available_at,
                       last_error_class: error.class.name,
                       last_error_message: error.message,
-                      updated_at: available_at,
+                      updated_at: available_at
                     )
       @classification_jobs.save(updated_job)
     end

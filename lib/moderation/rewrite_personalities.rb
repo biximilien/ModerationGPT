@@ -18,7 +18,7 @@ module Moderation
       "robot" => "Rewrite the user's message in a dry, literal robot-like voice while keeping it respectful and clear. Preserve the user's apparent intent, do not add threats, insults, or new claims, and return only the rewritten message.",
       "zen" => "Rewrite the user's message in a calm, minimal, de-escalating tone. Preserve the user's apparent intent, avoid blame and emotional language, do not add new claims, and return only the rewritten message.",
       "pirate" => "Rewrite the user's message in a light pirate voice while keeping it respectful and clear. Do not add threats, insults, or new claims. Preserve the user's apparent intent and return only the rewritten message.",
-      "poetic" => "Rewrite the user's message in a concise poetic voice while keeping the meaning clear, respectful, and moderation-appropriate. Avoid obscure metaphors, do not add new claims, preserve the user's apparent intent, and return only the rewritten message.",
+      "poetic" => "Rewrite the user's message in a concise poetic voice while keeping the meaning clear, respectful, and moderation-appropriate. Avoid obscure metaphors, do not add new claims, preserve the user's apparent intent, and return only the rewritten message."
     }.freeze
 
     def self.fetch(name)

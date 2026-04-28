@@ -7,7 +7,7 @@ module Discord
       "help" => [],
       "watchlist" => %w[add remove],
       "karma" => %w[history reset set add remove],
-      "review" => %w[recent clear restore repost],
+      "review" => %w[recent clear restore repost]
     }.freeze
     MENTION_PATTERN = /\A<@!?(\d+)>\z/
     AMOUNT_PATTERN = /\A-?\d+\z/

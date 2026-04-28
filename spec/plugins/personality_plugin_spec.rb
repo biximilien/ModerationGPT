@@ -54,7 +54,7 @@ describe ModerationGPT::Plugins::PersonalityPlugin do
       "southern_charm" => "Southern-inspired voice",
       "shakespearean" => "Shakespearean style",
       "robot" => "robot-like voice",
-      "zen" => "calm, minimal, de-escalating tone",
+      "zen" => "calm, minimal, de-escalating tone"
     }
 
     expected_phrases.each do |personality, phrase|
@@ -74,7 +74,7 @@ describe ModerationGPT::Plugins::PersonalityPlugin do
     expect($logger).to have_received(:warn).with(
       event: "unknown_moderation_personality",
       configured_personality: "wizard",
-      fallback_personality: "objective",
+      fallback_personality: "objective"
     )
   end
 end

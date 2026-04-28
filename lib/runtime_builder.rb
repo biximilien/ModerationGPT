@@ -20,7 +20,7 @@ module ModerationGPT
     :moderation_command,
     :message_router,
     :ready_handler,
-    keyword_init: true,
+    keyword_init: true
   )
 
   class RuntimeBuilder
@@ -40,7 +40,7 @@ module ModerationGPT
         harassment_worker_runner: harassment_runtime ? Harassment::WorkerRunner.new(runtime: harassment_runtime) : nil,
         moderation_command: Discord::ModerationCommand.new(@app, plugin_commands: @plugins.commands),
         message_router: Moderation::MessageRouter.new(strategies),
-        ready_handler: Discord::ReadyHandler.new(bot, @app),
+        ready_handler: Discord::ReadyHandler.new(bot, @app)
       )
     end
 
@@ -59,14 +59,14 @@ module ModerationGPT
         storage_backend: storage_config.storage_backend,
         classifier_version: harassment_classification.classifier_version,
         classifier: harassment_classification.build_classifier(client: @app),
-        on_classification: ->(event:, record:) { harassment_classification.record(event:, record:) },
+        on_classification: ->(event:, record:) { harassment_classification.record(event:, record:) }
       )
     end
 
     def strategies
       [
         WatchListStrategy.new(@app, plugin_registry: @plugins),
-        RemoveMessageStrategy.new(@app, plugin_registry: @plugins),
+        RemoveMessageStrategy.new(@app, plugin_registry: @plugins)
       ] + @plugins.moderation_strategies(app: @app, plugin_registry: @plugins)
     end
   end

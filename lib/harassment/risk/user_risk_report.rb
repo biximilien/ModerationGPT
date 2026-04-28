@@ -5,7 +5,7 @@ module Harassment
     :score_version,
     :risk_score,
     :relationship_count,
-    :signals,
+    :signals
   ) do
     def self.build(server_id:, user_id:, score_version:, risk_score:, relationship_count:, signals: {})
       new(
@@ -14,7 +14,7 @@ module Harassment
         score_version: score_version.to_s,
         risk_score: Float(risk_score),
         relationship_count: Integer(relationship_count),
-        signals: symbolize_numeric_hash(signals),
+        signals: symbolize_numeric_hash(signals)
       )
     end
 
