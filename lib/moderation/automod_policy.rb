@@ -43,7 +43,8 @@ module Moderation
       target = moderation_target(event)
       reason = moderation_reason(score)
 
-      applied_or_unavailable(user_hash, score, "timeout", AutomodOutcome::TIMEOUT_APPLIED, AutomodOutcome::TIMEOUT_UNAVAILABLE) do
+      applied_or_unavailable(user_hash, score, "timeout", AutomodOutcome::TIMEOUT_APPLIED,
+                             AutomodOutcome::TIMEOUT_UNAVAILABLE) do
         if target.respond_to?(:timeout_for)
           target.timeout_for(@timeout_seconds, reason)
         elsif target.respond_to?(:timeout)
@@ -58,7 +59,8 @@ module Moderation
       target = moderation_target(event)
       reason = moderation_reason(score)
 
-      applied_or_unavailable(user_hash, score, "kick", AutomodOutcome::KICK_APPLIED, AutomodOutcome::KICK_UNAVAILABLE) do
+      applied_or_unavailable(user_hash, score, "kick", AutomodOutcome::KICK_APPLIED,
+                             AutomodOutcome::KICK_UNAVAILABLE) do
         if target.respond_to?(:kick)
           target.kick(reason)
           true

@@ -48,14 +48,17 @@ module ModerationGPT
       end
 
       def handle_pair(event, match)
-        report = @query_service.get_pair_relationship(event.server.id, match[:source_user_id], match[:target_user_id], as_of: Time.now.utc)
-        event.respond(@presenter.pair(report, source_user_id: match[:source_user_id], target_user_id: match[:target_user_id]))
+        report = @query_service.get_pair_relationship(event.server.id, match[:source_user_id], match[:target_user_id],
+                                                      as_of: Time.now.utc)
+        event.respond(@presenter.pair(report, source_user_id: match[:source_user_id],
+                                              target_user_id: match[:target_user_id]))
       end
 
       def handle_incidents(event, match)
         limit = (match[:limit]&.to_i || DEFAULT_INCIDENT_LIMIT).clamp(1, MAX_INCIDENT_LIMIT)
         since = incident_window_start(match[:window])
-        report = @query_service.recent_incidents(event.server.id, event.channel.id, limit:, user_id: match[:user_id], since:)
+        report = @query_service.recent_incidents(event.server.id, event.channel.id, limit:, user_id: match[:user_id],
+                                                                                    since:)
         event.respond(@presenter.incidents(report, user_id: match[:user_id], window: match[:window]))
       end
 

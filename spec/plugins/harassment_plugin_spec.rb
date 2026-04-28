@@ -44,8 +44,17 @@ describe ModerationGPT::Plugins::HarassmentPlugin do
     risk_report = plugin.query_service.get_user_risk("456", "321", as_of: record.classified_at)
 
     expect(risk_report.risk_score).to be_between(0.0, 1.0)
-    expect(risk_report.signals.keys).to match_array(%i[asymmetry persistence burst_intensity target_concentration average_severity])
-    expect(plugin.query_service.get_pair_relationship("456", "321", "654", as_of: record.classified_at).relationship_edge.interaction_count).to eq(1)
+    expect(risk_report.signals.keys).to match_array(
+      %i[asymmetry persistence burst_intensity target_concentration average_severity]
+    )
+    expect(
+      plugin.query_service.get_pair_relationship(
+        "456",
+        "321",
+        "654",
+        as_of: record.classified_at
+      ).relationship_edge.interaction_count
+    ).to eq(1)
   end
 
   it "is idempotent for duplicate classification deliveries" do
@@ -73,7 +82,14 @@ describe ModerationGPT::Plugins::HarassmentPlugin do
     plugin.boot(app: app, plugin_registry: plugin_registry)
     plugin.classification_service.record(event:, record:)
 
-    expect(plugin.query_service.get_pair_relationship("456", "321", "654", as_of: record.classified_at).relationship_edge.interaction_count).to eq(1)
+    expect(
+      plugin.query_service.get_pair_relationship(
+        "456",
+        "321",
+        "654",
+        as_of: record.classified_at
+      ).relationship_edge.interaction_count
+    ).to eq(1)
   ensure
     ENV["HARASSMENT_STORAGE_BACKEND"] = original_backend
   end

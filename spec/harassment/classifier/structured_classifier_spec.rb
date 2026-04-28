@@ -105,7 +105,8 @@ describe Harassment::StructuredClassifier do
 
     expect(client).to have_received(:generate_structured).with(
       hash_including(
-        prompt: a_string_including("\"author_label\":\"author\"", "\"target_labels\":[\"target_1\"]", "\"participant_3\"")
+        prompt: a_string_including("\"author_label\":\"author\"", "\"target_labels\":[\"target_1\"]",
+                                   "\"participant_3\"")
       )
     )
     expect(client).not_to have_received(:generate_structured).with(

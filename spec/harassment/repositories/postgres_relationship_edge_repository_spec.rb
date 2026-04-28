@@ -68,8 +68,10 @@ describe Harassment::Repositories::PostgresRelationshipEdgeRepository do
       )
     )
 
-    expect(repository.outgoing(server_id: "456", source_user_id: "321", score_version: "harassment-score-v1")).to eq([edge])
-    expect(repository.incoming(server_id: "456", target_user_id: "654", score_version: "harassment-score-v1").length).to eq(2)
+    expect(repository.outgoing(server_id: "456", source_user_id: "321",
+                               score_version: "harassment-score-v1")).to eq([edge])
+    expect(repository.incoming(server_id: "456", target_user_id: "654",
+                               score_version: "harassment-score-v1").length).to eq(2)
   end
 
   it "deletes edges by score version" do

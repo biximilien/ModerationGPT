@@ -4,13 +4,24 @@ describe GoogleAI::Provider do
   subject(:provider) { described_class.new(transport:, model: "gemini-test") }
 
   let(:transport) { instance_double("GoogleAI::Transport") }
+  let(:moderation_payload) do
+    {
+      flagged: true,
+      categories: {
+        harassment: true, hate: false, threat: false, sexual: false, violence: false, self_harm: false
+      },
+      category_scores: {
+        harassment: 0.9, hate: 0.0, threat: 0.0, sexual: 0.0, violence: 0.0, self_harm: 0.0
+      }
+    }
+  end
   let(:response) do
     {
       "candidates" => [
         {
           "content" => {
             "parts" => [
-              { "text" => '{"flagged":true,"categories":{"harassment":true,"hate":false,"threat":false,"sexual":false,"violence":false,"self_harm":false},"category_scores":{"harassment":0.9,"hate":0.0,"threat":0.0,"sexual":0.0,"violence":0.0,"self_harm":0.0}}' }
+              { "text" => JSON.generate(moderation_payload) }
             ]
           }
         }

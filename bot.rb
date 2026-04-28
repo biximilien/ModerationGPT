@@ -32,10 +32,12 @@ bot.message do |event|
 
   if harassment_runtime
     interaction_event = harassment_runtime.ingest_message(event)
-    Logging.info("harassment_interaction_enqueued", message_id: interaction_event.message_id, target_count: interaction_event.target_user_ids.length)
+    Logging.info("harassment_interaction_enqueued", message_id: interaction_event.message_id,
+                                                    target_count: interaction_event.target_user_ids.length)
   end
   plugins.message(event: event, app: app, bot: bot)
-  Logging.info("discord_message_received", user_hash: Telemetry::Anonymizer.hash(event.user.id), message_length: event.message.content.length)
+  Logging.info("discord_message_received", user_hash: Telemetry::Anonymizer.hash(event.user.id),
+                                           message_length: event.message.content.length)
 
   if moderation_command.matches?(event)
     moderation_command.handle(event)

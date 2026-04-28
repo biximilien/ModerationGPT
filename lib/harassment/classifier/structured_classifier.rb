@@ -56,7 +56,9 @@ module Harassment
           timestamp: event.timestamp.iso8601,
           content: event.raw_content,
           author_label: participant_labels.fetch(event.author_id, "author"),
-          target_labels: event.target_user_ids.map { |target_user_id| participant_labels.fetch(target_user_id, "target") }
+          target_labels: event.target_user_ids.map { |target_user_id|
+            participant_labels.fetch(target_user_id, "target")
+          }
         },
         recent_channel_messages: Array((context || {})[:recent_channel_messages]),
         recent_pair_interactions: Array((context || {})[:recent_pair_interactions])
@@ -93,18 +95,21 @@ module Harassment
     def bounded_output_float(value, name)
       numeric = Float(value)
       unless numeric.between?(0.0, 1.0)
-        raise ClassifierOutputError, "Structured harassment classifier output failed validation: #{name} must be between 0.0 and 1.0"
+        raise ClassifierOutputError,
+              "Structured harassment classifier output failed validation: #{name} must be between 0.0 and 1.0"
       end
 
       numeric
     rescue ArgumentError, TypeError
-      raise ClassifierOutputError, "Structured harassment classifier output failed validation: #{name} must be between 0.0 and 1.0"
+      raise ClassifierOutputError,
+            "Structured harassment classifier output failed validation: #{name} must be between 0.0 and 1.0"
     end
 
     def output_hash(value, name)
       return value if value.is_a?(Hash)
 
-      raise ClassifierOutputError, "Structured harassment classifier output failed validation: #{name} must be an object"
+      raise ClassifierOutputError,
+            "Structured harassment classifier output failed validation: #{name} must be an object"
     end
   end
 end

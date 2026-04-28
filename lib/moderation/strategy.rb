@@ -112,7 +112,8 @@ class ModerationStrategy
     return unless outcome
 
     @bot.record_user_karma_event(event.server.id, event.user.id, score:, source: outcome)
-    @plugin_registry&.automod_outcome(event: event, score: score, outcome: outcome, app: @bot, strategy: self.class.name)
+    @plugin_registry&.automod_outcome(event: event, score: score, outcome: outcome, app: @bot,
+                                      strategy: self.class.name)
   end
 
   def record_moderation_result(event, result)

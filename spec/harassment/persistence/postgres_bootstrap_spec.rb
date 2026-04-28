@@ -78,8 +78,10 @@ describe Harassment::PostgresBootstrap do
       classification_jobs: { imported: 1, skipped: 0 }
     )
     expect(target_interaction_events.find("123", server_id: "456")).to eq(event)
-    expect(target_classification_records.find(server_id: "456", message_id: "123", classifier_version: "harassment-v1")).to eq(record)
-    expect(target_classification_jobs.find(server_id: "456", message_id: "123", classifier_version: "harassment-v1")).to eq(job)
+    expect(target_classification_records.find(server_id: "456", message_id: "123",
+                                              classifier_version: "harassment-v1")).to eq(record)
+    expect(target_classification_jobs.find(server_id: "456", message_id: "123",
+                                           classifier_version: "harassment-v1")).to eq(job)
   end
 
   it "is idempotent on repeated bootstrap runs" do

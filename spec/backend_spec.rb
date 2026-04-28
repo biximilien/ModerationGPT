@@ -123,8 +123,14 @@ describe Backend do
     end
 
     it "rejects non-integer score or delta values" do
-      expect { record_user_karma_event(server_id, user_id, score: "abc", source: "event") }.to raise_error(ArgumentError, "score must be an integer")
-      expect { record_user_karma_event(server_id, user_id, score: -5, source: "event", delta: "abc") }.to raise_error(ArgumentError, "delta must be an integer")
+      expect {
+        record_user_karma_event(server_id, user_id, score: "abc",
+                                                    source: "event")
+      }.to raise_error(ArgumentError, "score must be an integer")
+      expect {
+        record_user_karma_event(server_id, user_id, score: -5, source: "event",
+                                                    delta: "abc")
+      }.to raise_error(ArgumentError, "delta must be an integer")
     end
   end
 

@@ -9,6 +9,7 @@ describe Harassment::ClassificationStatus do
     expect(described_class.normalize!("classified")).to eq("classified")
 
     expect { described_class.normalize!("not-real", field_name: "classification_status") }
-      .to raise_error(ArgumentError, "classification_status must be one of: pending, classified, failed_retryable, failed_terminal")
+      .to raise_error(ArgumentError,
+                      "classification_status must be one of: pending, classified, failed_retryable, failed_terminal")
   end
 end

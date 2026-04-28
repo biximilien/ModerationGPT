@@ -41,7 +41,10 @@ module Discord
       mode = entry[:shadow_mode] ? "shadow" : "live"
       rewrite = entry[:rewrite] ? " rewrite=#{preview(entry[:rewrite]).inspect}" : ""
       automod = entry[:automod_outcome] ? " automod=#{entry[:automod_outcome]}" : ""
-      "- #{entry[:created_at]} #{mode} #{entry[:action]} <@#{entry[:user_id]}> msg=#{entry[:message_id]} via #{entry[:strategy]}#{automod}#{rewrite}"
+      [
+        "- #{entry[:created_at]} #{mode} #{entry[:action]} <@#{entry[:user_id]}>",
+        "msg=#{entry[:message_id]} via #{entry[:strategy]}#{automod}#{rewrite}"
+      ].join(" ")
     end
 
     def preview(value)

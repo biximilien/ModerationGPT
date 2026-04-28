@@ -36,7 +36,8 @@ describe Discord::ReviewPresenter do
 
     expect(presenter.list([entry])).to eq(
       "Moderation reviews:\n" \
-      "- 2026-04-19T12:00:00Z shadow would_rewrite <@456> msg=111 via WatchListStrategy rewrite=#{"#{"a" * 120}...".inspect}"
+      "- 2026-04-19T12:00:00Z shadow would_rewrite <@456> msg=111 via WatchListStrategy " \
+      "rewrite=#{"#{"a" * 120}...".inspect}"
     )
   end
 

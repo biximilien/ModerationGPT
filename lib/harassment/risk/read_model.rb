@@ -53,7 +53,8 @@ module Harassment
     end
 
     def get_pair_relationship(server_id, user_a, user_b, as_of: Time.now.utc)
-      edge = @edge_repository.find(server_id:, source_user_id: user_a, target_user_id: user_b, score_version: @score_version)
+      edge = @edge_repository.find(server_id:, source_user_id: user_a, target_user_id: user_b,
+                                   score_version: @score_version)
       edge&.decay_to(as_of:, decay_policy: @decay_policy)
     end
 

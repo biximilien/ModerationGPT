@@ -20,7 +20,8 @@ module Moderation
       strategy.execute(event)
       true
     rescue StandardError => e
-      Logging.error("moderation_strategy_failed", strategy: strategy.class.name, error_class: e.class.name, error_message: e.message)
+      Logging.error("moderation_strategy_failed", strategy: strategy.class.name, error_class: e.class.name,
+                                                  error_message: e.message)
       false
     end
   end

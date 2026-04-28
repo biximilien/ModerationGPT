@@ -15,7 +15,9 @@ describe WatchListStrategy do
   let(:channel) { instance_double("Channel", id: 789) }
   let(:message) { instance_double("Message", id: 111, content: "bad message", delete: true) }
   let(:user) { instance_double("User", id: 456) }
-  let(:event) { instance_double("Event", server: server, channel: channel, message: message, user: user, respond: true) }
+  let(:event) {
+    instance_double("Event", server: server, channel: channel, message: message, user: user, respond: true)
+  }
   let(:bot) { instance_double("Bot") }
   let(:automod_policy) { instance_double("AutomodPolicy", apply: Moderation::AutomodOutcome::TIMEOUT_APPLIED) }
   let(:plugin_registry) do
@@ -66,7 +68,8 @@ describe WatchListStrategy do
 
   it "uses plugin rewrite instructions when available" do
     allow(plugin_registry).to receive(:rewrite_instructions).and_return("Use pirate voice.")
-    allow(bot).to receive(:moderation_rewrite).with("bad message", user, instructions: "Use pirate voice.").and_return("Avast, be kinder.")
+    allow(bot).to receive(:moderation_rewrite).with("bad message", user,
+                                                    instructions: "Use pirate voice.").and_return("Avast, be kinder.")
     allow(bot).to receive(:decrement_user_karma).with(123, 456).and_return(-1)
 
     described_class.new(bot, automod_policy: automod_policy, plugin_registry: plugin_registry).execute(event)
@@ -105,7 +108,13 @@ describe WatchListStrategy do
     expect(message).not_to have_received(:delete)
     expect(event).not_to have_received(:respond)
     expect(bot).not_to have_received(:decrement_user_karma)
-    expect(bot).to have_received(:record_moderation_review).with(hash_including(action: Moderation::ReviewAction::WOULD_REWRITE, rewrite: "Please be kinder.", shadow_mode: true))
+    expect(bot).to have_received(:record_moderation_review).with(
+      hash_including(
+        action: Moderation::ReviewAction::WOULD_REWRITE,
+        rewrite: "Please be kinder.",
+        shadow_mode: true
+      )
+    )
   end
 
   it "can skip rewrite generation in shadow mode" do
@@ -122,6 +131,12 @@ describe WatchListStrategy do
     strategy.execute(event)
 
     expect(bot).not_to have_received(:moderation_rewrite)
-    expect(bot).to have_received(:record_moderation_review).with(hash_including(action: Moderation::ReviewAction::WOULD_REWRITE, rewrite: nil, shadow_mode: true))
+    expect(bot).to have_received(:record_moderation_review).with(
+      hash_including(
+        action: Moderation::ReviewAction::WOULD_REWRITE,
+        rewrite: nil,
+        shadow_mode: true
+      )
+    )
   end
 end

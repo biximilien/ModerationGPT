@@ -29,7 +29,9 @@ module Harassment
       def all_for_message(server_id:, message_id:)
         normalized_server_id = server_id.to_s
         normalized_message_id = message_id.to_s
-        all_records.select { |record| record.server_id == normalized_server_id && record.message_id == normalized_message_id }.sort_by(&:classified_at)
+        all_records.select { |record|
+          record.server_id == normalized_server_id && record.message_id == normalized_message_id
+        }.sort_by(&:classified_at)
       end
 
       def latest_for_message(server_id:, message_id:)

@@ -62,7 +62,8 @@ describe RemoveMessageStrategy do
   end
 
   it "records live moderation reviews when review storage is available" do
-    result = OpenAI::ModerationResult.new(flagged: true, categories: { "harassment" => true }, category_scores: { "harassment" => 0.9 })
+    result = OpenAI::ModerationResult.new(flagged: true, categories: { "harassment" => true },
+                                          category_scores: { "harassment" => 0.9 })
     allow(bot).to receive(:moderate_text).with("bad message", user).and_return(result)
     allow(bot).to receive(:decrement_user_karma).with(123, 456).and_return(-1)
     allow(bot).to receive(:record_moderation_review)
@@ -99,7 +100,9 @@ describe RemoveMessageStrategy do
 
     expect(message).not_to have_received(:delete)
     expect(bot).not_to have_received(:decrement_user_karma)
-    expect(bot).to have_received(:record_moderation_review).with(hash_including(action: Moderation::ReviewAction::WOULD_REMOVE, shadow_mode: true))
+    expect(bot).to have_received(:record_moderation_review).with(
+      hash_including(action: Moderation::ReviewAction::WOULD_REMOVE, shadow_mode: true)
+    )
   end
 
   it "stores original content in review entries only when explicitly enabled" do

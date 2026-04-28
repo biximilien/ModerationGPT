@@ -53,7 +53,8 @@ describe Harassment::InteractionEvent do
         raw_content: "hello there",
         classification_status: "mystery"
       )
-    end.to raise_error(ArgumentError, "classification_status must be one of: pending, classified, failed_retryable, failed_terminal")
+    end.to raise_error(ArgumentError,
+                       "classification_status must be one of: pending, classified, failed_retryable, failed_terminal")
   end
 
   it "detects retention expiry and supports immutable redaction" do

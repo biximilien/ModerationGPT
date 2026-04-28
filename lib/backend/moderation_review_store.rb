@@ -7,7 +7,11 @@ module Backend
     MODERATION_REVIEW_LIMIT = 100
     MODERATION_REVIEW_SCHEMA_VERSION = 1
 
-    def record_moderation_review(server_id:, channel_id:, message_id:, user_id:, strategy:, action:, shadow_mode:, flagged:, categories: {}, category_scores: {}, rewrite: nil, original_content: nil, automod_outcome: nil, created_at: Time.now.utc)
+    def record_moderation_review(
+      server_id:, channel_id:, message_id:, user_id:, strategy:, action:, shadow_mode:, flagged:,
+      categories: {}, category_scores: {}, rewrite: nil, original_content: nil, automod_outcome: nil,
+      created_at: Time.now.utc
+    )
       entry = DataModel::ModerationReviewEntry.new(
         schema_version: MODERATION_REVIEW_SCHEMA_VERSION,
         created_at: created_at.utc.iso8601,
@@ -33,7 +37,8 @@ module Backend
 
     def get_moderation_reviews(server_id, limit = 5, user_id: nil)
       review_limit = limit.to_i.clamp(1, MODERATION_REVIEW_LIMIT)
-      entries = @redis.lrange(DataModel::Keys.moderation_review(server_id), 0, MODERATION_REVIEW_LIMIT - 1).map do |payload|
+      entries = @redis.lrange(DataModel::Keys.moderation_review(server_id), 0,
+                              MODERATION_REVIEW_LIMIT - 1).map do |payload|
         DataModel::ModerationReviewEntry.from_json(payload).to_h
       end
       entries = entries.select { |entry| entry[:user_id] == user_id.to_s } if user_id

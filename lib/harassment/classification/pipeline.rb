@@ -20,7 +20,8 @@ module Harassment
       existing_job = @classification_jobs.find(server_id: event.server_id, message_id:, classifier_version:)
       return existing_job if existing_job
 
-      @interaction_events.update_classification_status(message_id, ClassificationStatus::PENDING, server_id: event.server_id)
+      @interaction_events.update_classification_status(message_id, ClassificationStatus::PENDING,
+                                                       server_id: event.server_id)
 
       job = ClassificationJob.build(
         server_id: event.server_id,
@@ -44,8 +45,10 @@ module Harassment
       return existing_record if existing_record
 
       @classification_records.save(record)
-      @interaction_events.update_classification_status(record.message_id, ClassificationStatus::CLASSIFIED, server_id: record.server_id)
-      update_job_status(record.server_id, record.message_id, record.classifier_version, ClassificationStatus::CLASSIFIED, updated_at: record.classified_at)
+      @interaction_events.update_classification_status(record.message_id, ClassificationStatus::CLASSIFIED,
+                                                       server_id: record.server_id)
+      update_job_status(record.server_id, record.message_id, record.classifier_version,
+                        ClassificationStatus::CLASSIFIED, updated_at: record.classified_at)
 
       record
     end
@@ -108,7 +111,11 @@ module Harassment
 
     def fetch_job(server_id:, message_id:, classifier_version:)
       @classification_jobs.find(server_id:, message_id:, classifier_version:) ||
-        raise(ArgumentError, "classification job not found for server_id=#{server_id} message_id=#{message_id} classifier_version=#{ClassifierVersion.build(classifier_version)}")
+        raise(
+          ArgumentError,
+          "classification job not found for server_id=#{server_id} message_id=#{message_id} " \
+          "classifier_version=#{ClassifierVersion.build(classifier_version)}"
+        )
     end
   end
 end

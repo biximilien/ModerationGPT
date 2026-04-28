@@ -35,7 +35,9 @@ module Harassment
           )
         )
         unless row
-          raise ArgumentError, "classification record already exists for #{record.server_id}:#{record.message_id}:#{record.classifier_version.value}"
+          raise ArgumentError,
+                "classification record already exists for #{record.server_id}:#{record.message_id}:" \
+                "#{record.classifier_version.value}"
         end
 
         deserialize_record(row)

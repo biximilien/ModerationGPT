@@ -2,6 +2,8 @@ require "json"
 require "time"
 require_relative "fake_postgres/time_helpers"
 
+# SQL fixture regexes and tuple unpacking intentionally mirror repository query shapes.
+# rubocop:disable Layout/LineLength
 class FakePostgresConnection
   include FakePostgres::TimeHelpers
 
@@ -25,7 +27,8 @@ class FakePostgresConnection
     when /SELECT \*\s+FROM interaction_events\s+WHERE classification_status = \$1/im
       list_by_status(params[0])
     when /SELECT \*\s+FROM interaction_events\s+WHERE guild_id = \$1\s+AND classification_status = \$2/im
-      list_classified_for_server(params[0], channel_id: params[2], author_id: params[3], since: params[4], limit: params[5])
+      list_classified_for_server(params[0], channel_id: params[2], author_id: params[3], since: params[4],
+                                            limit: params[5])
     when /SELECT \*\s+FROM interaction_events\s+WHERE content_retention_expires_at IS NOT NULL/im
       list_expired(params[0])
     when /UPDATE interaction_events\s+SET raw_content = \$3,\s+content_redacted_at = \$4/im
@@ -437,3 +440,4 @@ class FakePostgresConnection
       .map { |guild_id, entries| { "guild_id" => guild_id, "count" => entries.length } }
   end
 end
+# rubocop:enable Layout/LineLength

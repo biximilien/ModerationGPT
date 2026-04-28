@@ -5,11 +5,15 @@ require_relative "retention_policy"
 
 module Harassment
   class MessageIngestor
-    def initialize(interaction_events:, classification_pipeline:, retention_policy: RetentionPolicy.new, classifier_version:)
+    def initialize(
+      interaction_events:, classification_pipeline:, classifier_version:, retention_policy: RetentionPolicy.new
+    )
       @interaction_events = interaction_events
       @classification_pipeline = classification_pipeline
       @retention_policy = retention_policy
-      @classifier_version = classifier_version.is_a?(ClassifierVersion) ? classifier_version : ClassifierVersion.build(classifier_version)
+      @classifier_version = classifier_version.is_a?(ClassifierVersion) ? classifier_version : ClassifierVersion.build(
+        classifier_version
+      )
     end
 
     def ingest(event)

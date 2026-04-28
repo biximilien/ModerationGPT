@@ -33,7 +33,9 @@ module Harassment
       @classification_jobs = classification_jobs || core_factory.classification_jobs
       @classification_cache = classification_cache || core_factory.classification_cache
       @server_rate_limits = server_rate_limits || core_factory.server_rate_limits
-      @classifier_version = classifier_version.is_a?(ClassifierVersion) ? classifier_version : ClassifierVersion.build(classifier_version)
+      @classifier_version = classifier_version.is_a?(ClassifierVersion) ? classifier_version : ClassifierVersion.build(
+        classifier_version
+      )
       @classifier = wrap_classifier(classifier, ttl_seconds: classifier_cache_ttl_seconds)
       @rate_limiter = build_rate_limiter(limit_per_minute: classifier_rate_limit_per_minute)
       @classification_pipeline = ClassificationPipeline.new(

@@ -41,7 +41,8 @@ module Harassment
       )
     end
 
-    def with_status(status, available_at: self.available_at, last_error_class: nil, last_error_message: nil, updated_at: Time.now.utc)
+    def with_status(status, available_at: self.available_at, last_error_class: nil, last_error_message: nil,
+                    updated_at: Time.now.utc)
       self.class.build(
         **to_h,
         status: status,

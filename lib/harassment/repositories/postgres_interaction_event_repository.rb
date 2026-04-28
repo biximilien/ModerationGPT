@@ -38,7 +38,8 @@ module Harassment
           )
         )
         unless row
-          raise ArgumentError, "interaction event already exists for server_id=#{event.server_id} message_id=#{event.message_id}"
+          raise ArgumentError,
+                "interaction event already exists for server_id=#{event.server_id} message_id=#{event.message_id}"
         end
 
         deserialize_event(row)

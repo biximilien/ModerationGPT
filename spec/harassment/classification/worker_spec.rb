@@ -70,8 +70,10 @@ describe Harassment::ClassificationWorker do
 
   before do
     interaction_events.save(event)
-    classification_pipeline.enqueue(message_id: "123", server_id: "456", classifier_version: "harassment-v1", enqueued_at: event.timestamp)
-    allow(context_assembler).to receive(:build_for).and_return({ recent_channel_messages: [], recent_pair_interactions: [], participant_labels: {} })
+    classification_pipeline.enqueue(message_id: "123", server_id: "456", classifier_version: "harassment-v1",
+                                    enqueued_at: event.timestamp)
+    allow(context_assembler).to receive(:build_for).and_return({ recent_channel_messages: [],
+                                                                 recent_pair_interactions: [], participant_labels: {} })
   end
 
   it "processes due jobs and records successful classifications" do
@@ -87,7 +89,8 @@ describe Harassment::ClassificationWorker do
       classified_at: Time.utc(2026, 4, 25, 18, 1, 0)
     )
     expect(classification_records.latest_for_message(server_id: "456", message_id: "123")).to eq(record)
-    expect(classification_jobs.find(server_id: "456", message_id: "123", classifier_version: "harassment-v1").status).to eq(Harassment::ClassificationStatus::CLASSIFIED)
+    expect(classification_jobs.find(server_id: "456", message_id: "123",
+                                    classifier_version: "harassment-v1").status).to eq(Harassment::ClassificationStatus::CLASSIFIED)
     expect(processed).to eq([[event, record]])
   end
 
@@ -139,7 +142,9 @@ describe Harassment::ClassificationWorker do
     let(:rate_limiter) { instance_double("ServerRateLimiter") }
 
     it "reschedules the job without consuming an attempt" do
-      allow(rate_limiter).to receive(:reserve).with("456", at: Time.utc(2026, 4, 25, 18, 1, 0)).and_return(Time.utc(2026, 4, 25, 18, 2, 0))
+      allow(rate_limiter).to receive(:reserve).with("456",
+                                                    at: Time.utc(2026, 4, 25, 18, 1,
+                                                                 0)).and_return(Time.utc(2026, 4, 25, 18, 2, 0))
       allow(classifier).to receive(:classify)
 
       results = worker.process_due_jobs(as_of: Time.utc(2026, 4, 25, 18, 1, 0))

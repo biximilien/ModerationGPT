@@ -19,7 +19,8 @@ class WatchListStrategy < ModerationStrategy
     event.message.delete(reason)
     outcome = record_infraction(event)
     event.respond(response_message(event.user.id, edited))
-    record_review(event, action: Moderation::ReviewAction::REWRITTEN, rewrite: edited, automod_outcome: outcome_if_automod(outcome))
+    record_review(event, action: Moderation::ReviewAction::REWRITTEN, rewrite: edited,
+                         automod_outcome: outcome_if_automod(outcome))
   end
 
   private

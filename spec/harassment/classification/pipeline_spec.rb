@@ -58,7 +58,8 @@ describe Harassment::ClassificationPipeline do
     expect(first).to eq(record)
     expect(second).to eq(record)
     expect(interaction_events.find("123", server_id: "456").classification_status).to eq(Harassment::ClassificationStatus::CLASSIFIED)
-    expect(classification_jobs.find(server_id: "456", message_id: "123", classifier_version: "harassment-v1").status).to eq(Harassment::ClassificationStatus::CLASSIFIED)
+    expect(classification_jobs.find(server_id: "456", message_id: "123",
+                                    classifier_version: "harassment-v1").status).to eq(Harassment::ClassificationStatus::CLASSIFIED)
   end
 
   it "records retryable failures with attempt tracking" do

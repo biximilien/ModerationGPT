@@ -21,7 +21,8 @@ describe GoogleAI::Transport do
 
   it "delegates generateContent calls to shared JSON transport" do
     user = instance_double("User")
-    result = described_class.new(api_key: "google-key").generate_content(model: "gemini-test", payload: { contents: [] }, user:)
+    result = described_class.new(api_key: "google-key").generate_content(model: "gemini-test",
+                                                                         payload: { contents: [] }, user:)
 
     expect(result).to eq("ok" => true)
     expect(json_transport).to have_received(:post).with(

@@ -28,7 +28,8 @@ module Harassment
       end
 
       def save(job)
-        @redis.hset(@key, classification_key(job.server_id, job.message_id, job.classifier_version), JSON.generate(serialize_job(job)))
+        @redis.hset(@key, classification_key(job.server_id, job.message_id, job.classifier_version),
+                    JSON.generate(serialize_job(job)))
         job
       end
 

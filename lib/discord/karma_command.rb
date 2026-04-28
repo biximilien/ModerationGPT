@@ -45,7 +45,8 @@ module Discord
     def set_karma(event, match)
       return event.respond(@usage) unless match[:user_id] && signed_amount(match)
 
-      karma = @store.set_user_karma(event.server.id, match[:user_id].to_i, signed_amount(match), actor_id: event.user.id)
+      karma = @store.set_user_karma(event.server.id, match[:user_id].to_i, signed_amount(match),
+                                    actor_id: event.user.id)
       event.respond("Karma for <@#{match[:user_id]}> set to #{karma}")
     end
 

@@ -99,7 +99,11 @@ describe ModerationGPT::Plugins::HarassmentCommand do
     command.handle(event)
 
     expect(event).to have_received(:respond).with(
-      "Harassment relationship <@456> -> <@789>\nHostility: 0.50\nScore version: harassment-score-v1\nInteractions: 3\nLast seen: 2026-04-25T16:00:00Z"
+      "Harassment relationship <@456> -> <@789>\n" \
+      "Hostility: 0.50\n" \
+      "Score version: harassment-score-v1\n" \
+      "Interactions: 3\n" \
+      "Last seen: 2026-04-25T16:00:00Z"
     )
   end
 
@@ -111,7 +115,10 @@ describe ModerationGPT::Plugins::HarassmentCommand do
 
     expect(query_service).to have_received(:recent_incidents).with(123, 321, limit: 1, user_id: nil, since: nil)
     expect(event).to have_received(:respond).with(
-      a_string_including("Recent harassment incidents:", "<@456> -> <@789> | aggressive | severity 0.80 | confidence 0.70")
+      a_string_including(
+        "Recent harassment incidents:",
+        "<@456> -> <@789> | aggressive | severity 0.80 | confidence 0.70"
+      )
     )
   end
 
@@ -200,7 +207,13 @@ describe ModerationGPT::Plugins::HarassmentCommand do
 
   it "responds with time-windowed empty state for a user" do
     allow(query_service).to receive(:recent_incidents).and_return(
-      Harassment::RecentIncidentsReport.build(server_id: "123", channel_id: "321", user_id: "456", since: Time.utc(2026, 4, 25, 15, 0, 0), incidents: [])
+      Harassment::RecentIncidentsReport.build(
+        server_id: "123",
+        channel_id: "321",
+        user_id: "456",
+        since: Time.utc(2026, 4, 25, 15, 0, 0),
+        incidents: []
+      )
     )
     message = instance_double("Message", content: "!moderation harassment incidents <@456> 24h")
     allow(event).to receive(:message).and_return(message)
@@ -208,7 +221,9 @@ describe ModerationGPT::Plugins::HarassmentCommand do
 
     command.handle(event)
 
-    expect(event).to have_received(:respond).with("No recent harassment incidents for <@456> in the last 24h in this channel")
+    expect(event).to have_received(:respond).with(
+      "No recent harassment incidents for <@456> in the last 24h in this channel"
+    )
   end
 
   it "accepts a user, limit, and window in flexible order" do
@@ -246,7 +261,9 @@ describe ModerationGPT::Plugins::HarassmentCommand do
       user_id: "456",
       since: Time.utc(2026, 4, 25, 15, 0, 0)
     )
-    expect(event).to have_received(:respond).with(a_string_including("Recent harassment incidents for <@456> in the last 24h:"))
+    expect(event).to have_received(:respond).with(
+      a_string_including("Recent harassment incidents for <@456> in the last 24h:")
+    )
   end
 
   it "does not match incidents commands with duplicate window tokens" do

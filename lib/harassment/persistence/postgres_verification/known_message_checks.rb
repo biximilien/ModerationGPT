@@ -6,7 +6,8 @@ module Harassment
     class KnownMessageChecks
       include PostgresVerificationHelpers
 
-      def initialize(redis:, interaction_event_repository:, classification_record_repository:, classification_job_repository:)
+      def initialize(redis:, interaction_event_repository:, classification_record_repository:,
+                     classification_job_repository:)
         @redis = redis
         @interaction_event_repository = interaction_event_repository
         @classification_record_repository = classification_record_repository

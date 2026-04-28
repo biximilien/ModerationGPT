@@ -25,7 +25,10 @@ describe Harassment::Repositories::PostgresInteractionEventRepository do
   it "rejects duplicate interaction events" do
     repository.save(event)
 
-    expect { repository.save(event) }.to raise_error(ArgumentError, "interaction event already exists for server_id=456 message_id=123")
+    expect {
+      repository.save(event)
+    }.to raise_error(ArgumentError,
+                     "interaction event already exists for server_id=456 message_id=123")
   end
 
   it "scopes lookup and status updates by server" do
@@ -48,7 +51,8 @@ describe Harassment::Repositories::PostgresInteractionEventRepository do
   it "updates classification status immutably" do
     repository.save(event)
 
-    updated = repository.update_classification_status("123", Harassment::ClassificationStatus::CLASSIFIED, server_id: "456")
+    updated = repository.update_classification_status("123", Harassment::ClassificationStatus::CLASSIFIED,
+                                                      server_id: "456")
 
     expect(updated.classification_status).to eq(Harassment::ClassificationStatus::CLASSIFIED)
     expect(repository.find("123", server_id: "456").classification_status).to eq(Harassment::ClassificationStatus::CLASSIFIED)
@@ -81,7 +85,8 @@ describe Harassment::Repositories::PostgresInteractionEventRepository do
     )
 
     expect(
-      repository.recent_in_channel(server_id: "456", channel_id: "789", before: Time.utc(2026, 4, 25, 12, 11, 0), limit: 2).map(&:message_id)
+      repository.recent_in_channel(server_id: "456", channel_id: "789", before: Time.utc(2026, 4, 25, 12, 11, 0),
+                                   limit: 2).map(&:message_id)
     ).to eq(%w[124 125])
     expect(
       repository.recent_between_participants(
@@ -91,9 +96,13 @@ describe Harassment::Repositories::PostgresInteractionEventRepository do
         limit: 2
       ).map(&:message_id)
     ).to eq(%w[124 125])
-    expect(repository.list_by_classification_status(Harassment::ClassificationStatus::PENDING).map(&:message_id)).to eq(%w[123 124 125])
+    expect(
+      repository.list_by_classification_status(Harassment::ClassificationStatus::PENDING).map(&:message_id)
+    ).to eq(%w[123 124 125])
     expect(repository.list_classified_for_server("456")).to eq([])
-    expect(repository.list_with_expired_content(as_of: Time.utc(2026, 4, 27, 12, 0, 0)).map(&:message_id)).to eq(["124"])
+    expect(
+      repository.list_with_expired_content(as_of: Time.utc(2026, 4, 27, 12, 0, 0)).map(&:message_id)
+    ).to eq(["124"])
 
     redacted = repository.redact_content("124", server_id: "456", redacted_at: Time.utc(2026, 4, 27, 12, 0, 0))
     expect(redacted.raw_content).to eq("[REDACTED]")

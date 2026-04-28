@@ -117,12 +117,14 @@ describe ModerationGPT::PluginRegistry do
       registry.message(event: :message, app: :app, bot: :bot)
       registry.moderation_result(event: :event, result: :result, app: :app, strategy: "Strategy")
       registry.infraction(event: :event, score: -1, app: :app, strategy: "Strategy")
-      registry.automod_outcome(event: :event, score: -5, outcome: "automod_timeout_applied", app: :app, strategy: "Strategy")
+      registry.automod_outcome(event: :event, score: -5, outcome: "automod_timeout_applied", app: :app,
+                               strategy: "Strategy")
 
       expect(plugin).to have_received(:boot).with(app: :app)
       expect(plugin).to have_received(:ready).with(event: :ready, app: :app, bot: :bot)
       expect(plugin).to have_received(:message).with(event: :message, app: :app, bot: :bot)
-      expect(plugin).to have_received(:moderation_result).with(event: :event, result: :result, app: :app, strategy: "Strategy")
+      expect(plugin).to have_received(:moderation_result).with(event: :event, result: :result, app: :app,
+                                                               strategy: "Strategy")
       expect(plugin).to have_received(:infraction).with(event: :event, score: -1, app: :app, strategy: "Strategy")
       expect(plugin).to have_received(:automod_outcome).with(
         event: :event,

@@ -40,7 +40,8 @@ describe Harassment::Repositories::PostgresClassificationJobRepository do
 
   it "persists updates to job state" do
     repository.enqueue_unique(pending_job)
-    updated = pending_job.with_status(Harassment::ClassificationStatus::CLASSIFIED, updated_at: Time.utc(2026, 4, 25, 15, 1, 0))
+    updated = pending_job.with_status(Harassment::ClassificationStatus::CLASSIFIED,
+                                      updated_at: Time.utc(2026, 4, 25, 15, 1, 0))
 
     repository.save(updated)
 

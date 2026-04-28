@@ -21,7 +21,11 @@ puts "Harassment Postgres verification"
 summary.each do |name, counts|
   next if %i[spot_checks relationship_edges].include?(name)
 
-  puts "- #{name}: redis_total=#{counts[:redis_total]} postgres_total=#{counts[:postgres_total]} matches=#{counts[:matches]}"
+  puts [
+    "- #{name}: redis_total=#{counts[:redis_total]}",
+    "postgres_total=#{counts[:postgres_total]}",
+    "matches=#{counts[:matches]}"
+  ].join(" ")
   counts[:redis_by_server].each do |server_id, redis_count|
     postgres_count = counts[:postgres_by_server].fetch(server_id, 0)
     puts "  - server #{server_id}: redis=#{redis_count} postgres=#{postgres_count}"
@@ -48,7 +52,11 @@ unless message_ids.empty?
     puts "- message #{message_id}"
     details.each do |name, verification|
       if verification.key?(:entries)
-        puts "  - #{name}: found_in_redis=#{verification[:found_in_redis]} found_in_postgres=#{verification[:found_in_postgres]} matches=#{verification[:matches]}"
+        puts [
+          "  - #{name}: found_in_redis=#{verification[:found_in_redis]}",
+          "found_in_postgres=#{verification[:found_in_postgres]}",
+          "matches=#{verification[:matches]}"
+        ].join(" ")
         verification[:entries].each do |entry|
           puts "    - entry: #{entry}"
         end

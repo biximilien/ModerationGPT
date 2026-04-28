@@ -16,7 +16,8 @@ module Harassment
       def save(event)
         key = interaction_event_key(event.server_id, event.message_id)
         if @redis.hget(@key, key)
-          raise ArgumentError, "interaction event already exists for server_id=#{event.server_id} message_id=#{event.message_id}"
+          raise ArgumentError,
+                "interaction event already exists for server_id=#{event.server_id} message_id=#{event.message_id}"
         end
 
         @redis.hset(@key, key, JSON.generate(serialize_event(event)))
@@ -33,7 +34,8 @@ module Harassment
         return nil unless event
 
         updated = event.with_classification_status(status)
-        @redis.hset(@key, interaction_event_key(updated.server_id, updated.message_id), JSON.generate(serialize_event(updated)))
+        @redis.hset(@key, interaction_event_key(updated.server_id, updated.message_id),
+                    JSON.generate(serialize_event(updated)))
         updated
       end
 
@@ -64,7 +66,8 @@ module Harassment
         return nil unless event
 
         redacted = event.redact_content(redacted_at:)
-        @redis.hset(@key, interaction_event_key(redacted.server_id, redacted.message_id), JSON.generate(serialize_event(redacted)))
+        @redis.hset(@key, interaction_event_key(redacted.server_id, redacted.message_id),
+                    JSON.generate(serialize_event(redacted)))
         redacted
       end
 

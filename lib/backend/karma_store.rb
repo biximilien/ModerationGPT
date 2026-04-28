@@ -27,7 +27,8 @@ module Backend
       @redis.eval(
         RedisScripts::SET_KARMA_WITH_AUDIT,
         keys: [DataModel::Keys.karma(server_id), DataModel::Keys.karma_history(server_id, user_id)],
-        argv: [user_id.to_s, validated_score, source, optional_redis_arg(actor_id), optional_redis_arg(reason), created_at, KARMA_AUDIT_LIMIT]
+        argv: [user_id.to_s, validated_score, source, optional_redis_arg(actor_id), optional_redis_arg(reason),
+               created_at, KARMA_AUDIT_LIMIT]
       )
     end
 
@@ -38,7 +39,8 @@ module Backend
       @redis.eval(
         RedisScripts::RECORD_KARMA_EVENT,
         keys: [DataModel::Keys.karma_history(server_id, user_id)],
-        argv: [validated_score, validated_delta, source, created_at, optional_redis_arg(actor_id), optional_redis_arg(reason), KARMA_AUDIT_LIMIT]
+        argv: [validated_score, validated_delta, source, created_at, optional_redis_arg(actor_id),
+               optional_redis_arg(reason), KARMA_AUDIT_LIMIT]
       )
     end
 
@@ -56,7 +58,8 @@ module Backend
       @redis.eval(
         RedisScripts::INCREMENT_KARMA_WITH_AUDIT,
         keys: [DataModel::Keys.karma(server_id), DataModel::Keys.karma_history(server_id, user_id)],
-        argv: [user_id.to_s, delta.to_i, source, optional_redis_arg(actor_id), optional_redis_arg(reason), created_at, KARMA_AUDIT_LIMIT]
+        argv: [user_id.to_s, delta.to_i, source, optional_redis_arg(actor_id), optional_redis_arg(reason), created_at,
+               KARMA_AUDIT_LIMIT]
       )
     end
 

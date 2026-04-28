@@ -115,7 +115,8 @@ describe Harassment::ReadModel do
 
     expect(first).to eq(second)
     expect(read_model.recent_incidents("456", "789").length).to eq(1)
-    expect(read_model.get_pair_relationship("456", "321", "654", as_of: record.classified_at).interaction_count).to eq(1)
+    expect(read_model.get_pair_relationship("456", "321", "654",
+                                            as_of: record.classified_at).interaction_count).to eq(1)
     expect(read_model.get_user_risk("456", "321", as_of: record.classified_at)).to eq(0.4)
   end
 end

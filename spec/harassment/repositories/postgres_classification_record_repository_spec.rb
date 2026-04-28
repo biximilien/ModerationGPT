@@ -35,14 +35,18 @@ describe Harassment::Repositories::PostgresClassificationRecordRepository do
   it "stores and retrieves records by message id and classifier version" do
     repository.save(first_record)
 
-    expect(repository.find(server_id: "456", message_id: "123", classifier_version: "harassment-v1")).to eq(first_record)
+    expect(repository.find(server_id: "456", message_id: "123",
+                           classifier_version: "harassment-v1")).to eq(first_record)
   end
 
   it "rejects duplicates and supports historical lookup" do
     repository.save(first_record)
     repository.save(second_record)
 
-    expect { repository.save(first_record) }.to raise_error(ArgumentError, "classification record already exists for 456:123:harassment-v1")
+    expect {
+      repository.save(first_record)
+    }.to raise_error(ArgumentError,
+                     "classification record already exists for 456:123:harassment-v1")
     expect(repository.all_for_message(server_id: "456", message_id: "123")).to eq([first_record, second_record])
     expect(repository.latest_for_message(server_id: "456", message_id: "123")).to eq(second_record)
   end

@@ -28,24 +28,37 @@ describe Harassment::Repositories::InteractionEventRepository do
   end
 
   it "requires subclasses to implement #list_by_classification_status" do
-    expect { repository.list_by_classification_status(Harassment::ClassificationStatus::PENDING) }.to raise_error(NotImplementedError, /must implement #list_by_classification_status/)
+    expect {
+      repository.list_by_classification_status(Harassment::ClassificationStatus::PENDING)
+    }.to raise_error(
+      NotImplementedError, /must implement #list_by_classification_status/
+    )
   end
 
   it "requires subclasses to implement #list_classified_for_server" do
-    expect { repository.list_classified_for_server("456") }.to raise_error(NotImplementedError, /must implement #list_classified_for_server/)
+    expect {
+      repository.list_classified_for_server("456")
+    }.to raise_error(NotImplementedError,
+                     /must implement #list_classified_for_server/)
   end
 
   it "requires subclasses to implement #list_with_expired_content" do
-    expect { repository.list_with_expired_content }.to raise_error(NotImplementedError, /must implement #list_with_expired_content/)
+    expect {
+      repository.list_with_expired_content
+    }.to raise_error(NotImplementedError, /must implement #list_with_expired_content/)
   end
 
   it "requires subclasses to implement #redact_content" do
-    expect { repository.redact_content("123", server_id: "456") }.to raise_error(NotImplementedError, /must implement #redact_content/)
+    expect {
+      repository.redact_content("123",
+                                server_id: "456")
+    }.to raise_error(NotImplementedError, /must implement #redact_content/)
   end
 
   it "requires subclasses to implement #recent_in_channel" do
     expect do
-      repository.recent_in_channel(server_id: "456", channel_id: "789", before: Time.utc(2026, 4, 25, 12, 0, 0), limit: 2)
+      repository.recent_in_channel(server_id: "456", channel_id: "789", before: Time.utc(2026, 4, 25, 12, 0, 0),
+                                   limit: 2)
     end.to raise_error(NotImplementedError, /must implement #recent_in_channel/)
   end
 
