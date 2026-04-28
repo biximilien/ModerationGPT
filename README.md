@@ -158,6 +158,13 @@ GOOGLE_AI_API_KEY=my_google_ai_secret
 GOOGLE_AI_MODEL=gemini-2.5-flash
 ```
 
+AI provider configuration:
+
+| Provider | Plugin | Required key | Model settings | Default classifier model |
+| --- | --- | --- | --- | --- |
+| OpenAI | `openai` or default | `OPENAI_API_KEY` | `OPENAI_MODERATION_MODEL`, `OPENAI_REWRITE_MODEL`, `HARASSMENT_CLASSIFIER_MODEL` | `gpt-4o-2024-08-06` |
+| Google AI | `google_ai` | `GOOGLE_AI_API_KEY` | `GOOGLE_AI_MODEL`, `HARASSMENT_CLASSIFIER_MODEL` | `GOOGLE_AI_MODEL` |
+
 External AI backend plugins can provide the same provider methods (`moderate_text`, `moderation_rewrite`, `generate_structured`, `query`, and `response_text`) and assign that provider during `boot`.
 
 When the `harassment` plugin is enabled, the bot passively captures interaction events, enqueues harassment classification work, and records classified incidents in a harassment read model without applying automated enforcement.

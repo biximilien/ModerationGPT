@@ -1,4 +1,5 @@
 require "dotenv"
+require_relative "lib/ai/provider_config"
 Dotenv.load
 
 module Environment
@@ -6,11 +7,6 @@ module Environment
     DISCORD_BOT_TOKEN
     REDIS_URL
   ].freeze
-  AI_PROVIDER_API_KEYS = {
-    "openai" => "OPENAI_API_KEY",
-    "google_ai" => "GOOGLE_AI_API_KEY",
-  }.freeze
-
   DEFAULT_OPENAI_MODERATION_MODEL = "omni-moderation-latest"
   DEFAULT_OPENAI_REWRITE_MODEL = "gpt-4.1-mini"
   DEFAULT_GOOGLE_AI_MODEL = "gemini-2.5-flash"
@@ -20,7 +16,6 @@ module Environment
   DEFAULT_KARMA_TIMEOUT_SECONDS = 3_600
   DEFAULT_PERSONALITY = "objective"
   DEFAULT_LOG_FORMAT = "json"
-  DEFAULT_HARASSMENT_CLASSIFIER_MODEL = "gpt-4o-2024-08-06"
   DEFAULT_HARASSMENT_CLASSIFIER_CACHE_TTL_SECONDS = 3_600
   DEFAULT_HARASSMENT_CLASSIFIER_RATE_LIMIT_PER_MINUTE = 30
   DEFAULT_HARASSMENT_STORAGE_BACKEND = "redis"
@@ -108,9 +103,8 @@ module Environment
 
   def self.harassment_classifier_model
     return ENV["HARASSMENT_CLASSIFIER_MODEL"] unless missing?(ENV["HARASSMENT_CLASSIFIER_MODEL"])
-    return google_ai_model if effective_ai_provider == "google_ai"
 
-    DEFAULT_HARASSMENT_CLASSIFIER_MODEL
+    ai_provider_config.classifier_model
   end
 
   def self.harassment_classifier_cache_ttl_seconds
@@ -130,17 +124,13 @@ module Environment
     value.nil? || value.strip.empty?
   end
 
-  def self.effective_ai_provider
-    enabled_plugins.reverse_each do |plugin|
-      return plugin if AI_PROVIDER_API_KEYS.key?(plugin)
-    end
-
-    "openai"
-  end
-
   def self.ai_api_key_variable
-    AI_PROVIDER_API_KEYS.fetch(effective_ai_provider)
+    ai_provider_config.api_key_variable
   end
 
-  private_class_method :missing?, :effective_ai_provider, :ai_api_key_variable
+  def self.ai_provider_config
+    ModerationGPT::AI::ProviderConfig.new(enabled_plugins:)
+  end
+
+  private_class_method :missing?, :ai_api_key_variable, :ai_provider_config
 end
