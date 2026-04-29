@@ -101,6 +101,7 @@ describe ModerationGPT::PluginRegistry do
         "Plugin",
         boot: true,
         ready: true,
+        shutdown: true,
         message: true,
         moderation_result: true,
         infraction: true,
@@ -114,6 +115,7 @@ describe ModerationGPT::PluginRegistry do
 
       registry.boot(app: :app)
       registry.ready(event: :ready, app: :app, bot: :bot)
+      registry.shutdown(app: :app, bot: :bot)
       registry.message(event: :message, app: :app, bot: :bot)
       registry.moderation_result(event: :event, result: :result, app: :app, strategy: "Strategy")
       registry.infraction(event: :event, score: -1, app: :app, strategy: "Strategy")
@@ -122,6 +124,7 @@ describe ModerationGPT::PluginRegistry do
 
       expect(plugin).to have_received(:boot).with(app: :app)
       expect(plugin).to have_received(:ready).with(event: :ready, app: :app, bot: :bot)
+      expect(plugin).to have_received(:shutdown).with(app: :app, bot: :bot)
       expect(plugin).to have_received(:message).with(event: :message, app: :app, bot: :bot)
       expect(plugin).to have_received(:moderation_result).with(event: :event, result: :result, app: :app,
                                                                strategy: "Strategy")

@@ -4,6 +4,8 @@ module ModerationGPT
 
     def ready(**); end
 
+    def shutdown(**); end
+
     def message(**); end
 
     def moderation_result(**); end

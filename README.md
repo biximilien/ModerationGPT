@@ -217,7 +217,7 @@ External AI backend plugins can provide the same provider methods (`moderate_tex
 
 When the `harassment` plugin is enabled, the bot passively captures interaction events, enqueues harassment classification work, and records classified incidents in a harassment read model without applying automated enforcement.
 
-In the current implementation, the core platform owns the harassment runtime: Discord message ingestion, backend-owned event and job storage, transient context assembly, classifier-output caching, per-server rate limiting, and background classification processing. The harassment plugin composes the harassment classification service, query service, read model, and Discord command output without applying automated enforcement.
+The harassment plugin owns its runtime: Discord message ingestion, backend-owned event and job storage, transient context assembly, classifier-output caching, per-server rate limiting, and background classification processing. It composes the harassment classification service, query service, read model, worker lifecycle, and Discord command output without applying automated enforcement.
 
 `HARASSMENT_STORAGE_BACKEND=postgres` routes the harassment runtime through Postgres-backed repositories for interaction events, classification records, classification jobs, classifier cache entries, per-server rate-limit buckets, and persisted relationship-edge projections. Enable the shared database capability with the `postgres` plugin:
 

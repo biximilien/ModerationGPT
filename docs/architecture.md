@@ -4,14 +4,13 @@ This document gives a quick map of the main runtime pieces in ModerationGPT and 
 
 ## Runtime Flow
 
-At startup, [bot.rb](../bot.rb) does six main things:
+At startup, [bot.rb](../bot.rb) does five main things:
 
 1. Validates environment configuration.
-2. Builds the plugin registry from `PLUGIN_REQUIRES` and `PLUGINS`.
-3. Boots enabled plugins.
-4. Creates the Discord bot and shared application object.
-5. Creates the harassment runtime when the harassment plugin is enabled.
-6. Wires moderation strategies, admin commands, and ready handlers.
+2. Creates the Discord bot and shared application object.
+3. Builds the plugin registry from `PLUGIN_REQUIRES` and `PLUGINS`.
+4. Boots enabled plugins.
+5. Wires moderation strategies, admin commands, and ready handlers.
 
 The shared application object lives in [lib/application.rb](../lib/application.rb). It mixes together:
 
@@ -28,8 +27,8 @@ Postgres is intentionally not part of the shared application object. When databa
 Incoming Discord messages flow through [bot.rb](../bot.rb) like this:
 
 1. Ignore bot-authored messages.
-2. If enabled, hand the Discord event to the platform-owned harassment runtime for passive interaction ingestion.
-3. Notify enabled plugins through the `message` hook.
+2. Notify enabled plugins through the `message` hook.
+3. Enabled plugins can observe or capture the event, such as the harassment plugin's passive interaction ingestion.
 4. Log a privacy-safe message receipt entry using anonymized user IDs.
 5. If the message matches the admin command surface, dispatch to [lib/discord/moderation_command.rb](../lib/discord/moderation_command.rb).
 6. Otherwise, hand the event to [lib/moderation/message_router.rb](../lib/moderation/message_router.rb).
@@ -93,20 +92,21 @@ See [docs/data-model.md](./data-model.md) for the exact Redis structures and fie
 
 ## Harassment Pipeline
 
-The harassment pipeline is split between a platform runtime and plugin-composed classification and query services.
+The harassment pipeline is owned by the optional harassment plugin and composed from reusable domain runtime pieces.
 
-Platform-owned runtime pieces:
+Plugin-composed runtime pieces:
 
+- [lib/plugins/harassment_plugin.rb](../lib/plugins/harassment_plugin.rb)
 - [lib/harassment/runtime/runtime.rb](../lib/harassment/runtime/runtime.rb)
+- [lib/harassment/runtime/worker_runner.rb](../lib/harassment/runtime/worker_runner.rb)
 - [lib/harassment/interaction/message_ingestor.rb](../lib/harassment/interaction/message_ingestor.rb)
 - [lib/harassment/classification/pipeline.rb](../lib/harassment/classification/pipeline.rb)
 - [lib/harassment/classification/worker.rb](../lib/harassment/classification/worker.rb)
 - [lib/harassment/interaction/context_assembler.rb](../lib/harassment/interaction/context_assembler.rb)
 - backend-specific repositories under [lib/harassment/repositories](../lib/harassment/repositories)
 
-Plugin-owned pieces:
+Harassment service and query pieces:
 
-- [lib/plugins/harassment_plugin.rb](../lib/plugins/harassment_plugin.rb)
 - [lib/harassment/classification/service.rb](../lib/harassment/classification/service.rb)
 - [lib/harassment/classifier/definition.rb](../lib/harassment/classifier/definition.rb)
 - [lib/harassment/risk/read_model.rb](../lib/harassment/risk/read_model.rb)
@@ -125,7 +125,7 @@ The harassment domain is grouped by responsibility under [lib/harassment](../lib
 
 New code should require harassment-domain files from these grouped paths directly.
 
-The current runtime stores immutable interaction events, enqueues classification jobs keyed by `server_id`, `message_id`, and `classifier_version`, assembles bounded transient context, wraps classifier calls with cache and per-server rate-limit enforcement, and processes due jobs asynchronously on a background thread. The harassment classification service provides the classifier version and the harassment-specific prompt/schema definition used by [lib/harassment/classifier/structured_classifier.rb](../lib/harassment/classifier/structured_classifier.rb). Successful classification records are then handed to the classification service, which updates its idempotent read model. The query service exposes moderator-facing reports from that read model and, when configured, durable incident repositories.
+The harassment plugin builds a runtime that stores immutable interaction events, enqueues classification jobs keyed by `server_id`, `message_id`, and `classifier_version`, assembles bounded transient context, wraps classifier calls with cache and per-server rate-limit enforcement, and processes due jobs asynchronously on a background thread. The harassment classification service provides the classifier version and the harassment-specific prompt/schema definition used by [lib/harassment/classifier/structured_classifier.rb](../lib/harassment/classifier/structured_classifier.rb). Successful classification records are then handed to the classification service, which updates its idempotent read model. The query service exposes moderator-facing reports from that read model and, when configured, durable incident repositories.
 
 Classifier cache keys are derived from server scope, classifier version, classifier prompt/schema identity, and normalized message/context input. When a server exceeds the configured classifier call budget, the runtime defers the job forward without consuming a retry attempt.
 
@@ -167,7 +167,7 @@ Plugins can be:
 
 Current hook types include:
 
-- lifecycle hooks: `boot`, `ready`, `message`
+- lifecycle hooks: `boot`, `ready`, `shutdown`, `message`
 - moderation observation hooks: `moderation_result`, `infraction`, `automod_outcome`
 - behavior hooks: `rewrite_instructions`, `moderation_strategies`
 - command contribution hook: `commands`

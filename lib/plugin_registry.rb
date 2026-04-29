@@ -49,6 +49,10 @@ module ModerationGPT
       each_plugin(:ready, **context)
     end
 
+    def shutdown(**context)
+      each_plugin(:shutdown, **context)
+    end
+
     def message(**context)
       each_plugin(:message, **context)
     end

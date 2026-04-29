@@ -28,7 +28,7 @@ _Current application_:
 - `OpenAIPlugin` exposes the default AI provider for moderation, rewrites, and structured classifier calls.
 - `GoogleAIPlugin` exposes an optional Gemini-backed AI provider with the same application-facing provider interface.
 - `TelemetryPlugin` owns OpenTelemetry setup.
-- `HarassmentPlugin` obtains Postgres-backed repositories through plugin composition when `HARASSMENT_STORAGE_BACKEND=postgres`.
+- `HarassmentPlugin` owns its runtime and background worker lifecycle, and obtains Postgres-backed repositories through plugin composition when `HARASSMENT_STORAGE_BACKEND=postgres`.
 - The base application still owns Redis-backed moderation state and delegates AI helper methods to the configured provider.
 
 _Boot behavior_:
